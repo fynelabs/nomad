@@ -1,11 +1,7 @@
 package main
 
 import (
-	"bufio"
 	"image/color"
-	"io/ioutil"
-	"log"
-	"os"
 	"time"
 
 	"fyne.io/fyne/v2"
@@ -23,18 +19,7 @@ func (m myTheme) Color(name fyne.ThemeColorName, variant fyne.ThemeVariant) colo
 
 func (m myTheme) Font(style fyne.TextStyle) fyne.Resource {
 
-	fontFile, err := os.Open("static/fonts/Poppins-BoldItalic.ttf")
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	r := bufio.NewReader(fontFile)
-
-	bytes, err := ioutil.ReadAll(r)
-	if err != nil {
-		log.Fatal(err)
-	}
-	return fyne.NewStaticResource("mainFont", bytes)
+	return resourceStaticFontsPoppinsBoldItalicTtf
 }
 
 func (m myTheme) Icon(name fyne.ThemeIconName) fyne.Resource {
