@@ -15,7 +15,7 @@ func main() {
 	w := a.NewWindow("Nomad")
 	ui := &nomad{main: w}
 
-	splash := ui.makeSplash()
+	splash := ui.makeSplash(a)
 	w.SetContent(container.NewMax(ui.makeHome(), splash))
 	w.SetPadded(false)
 	w.Resize(fyne.NewSize(240, 360))
