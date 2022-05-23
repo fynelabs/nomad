@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"time"
 
 	"fyne.io/fyne/v2"
@@ -45,4 +46,13 @@ func (l *location) CreateRenderer() fyne.WidgetRenderer {
 		container.NewBorder(nil,
 			container.NewVBox(city, location, input), nil, nil))
 	return widget.NewSimpleRenderer(c)
+}
+
+func listTimes() (times []string) {
+	for hour := 0; hour < 24; hour++ {
+		times = append(times,
+			fmt.Sprintf("%02d:00", hour), fmt.Sprintf("%02d:15", hour),
+			fmt.Sprintf("%02d:30", hour), fmt.Sprintf("%02d:45", hour))
+	}
+	return times
 }

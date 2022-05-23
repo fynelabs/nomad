@@ -3,7 +3,6 @@
 package main
 
 import (
-	"fmt"
 	"time"
 
 	"fyne.io/fyne/v2"
@@ -27,13 +26,4 @@ func (n *nomad) makeHome() fyne.CanvasObject {
 
 	return container.New(&nomadLayout{},
 		cell, n.makeAddCell())
-}
-
-func listTimes() (times []string) {
-	for hour := 0; hour < 24; hour++ {
-		times = append(times,
-			fmt.Sprintf("%2d:00", hour), fmt.Sprintf("%2d:15", hour),
-			fmt.Sprintf("%2d:30", hour), fmt.Sprintf("%2d:45", hour))
-	}
-	return times
 }
