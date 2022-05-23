@@ -22,7 +22,7 @@ func (n *nomad) makeAddCell() fyne.CanvasObject {
 }
 
 func (n *nomad) makeHome() fyne.CanvasObject {
-	return container.NewGridWithColumns(1,
+	return container.New(&nomadLayout{},
 		n.makeLocationCell(), n.makeAddCell())
 }
 
