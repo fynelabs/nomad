@@ -4,9 +4,9 @@ package main
 
 import (
 	"fmt"
+	"time"
 
 	"fyne.io/fyne/v2"
-	"fyne.io/fyne/v2/canvas"
 	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/theme"
 	"fyne.io/fyne/v2/widget"
@@ -27,20 +27,9 @@ func (n *nomad) makeHome() fyne.CanvasObject {
 }
 
 func (n *nomad) makeLocationCell() fyne.CanvasObject {
-	bg := canvas.NewImageFromResource(theme.FileImageIcon())
-	bg.Translucency = 0.5
-	city := widget.NewRichTextFromMarkdown("# Edinburgh")
-	location := widget.NewRichTextFromMarkdown("## United Kingdom · BST")
-	date := widget.NewSelect([]string{}, func(string) {})
-	date.PlaceHolder = "Sun 01 May"
-	time := widget.NewSelect(listTimes(), func(string) {})
-	time.PlaceHolder = "22:00"
-	time.SetSelected("13:00")
-	input := container.NewBorder(nil, nil, date, time)
-
-	return container.NewMax(bg,
-		container.NewBorder(nil,
-			container.NewVBox(city, location, input), nil, nil))
+	zone, _ := time.LoadLocation("Europe/London")
+	l := newLocation("Edinburgh", "United Kingdom", zone)
+	return l.makeUI()
 }
 
 func listTimes() (times []string) {
