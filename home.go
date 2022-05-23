@@ -8,7 +8,9 @@ import (
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/container"
-	"fyne.io/fyne/v2/widget"
+
+	//"fyne.io/fyne/v2/widget"
+	"fyne.io/x/fyne/widget"
 )
 
 type GeoDBdata struct {
@@ -39,25 +41,69 @@ func getJson(url string, target interface{}) error {
 	return json.NewDecoder(r.Body).Decode(target)
 }
 
-func (n *nomad) makeHome() fyne.CanvasObject {
+func geoDBAPI(s string) {
+	url := "http://geodb-free-service.wirefreethought.com//v1/geo/cities?limit=5&offset=0&namePrefix="
+	url += s
 
-	input := widget.NewEntry()
-	input.SetPlaceHolder("Add a Place")
+	data := &GeoDBdata{}
+	getJson(url, data)
 
-	input.OnChanged = func(s string) {
-		url := "http://geodb-free-service.wirefreethought.com//v1/geo/cities?limit=5&offset=0&namePrefix="
-		url += s
+	for i := 0; i < len(data.Data); i++ {
+		fmt.Println(data.Data[i].Name)
+	}
+}
 
-		data := &GeoDBdata{}
-		getJson(url, data)
+func autoCompleteEntry() *widget.CompletionEntry {
+	entry := widget.NewCompletionEntry([]string{})
+	entry.SetPlaceHolder("Add a Place")
 
-		for i := 0; i < len(data.Data); i++ {
-			fmt.Println(data.Data[i].Name)
+	entry.OnChanged = func(s string) {
+		// completion start for text length >= 2 Some cities have two letter names
+		if len(s) < 2 {
+			entry.HideCompletion()
+			return
 		}
+
+		//Get the list of possible completion
+		c := []City{}
+
+		if len(s) < 2 {
+			return
+		}
+
+		for _, value := range cities {
+
+			if len(value.City) < len(s) {
+				continue
+			}
+
+			if s == value.City[:len(s)] {
+				c = append(c, value)
+			}
+		}
+
+		// no results
+		if len(c) == 0 {
+			entry.HideCompletion()
+			return
+		}
+
+		results := []string{}
+		for _, value := range c {
+			results = append(results, value.City)
+		}
+
+		// then show them
+		entry.SetOptions(results)
+		entry.ShowCompletion()
 	}
 
-	c := container.NewVBox(widget.NewLabel("Home"),
-		input)
+	return entry
+}
+
+func (n *nomad) makeHome() fyne.CanvasObject {
+
+	c := container.NewVBox(autoCompleteEntry())
 
 	return c
 }
