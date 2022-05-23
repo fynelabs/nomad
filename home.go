@@ -22,14 +22,11 @@ func (n *nomad) makeAddCell() fyne.CanvasObject {
 }
 
 func (n *nomad) makeHome() fyne.CanvasObject {
-	return container.New(&nomadLayout{},
-		n.makeLocationCell(), n.makeAddCell())
-}
-
-func (n *nomad) makeLocationCell() fyne.CanvasObject {
 	zone, _ := time.LoadLocation("Europe/London")
-	l := newLocation("Edinburgh", "United Kingdom", zone)
-	return l.makeUI()
+	cell := newLocation("Edinburgh", "United Kingdom", zone)
+
+	return container.New(&nomadLayout{},
+		cell, n.makeAddCell())
 }
 
 func listTimes() (times []string) {
