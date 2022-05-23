@@ -12,25 +12,28 @@ import (
 
 type location struct {
 	name, country string
-	zone          *time.Location
+	localTime     time.Time
 
-	date, time *widget.Select
+	date *widget.Select
+	time *widget.SelectEntry
 }
 
 func newLocation(name, country string, z *time.Location) *location {
-	return &location{name: name, country: country, zone: z}
+	t := time.Now().In(z)
+	return &location{name: name, country: country, localTime: t}
 }
 
 func (l *location) makeUI() fyne.CanvasObject {
 	bg := canvas.NewImageFromResource(theme.FileImageIcon())
 	bg.Translucency = 0.5
 	city := widget.NewRichTextFromMarkdown("# " + l.name)
-	location := widget.NewRichTextFromMarkdown("## " + l.country + " · " + l.zone.String())
+	location := widget.NewRichTextFromMarkdown("## " + l.country + " · " + l.localTime.Format("MST"))
 	l.date = widget.NewSelect([]string{}, func(string) {})
-	l.date.PlaceHolder = "Sun 01 May"
-	l.time = widget.NewSelect(listTimes(), func(string) {})
+	l.date.PlaceHolder = l.localTime.Format("Mon 02 Jan")
+	l.time = widget.NewSelectEntry(listTimes())
 	l.time.PlaceHolder = "22:00" // longest
-	l.time.SetSelected("13:00")
+	l.time.Wrapping = fyne.TextWrapOff
+	l.time.SetText(l.localTime.Format("15:04"))
 	input := container.NewBorder(nil, nil, l.date, l.time)
 
 	return container.NewMax(bg,
