@@ -18,7 +18,7 @@ func main() {
 	splash := ui.makeSplash(a)
 	w.SetContent(container.NewMax(ui.makeHome(), splash))
 	w.SetPadded(false)
-	w.Resize(fyne.NewSize(240, 360))
+	w.Resize(fyne.NewSize(300, 500))
 
 	go ui.fadeSplash(splash)
 	w.ShowAndRun()
