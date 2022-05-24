@@ -16,10 +16,13 @@ func main() {
 	ui := &nomad{main: w}
 
 	splash := ui.makeSplash(a)
-	w.SetContent(container.NewMax(ui.makeHome(), splash))
+	home := ui.makeHome()
+	w.SetContent(container.NewMax(home, splash))
 	w.SetPadded(false)
 	w.Resize(fyne.NewSize(300, 500))
 
-	go ui.fadeSplash(splash)
+	splashFadeTime := 5
+	go ui.fadeSplash(splash, splashFadeTime)
+	go ui.showHome(home, splashFadeTime)
 	w.ShowAndRun()
 }
