@@ -15,14 +15,14 @@ func main() {
 	w := a.NewWindow("Nomad")
 	ui := &nomad{main: w}
 
-	splash := ui.makeSplash(a)
-	home := ui.makeHome()
-	w.SetContent(container.NewMax(home, splash))
+	var _ fyne.Theme = (*myTheme)(nil)
+	a.Settings().SetTheme(&myTheme{})
+
+	splash := ui.makeSplash()
+	w.SetContent(container.NewMax(ui.makeHome(), splash))
 	w.SetPadded(false)
 	w.Resize(fyne.NewSize(300, 500))
 
-	splashFadeTime := 5
-	go ui.fadeSplash(splash, splashFadeTime)
-	go ui.showHome(home, splashFadeTime)
+	go ui.fadeSplash(splash)
 	w.ShowAndRun()
 }
