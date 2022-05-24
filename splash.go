@@ -19,7 +19,7 @@ func (m myTheme) Color(name fyne.ThemeColorName, variant fyne.ThemeVariant) colo
 
 func (m myTheme) Font(style fyne.TextStyle) fyne.Resource {
 
-	return resourceStaticFontsPoppinsBoldItalicTtf
+	return resourceOpenSansExtraBoldItalicTtf
 }
 
 func (m myTheme) Icon(name fyne.ThemeIconName) fyne.Resource {
@@ -40,8 +40,8 @@ func (m myTheme) Size(name fyne.ThemeSizeName) float32 {
 
 func (n *nomad) makeSplash(app fyne.App) fyne.CanvasObject {
 
-	text := canvas.NewText("Nomad", color.White)
-	text.TextSize = 42
+	text := canvas.NewText("NOMAD", color.White)
+	text.TextSize = 70
 
 	var _ fyne.Theme = (*myTheme)(nil)
 	app.Settings().SetTheme(&myTheme{})
@@ -50,18 +50,19 @@ func (n *nomad) makeSplash(app fyne.App) fyne.CanvasObject {
 	globe.FillMode = canvas.ImageFillOriginal
 
 	vBox := container.NewVBox(
-		container.NewCenter(text),
 		container.NewCenter(globe),
+		container.NewCenter(text),
 	)
 
 	return container.NewMax(
-		canvas.NewImageFromFile("static/images/splashPlaceholder.png"),
+
+		// canvas.NewImageFromFile("static/images/splashPlaceholder.png"),
 		container.NewCenter(vBox),
 	)
 }
 
 func (n *nomad) fadeSplash(obj fyne.CanvasObject) {
-	time.Sleep(time.Second * 2)
+	time.Sleep(time.Second * 10)
 	obj.Hide()
 	n.main.Content().Refresh()
 }
