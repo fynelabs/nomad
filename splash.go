@@ -8,19 +8,16 @@ import (
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/canvas"
 	"fyne.io/fyne/v2/container"
-	"fyne.io/fyne/v2/storage"
 	xWidget "fyne.io/x/fyne/widget"
 )
 
-func (n *nomad) makeSplash(app fyne.App) fyne.CanvasObject {
+func (n *nomad) makeSplash() fyne.CanvasObject {
 
 	text := canvas.NewText("NOMAD", color.White)
 	text.TextSize = 50
+	text.TextStyle = fyne.TextStyle{Italic: true, Bold: true}
 
-	var _ fyne.Theme = (*myTheme)(nil)
-	app.Settings().SetTheme(&myTheme{})
-
-	gif, err := xWidget.NewAnimatedGif(storage.NewFileURI("./static/images/globeSpinner.gif"))
+	gif, err := xWidget.NewAnimatedGifFromResource(resourceGlobeSpinnerGif)
 	gif.SetMinSize(fyne.NewSize(50, 50))
 	gif.Start()
 
@@ -34,12 +31,13 @@ func (n *nomad) makeSplash(app fyne.App) fyne.CanvasObject {
 	)
 
 	return container.NewMax(
+		canvas.NewRectangle(&color.NRGBA{0x18, 0x0C, 0x27, 0xFF}),
 		container.NewCenter(vBox),
 	)
 }
 
-func (n *nomad) fadeSplash(obj fyne.CanvasObject, splashFadeTime int) {
-	time.Sleep(time.Second * time.Duration(splashFadeTime))
+func (n *nomad) fadeSplash(obj fyne.CanvasObject) {
+	time.Sleep(time.Second * 2)
 	obj.Hide()
 	n.main.Content().Refresh()
 }
