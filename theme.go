@@ -17,7 +17,7 @@ func (m myTheme) Color(name fyne.ThemeColorName, variant fyne.ThemeVariant) colo
 }
 
 func (m myTheme) Font(style fyne.TextStyle) fyne.Resource {
-	return resourceOpenSansExtraBoldItalicTtf
+	return resourceWorkSansBlackItalicTtf
 }
 
 func (m myTheme) Icon(name fyne.ThemeIconName) fyne.Resource {
