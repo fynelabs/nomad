@@ -3,7 +3,6 @@
 package main
 
 import (
-	"fmt"
 	"strings"
 	"time"
 
@@ -46,33 +45,25 @@ func autoCompleteEntry() *xWidget.CompletionEntry {
 			return
 		}
 
-		cityNames := []string{}
-		for _, value := range results {
-			cityNames = append(cityNames, value.City)
-		}
+		cardTexts := []string{}
 
-		// then show them
-		entry.SetOptions(cityNames)
-		entry.ShowCompletion()
-
-		//get timezone
 		for _, r := range results {
-			// Get timezone string from lat/long
 			timezone := timezonemapper.LatLngToTimezoneString(r.Latitude, r.Longitude)
 
-			// Load location from timezone
 			loc, _ := time.LoadLocation(timezone)
 
-			// Parse time string with location
 			t, _ := time.ParseInLocation("2006-01-02 15:04:05", "2010-01-01 00:00:00", loc)
 
 			//second return is offset in seconds, useful?
 			tzName, _ := t.Zone()
 
-			//now we have info for card
-			fmt.Println(r.City, r.Country, tzName)
-
+			s := r.City + " " + r.Country + " " + tzName
+			cardTexts = append(cardTexts, s)
 		}
+
+		// then show them
+		entry.SetOptions(cardTexts)
+		entry.ShowCompletion()
 
 	}
 
