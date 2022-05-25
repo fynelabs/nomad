@@ -17,7 +17,7 @@ func (n *nomad) makeSplash() fyne.CanvasObject {
 	text.TextSize = 50
 	text.TextStyle = fyne.TextStyle{Italic: true, Bold: true}
 
-	gif, err := xWidget.NewAnimatedGifFromResource(resourceGlobeSpinnerGif)
+	gif, err := xWidget.NewAnimatedGifFromResource(resourceGlobeSpinnerSplashGif)
 	gif.SetMinSize(fyne.NewSize(50, 50))
 	gif.Start()
 
