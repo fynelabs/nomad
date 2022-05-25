@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"time"
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/canvas"
@@ -13,24 +12,22 @@ import (
 
 type location struct {
 	widget.BaseWidget
-	name, country string
-	localTime     time.Time
+	location *city
 
 	date *widget.Select
 	time *widget.SelectEntry
 }
 
-func newLocation(name, country string, z *time.Location) *location {
-	t := time.Now().In(z)
-	l := &location{name: name, country: country, localTime: t}
+func newLocation(loc *city) *location {
+	l := &location{location: loc}
 	l.ExtendBaseWidget(l)
 
 	l.date = widget.NewSelect([]string{}, func(string) {})
-	l.date.PlaceHolder = l.localTime.Format("Mon 02 Jan")
+	l.date.PlaceHolder = loc.localTime.Format("Mon 02 Jan")
 	l.time = widget.NewSelectEntry(listTimes())
 	l.time.PlaceHolder = "22:00" // longest
 	l.time.Wrapping = fyne.TextWrapOff
-	l.time.SetText(l.localTime.Format("15:04"))
+	l.time.SetText(loc.localTime.Format("15:04"))
 
 	return l
 }
@@ -38,8 +35,8 @@ func newLocation(name, country string, z *time.Location) *location {
 func (l *location) CreateRenderer() fyne.WidgetRenderer {
 	bg := canvas.NewImageFromResource(theme.FileImageIcon())
 	bg.Translucency = 0.5
-	city := widget.NewRichTextFromMarkdown("# " + l.name)
-	location := widget.NewRichTextFromMarkdown("## " + l.country + " · " + l.localTime.Format("MST"))
+	city := widget.NewRichTextFromMarkdown("# " + l.location.name)
+	location := widget.NewRichTextFromMarkdown("## " + l.location.country + " · " + l.location.localTime.Format("MST"))
 	input := container.NewBorder(nil, nil, l.date, l.time)
 
 	c := container.NewMax(bg,

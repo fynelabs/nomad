@@ -5,8 +5,6 @@
 package main
 
 import (
-	"time"
-
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/theme"
@@ -23,9 +21,11 @@ func (n *nomad) makeAddCell() fyne.CanvasObject {
 }
 
 func (n *nomad) makeHome() fyne.CanvasObject {
-	zone, _ := time.LoadLocation("Europe/London")
-	cell := newLocation("Edinburgh", "United Kingdom", zone)
+	cells := []fyne.CanvasObject{}
+	for _, c := range n.store.cities() {
+		cells = append(cells, newLocation(c))
+	}
+	cells = append(cells, n.makeAddCell())
 
-	return container.New(&nomadLayout{},
-		cell, n.makeAddCell())
+	return container.New(&nomadLayout{}, cells...)
 }
