@@ -1,7 +1,6 @@
 //go:generate fyne bundle -o assets.go plus-circle.svg
 //go:generate fyne bundle -append -o assets.go globeSpinnerSplash.gif
 //go:generate fyne bundle -append -o assets.go WorkSans-BlackItalic.ttf
-
 package main
 
 import (
@@ -16,7 +15,8 @@ import (
 	"github.com/zsefvlol/timezonemapper"
 )
 
-func autoCompleteEntry(n *nomad, savedLocations *[]string) *CompletionEntry {
+func (n *nomad) autoCompleteEntry() *CompletionEntry {
+
 	entry := NewCompletionEntry([]string{})
 	entry.SetPlaceHolder("Add a Place")
 
@@ -61,21 +61,29 @@ func autoCompleteEntry(n *nomad, savedLocations *[]string) *CompletionEntry {
 		entry.ShowCompletion()
 
 		entry.OnSubmitted = func(s string) {
-			*savedLocations = append(*savedLocations, s)
+
+			//reset entry
 			entry.SetText("")
 			entry.PlaceHolder = "ADD A PLACE"
 
-			fmt.Println(savedLocations)
+			fmt.Println(homeContainer)
+
+			split := strings.Split(s, "--")
+			zone, _ := time.LoadLocation(split[2])
+			l := newLocation(split[0], split[1], zone)
+
+			homeContainer.Objects = append(homeContainer.Objects[:len(homeContainer.Objects)-1], l, homeContainer.Objects[len(homeContainer.Objects)-1])
+			//homeContainer.Objects = append(homeContainer.Objects, l)
 		}
 	}
 
 	return entry
 }
 
-func (n *nomad) makeAddCell(savedLocations *[]string) fyne.CanvasObject {
+func (n *nomad) makeAddCell() fyne.CanvasObject {
 
 	add := widget.NewIcon(theme.NewThemedResource(resourcePlusCircleSvg))
-	search := autoCompleteEntry(n, savedLocations)
+	search := n.autoCompleteEntry()
 
 	content := container.NewBorder(container.NewBorder(nil, nil, add, nil, search),
 		nil, nil, nil)
@@ -83,31 +91,16 @@ func (n *nomad) makeAddCell(savedLocations *[]string) fyne.CanvasObject {
 	return container.NewPadded(content)
 }
 
-func savedCells(savedLocations *[]string) []*location {
-
-	cells := []*location{}
-
-	for i, _ := range *savedLocations {
-
-		split := strings.Split((*savedLocations)[i], "--")
-		zone, _ := time.LoadLocation(split[2])
-		cell := newLocation(split[0], split[1], zone)
-		cells = append(cells, cell)
-	}
-	return cells
-}
+var homeContainer *fyne.Container
 
 func (n *nomad) makeHome() fyne.CanvasObject {
 	zone, _ := time.LoadLocation("Europe/London")
 	cell := newLocation("Edinburgh", "United Kingdom", zone)
 
-	var savedLocations = []string{"City Test--Country--Europe/London"}
-
-	cells := savedCells(&savedLocations)
-
-	return container.New(
+	homeContainer = container.New(
 		&nomadLayout{},
 		cell,
-		cells[0],
-		n.makeAddCell(&savedLocations))
+		n.makeAddCell())
+
+	return homeContainer
 }

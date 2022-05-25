@@ -5,6 +5,7 @@ go 1.18
 require (
 	fyne.io/fyne/v2 v2.1.4
 	fyne.io/x/fyne v0.0.0-20220524111314-5922941e6ea8
+	github.com/zsefvlol/timezonemapper v1.0.0
 )
 
 require (
