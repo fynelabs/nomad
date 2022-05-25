@@ -10,7 +10,7 @@ type City struct {
 	Altitude  float64
 }
 
-var cities = []City{
+var Cities = []City{
 	{1, "Afghanistan", "Kabul", 34.5166667, 69.1833344, 1808.0},
 	{2, "Afghanistan", "Kandahar", 31.6100000, 65.6999969, 1015.0},
 	{3, "Afghanistan", "Mazar-e Sharif", 36.7069444, 67.1122208, 369.0},
