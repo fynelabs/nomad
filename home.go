@@ -4,6 +4,7 @@
 package main
 
 import (
+	"fmt"
 	"strings"
 	"time"
 
@@ -66,10 +67,13 @@ func (n *nomad) autoCompleteEntry() *CompletionEntry {
 			entry.PlaceHolder = "ADD A PLACE"
 
 			split := strings.Split(s, "--")
-			zone, _ := time.LoadLocation(split[2])
-			l := newLocation(split[0], split[1], zone)
-
-			homeContainer.Objects = append(homeContainer.Objects[:len(homeContainer.Objects)-1], l, homeContainer.Objects[len(homeContainer.Objects)-1])
+			if len(split) != 3 {
+				fmt.Println("Bad submit")
+			} else {
+				zone, _ := time.LoadLocation(split[2])
+				l := newLocation(split[0], split[1], zone)
+				homeContainer.Objects = append(homeContainer.Objects[:len(homeContainer.Objects)-1], l, homeContainer.Objects[len(homeContainer.Objects)-1])
+			}
 		}
 	}
 
