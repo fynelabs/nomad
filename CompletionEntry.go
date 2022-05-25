@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"strings"
 
 	"fyne.io/fyne/v2"
@@ -157,16 +156,13 @@ func newNavigableList(items []string, entry *widget.Entry, setTextFromMenu func(
 			city.SetText(split[0])
 
 			countryAndTZ := c.Objects[1].(*widget.Label)
-			countryAndTZ.SetText(split[1] + " - " + split[2])
+			countryAndTZ.SetText(split[1] + " • " + split[2])
 
 		},
 		OnSelected: func(id widget.ListItemID) {
 			if !n.navigating && id > -1 {
-
 				//split := strings.Split(n.items[id], "--")
 				setTextFromMenu(n.items[id])
-
-				fmt.Println(n.items[id] + " selected")
 			}
 			n.navigating = false
 

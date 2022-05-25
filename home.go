@@ -14,7 +14,7 @@ import (
 	"github.com/zsefvlol/timezonemapper"
 )
 
-func autoCompleteEntry(listWidget widget.List, savedLocations *[]string) *CompletionEntry {
+func autoCompleteEntry(n *nomad, savedLocations *[]string) *CompletionEntry {
 	entry := NewCompletionEntry([]string{})
 	entry.SetPlaceHolder("Add a Place")
 
@@ -28,9 +28,7 @@ func autoCompleteEntry(listWidget widget.List, savedLocations *[]string) *Comple
 			return
 		}
 
-		//Get the list of possible completion
 		results := []City{}
-		cardTexts = []string{}
 
 		for _, value := range Cities {
 
@@ -48,17 +46,11 @@ func autoCompleteEntry(listWidget widget.List, savedLocations *[]string) *Comple
 			return
 		}
 
+		cardTexts = []string{}
 		for _, r := range results {
 			timezone := timezonemapper.LatLngToTimezoneString(r.Latitude, r.Longitude)
 
-			loc, _ := time.LoadLocation(timezone)
-
-			t, _ := time.ParseInLocation("2006-01-02 15:04:05", "2010-01-01 00:00:00", loc)
-
-			//second return is offset in seconds, useful?
-			tzName, _ := t.Zone()
-
-			s := r.City + "--" + r.Country + "--" + tzName
+			s := r.City + "--" + r.Country + "--" + timezone
 			cardTexts = append(cardTexts, s)
 		}
 
@@ -67,12 +59,9 @@ func autoCompleteEntry(listWidget widget.List, savedLocations *[]string) *Comple
 		entry.ShowCompletion()
 
 		entry.OnSubmitted = func(s string) {
-			fmt.Println("submitted with " + s)
-
-			//add new card to list
 			*savedLocations = append(*savedLocations, s)
-
-			listWidget.Refresh()
+			entry.SetText("")
+			entry.PlaceHolder = "ADD A PLACE"
 
 			fmt.Println(savedLocations)
 		}
@@ -81,41 +70,42 @@ func autoCompleteEntry(listWidget widget.List, savedLocations *[]string) *Comple
 	return entry
 }
 
-func savedLocationsWidget(savedLocations *[]string) *widget.List {
-	list := widget.NewList(
-		func() int {
-			return len(*savedLocations)
-		},
-		func() fyne.CanvasObject {
-			return widget.NewLabel("template")
-		},
-		func(i widget.ListItemID, o fyne.CanvasObject) {
-			o.(*widget.Label).SetText((*savedLocations)[i])
-		})
-
-	return list
-}
-
-func (n *nomad) makeAddCell(listWidget widget.List, savedLocations *[]string) fyne.CanvasObject {
+func (n *nomad) makeAddCell(savedLocations *[]string) fyne.CanvasObject {
 
 	add := widget.NewIcon(theme.NewThemedResource(resourcePlusCircleSvg))
-	search := autoCompleteEntry(listWidget, savedLocations)
-	search.PlaceHolder = "ADD A PLACE"
+	search := autoCompleteEntry(n, savedLocations)
 
 	content := container.NewBorder(container.NewBorder(nil, nil, add, nil, search),
 		nil, nil, nil)
 
 	return container.NewPadded(content)
+}
 
+func savedCells(savedLocations *[]string) []*location {
+
+	cells := []*location{}
+
+	for i, _ := range *savedLocations {
+
+		split := strings.Split((*savedLocations)[i], "--")
+		zone, _ := time.LoadLocation(split[2])
+		cell := newLocation(split[0], split[1], zone)
+		cells = append(cells, cell)
+	}
+	return cells
 }
 
 func (n *nomad) makeHome() fyne.CanvasObject {
 	zone, _ := time.LoadLocation("Europe/London")
 	cell := newLocation("Edinburgh", "United Kingdom", zone)
 
-	var savedLocations = []string{"waaa", "baaa", "traaa"}
-	list := savedLocationsWidget(&savedLocations)
+	var savedLocations = []string{"City Test--Country--Europe/London"}
 
-	return container.New(&nomadLayout{},
-		cell, n.makeAddCell(*list, &savedLocations), list)
+	cells := savedCells(&savedLocations)
+
+	return container.New(
+		&nomadLayout{},
+		cell,
+		cells[0],
+		n.makeAddCell(&savedLocations))
 }
