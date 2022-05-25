@@ -1,6 +1,7 @@
 package main
 
 import (
+	"net/url"
 	"strconv"
 	"time"
 
@@ -11,12 +12,23 @@ const preferenceKeyPrefix = "city."
 
 type city struct {
 	name, country string
+	unsplash      photo
 	localTime     time.Time
 }
 
-func newCity(name, country string, loc *time.Location) *city {
+func newCity(name, country, photoCache, photoDescription, photographerName string, photographerPortfolio, photoDownloaded, photoLink *url.URL, loc *time.Location) *city {
 	t := time.Now().In(loc)
-	return &city{name: name, country: country, localTime: t}
+	return &city{
+		name: name, country: country, localTime: t,
+		unsplash: photo{
+			photoCache:            photoCache,
+			description:           photoDescription,
+			photographerName:      photographerName,
+			photographerPortfolio: photographerPortfolio,
+			photoDownloaded:       photoDownloaded,
+			photoLink:             photoLink,
+		},
+	}
 }
 
 type cityStore struct {
@@ -31,7 +43,7 @@ func newCityStore(p fyne.Preferences) *cityStore {
 	count := p.Int(preferenceKeyPrefix + "count")
 	if count == 0 {
 		s.list = []*city{
-			newCity("Edinburgh", "United Kingdom", zone),
+			newCity("Edinburgh", "United Kingdom", "", "", "", nil, nil, nil, zone),
 		}
 		s.save()
 	} else {
@@ -45,7 +57,25 @@ func newCityStore(p fyne.Preferences) *cityStore {
 			if err != nil {
 				fyne.LogError("Failed to load timezone "+zoneName, err)
 			}
-			s.list[i] = newCity(name, country, zone)
+			photoCache := p.String(prefix + "photoCache")
+			photoDescription := p.String(prefix + "photoDescription")
+			photographerName := p.String(prefix + "photographerName")
+			photographerPortfolio := p.String(prefix + "photographerPortfolio")
+			photographerPortfolioUrl, err := url.Parse(photographerPortfolio)
+			if err != nil {
+				fyne.LogError("Failed to parse photographer portfolio uri: "+photographerPortfolio, err)
+			}
+			photoDownloaded := p.String(prefix + "photoDownloaded")
+			photoDownloadedUrl, err := url.Parse(photoDownloaded)
+			if err != nil {
+				fyne.LogError("Failed to parse photo uri: "+photoDownloaded, err)
+			}
+			photoLink := p.String(prefix + "photoLink")
+			photoLinkUrl, err := url.Parse(photoLink)
+			if err != nil {
+				fyne.LogError("Failed to parse photo uri: "+photoLink, err)
+			}
+			s.list[i] = newCity(name, country, photoCache, photoDescription, photographerName, photographerPortfolioUrl, photoDownloadedUrl, photoLinkUrl, zone)
 		}
 	}
 
@@ -64,5 +94,17 @@ func (s *cityStore) save() {
 		s.prefs.SetString(prefix+"name", c.name)
 		s.prefs.SetString(prefix+"country", c.country)
 		s.prefs.SetString(prefix+"zone", c.localTime.Location().String())
+		s.prefs.SetString(prefix+"photoCache", c.unsplash.photoCache)
+		s.prefs.SetString(prefix+"photoDescription", c.unsplash.description)
+		s.prefs.SetString(prefix+"photographerName", c.unsplash.photographerName)
+		if c.unsplash.photographerPortfolio != nil {
+			s.prefs.SetString(prefix+"photographerPortfolio", c.unsplash.photographerPortfolio.String())
+		}
+		if c.unsplash.photoDownloaded != nil {
+			s.prefs.SetString(prefix+"photoDownloaded", c.unsplash.photoDownloaded.String())
+		}
+		if c.unsplash.photoLink != nil {
+			s.prefs.SetString(prefix+"photoLink", c.unsplash.photoLink.String())
+		}
 	}
 }

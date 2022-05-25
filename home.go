@@ -23,7 +23,7 @@ func (n *nomad) makeAddCell() fyne.CanvasObject {
 func (n *nomad) makeHome() fyne.CanvasObject {
 	cells := []fyne.CanvasObject{}
 	for _, c := range n.store.cities() {
-		cells = append(cells, newLocation(c))
+		cells = append(cells, newLocation(c, n))
 	}
 	cells = append(cells, n.makeAddCell())
 

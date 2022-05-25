@@ -7,14 +7,16 @@ import (
 )
 
 type nomad struct {
-	main  fyne.Window
-	store *cityStore
+	main    fyne.Window
+	storage fyne.Storage
+	store   *cityStore
+	session *unsplashSession
 }
 
 func main() {
 	a := app.NewWithID("com.fynelabs.nomad")
 	w := a.NewWindow("Nomad")
-	ui := &nomad{main: w, store: newCityStore(a.Preferences())}
+	ui := &nomad{main: w, store: newCityStore(a.Preferences()), session: newUnsplashSession(a.Storage()), storage: a.Storage()}
 
 	var _ fyne.Theme = (*myTheme)(nil)
 	a.Settings().SetTheme(&myTheme{})
