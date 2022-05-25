@@ -1,4 +1,6 @@
 //go:generate fyne bundle -o assets.go plus-circle.svg
+//go:generate fyne bundle -append -o assets.go globeSpinnerSplash.gif
+//go:generate fyne bundle -append -o assets.go WorkSans-BlackItalic.ttf
 
 package main
 

@@ -3,9 +3,8 @@ module github.com/fynelabs/nomad
 go 1.18
 
 require (
-	fyne.io/fyne v1.4.3
 	fyne.io/fyne/v2 v2.1.4
-	github.com/zsefvlol/timezonemapper v1.0.0
+	fyne.io/x/fyne v0.0.0-20220524111314-5922941e6ea8
 )
 
 require (
@@ -16,6 +15,7 @@ require (
 	github.com/go-gl/glfw/v3.3/glfw v0.0.0-20211024062804-40e447a793be // indirect
 	github.com/godbus/dbus/v5 v5.0.4 // indirect
 	github.com/goki/freetype v0.0.0-20220119013949-7a161fd3728c // indirect
+	github.com/nfnt/resize v0.0.0-20180221191011-83c6a9932646 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/srwiley/oksvg v0.0.0-20220128195007-1f435e4c2b44 // indirect
 	github.com/srwiley/rasterx v0.0.0-20220128185129-2efea2b9ea41 // indirect

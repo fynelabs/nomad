@@ -1,0 +1,20 @@
+
+name: Platform Tests
+on: [push, pull_request]
+permissions:
+  contents: read
+
+jobs:
+  platform_tests:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        persist-credentials: false
+    - uses: WillAbides/setup-go-faster@v1.7.0
+      with:
+        go-version: '1.18'
+
+    - name: Test
+      run: go test -tags ci ./...
