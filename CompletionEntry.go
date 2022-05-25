@@ -161,11 +161,9 @@ func newNavigableList(items []string, entry *widget.Entry, setTextFromMenu func(
 		},
 		OnSelected: func(id widget.ListItemID) {
 			if !n.navigating && id > -1 {
-				//split := strings.Split(n.items[id], "--")
 				setTextFromMenu(n.items[id])
 			}
 			n.navigating = false
-
 		},
 	}
 	n.ExtendBaseWidget(n)
