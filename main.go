@@ -15,6 +15,9 @@ func main() {
 	w := a.NewWindow("Nomad")
 	ui := &nomad{main: w}
 
+	var _ fyne.Theme = (*myTheme)(nil)
+	a.Settings().SetTheme(&myTheme{})
+
 	splash := ui.makeSplash()
 	w.SetContent(container.NewMax(ui.makeHome(), splash))
 	w.SetPadded(false)
