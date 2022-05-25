@@ -11,7 +11,7 @@ type myTheme struct{}
 
 func (m myTheme) Color(name fyne.ThemeColorName, variant fyne.ThemeVariant) color.Color {
 	if name == theme.ColorNameBackground {
-		return color.RGBA{24, 12, 39, 1}
+		return color.RGBA{0x18, 0x0C, 0x27, 0xFF}
 	}
 	return theme.DefaultTheme().Color(name, variant)
 }
