@@ -17,7 +17,7 @@ import (
 )
 
 func (n *nomad) makeAddCell() fyne.CanvasObject {
-	add := widget.NewIcon(theme.NewThemedResource(resourcePlusCircleSvg))
+	add := widget.NewIcon(theme.NewPrimaryThemedResource(resourcePlusCircleSvg))
 	search := widget.NewEntry()
 	search.PlaceHolder = "ADD A PLACE"
 
