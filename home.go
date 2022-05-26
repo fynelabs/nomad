@@ -1,6 +1,10 @@
 //go:generate fyne bundle -o assets.go plus-circle.svg
 //go:generate fyne bundle -append -o assets.go globeSpinnerSplash.gif
 //go:generate fyne bundle -append -o assets.go WorkSans-BlackItalic.ttf
+//go:generate fyne bundle -append -o assets.go WorkSans-Black.ttf
+//go:generate fyne bundle -append -o assets.go WorkSans-Bold.ttf
+//go:generate fyne bundle -append -o assets.go WorkSans-Regular.ttf
+
 package main
 
 import (
@@ -87,7 +91,7 @@ func (n *nomad) autoCompleteEntry() *CompletionEntry {
 
 func (n *nomad) makeAddCell() fyne.CanvasObject {
 
-	add := widget.NewIcon(theme.NewThemedResource(resourcePlusCircleSvg))
+	add := widget.NewIcon(theme.NewPrimaryThemedResource(resourcePlusCircleSvg))
 	search := n.autoCompleteEntry()
 
 	content := container.NewBorder(container.NewBorder(nil, nil, add, nil, search),
@@ -99,6 +103,7 @@ func (n *nomad) makeAddCell() fyne.CanvasObject {
 var homeContainer *fyne.Container
 
 func (n *nomad) makeHome() fyne.CanvasObject {
+
 	cells := []fyne.CanvasObject{}
 	for _, c := range n.store.cities() {
 		cells = append(cells, newLocation(c))
