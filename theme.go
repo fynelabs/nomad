@@ -39,11 +39,10 @@ func (m myTheme) Font(style fyne.TextStyle) fyne.Resource {
 	} else if style.Monospace {
 		//Spaced out smaller font
 		return resourceWorkSansRegularTtf
-	} else {
-		//standard bold
-		return resourceWorkSansBoldTtf
-
 	}
+	//standard bold
+	return resourceWorkSansBoldTtf
+
 }
 
 func (m myTheme) Icon(name fyne.ThemeIconName) fyne.Resource {
