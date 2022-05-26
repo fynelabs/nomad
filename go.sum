@@ -1,8 +1,6 @@
 fyne.io/fyne/v2 v2.1.0/go.mod h1:c1vwI38Ebd0dAdxVa6H1Pj6/+cK1xtDy61+I31g+s14=
 fyne.io/fyne/v2 v2.1.4 h1:bt1+28++kAzRzPB0GM2EuSV4cnl8rXNX4cjfd8G06Rc=
 fyne.io/fyne/v2 v2.1.4/go.mod h1:p+E/Dh+wPW8JwR2DVcsZ9iXgR9ZKde80+Y+40Is54AQ=
-fyne.io/x/fyne v0.0.0-20220107050838-c4a1de51d4ce h1:YGZXfYdljcUclN0ndQ8Q+QTBYxsvipV2s+625kL0XMY=
-fyne.io/x/fyne v0.0.0-20220107050838-c4a1de51d4ce/go.mod h1:yq4D2A1RuXW+bTE2DN4SWpFlo1wK5c55IBh91SubTJU=
 fyne.io/x/fyne v0.0.0-20220524111314-5922941e6ea8 h1:Faapm9D8RmoyASFszw6ds4WeGstQvKSSydhqgrWfHuA=
 fyne.io/x/fyne v0.0.0-20220524111314-5922941e6ea8/go.mod h1:yq4D2A1RuXW+bTE2DN4SWpFlo1wK5c55IBh91SubTJU=
 github.com/Andrew-M-C/go.jsonvalue v1.1.2-0.20211223013816-e873b56b4a84/go.mod h1:oTJGG91FhtsxvUFVwHSvr6zuaTcAuroj/ToxfT7Ox8U=
