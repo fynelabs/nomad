@@ -6,7 +6,6 @@ import (
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/canvas"
 	"fyne.io/fyne/v2/container"
-	"fyne.io/fyne/v2/storage"
 	"fyne.io/fyne/v2/theme"
 	"fyne.io/fyne/v2/widget"
 )
@@ -14,14 +13,14 @@ import (
 type location struct {
 	widget.BaseWidget
 	location *city
-	n        *nomad
+	session  *unsplashSession
 
 	date *widget.Select
 	time *widget.SelectEntry
 }
 
-func newLocation(loc *city, n *nomad) *location {
-	l := &location{location: loc, n: n}
+func newLocation(loc *city, session *unsplashSession) *location {
+	l := &location{location: loc, session: session}
 	l.ExtendBaseWidget(l)
 
 	l.date = widget.NewSelect([]string{}, func(string) {})
@@ -46,40 +45,13 @@ func (l *location) CreateRenderer() fyne.WidgetRenderer {
 			container.NewVBox(city, location, input), nil, nil))
 
 	go func() {
-		var unsplashBg *canvas.Image
-
-		if l.location.unsplash.photoCache != "" {
-			childURI, err := storage.Child(l.n.storage.RootURI(), l.location.unsplash.photoCache)
-			if err != nil {
-				fyne.LogError("Unable to get a URI for "+l.location.unsplash.photoCache, err)
-			} else {
-				reader, err := storage.Reader(childURI)
-				if err != nil {
-					fyne.LogError("Unable to open a reader for "+l.location.unsplash.photoCache, err)
-				} else {
-					unsplashBg = canvas.NewImageFromReader(reader, l.location.unsplash.photoDownloaded.String())
-				}
-			}
+		if l.session == nil {
+			return
 		}
 
+		unsplashBg := l.session.get(l.location)
 		if unsplashBg == nil {
-			if l.n.session == nil {
-				return
-			}
-
-			backgroundPicture, err := l.n.session.getUnsplash(l.location.name, l.location.country)
-			if err != nil {
-				fyne.LogError("Unable to find a picture for "+l.location.name+"["+l.location.country+"]", err)
-				return
-			}
-
-			unsplashBg = l.n.session.getUnsplashImage(backgroundPicture)
-			if unsplashBg == nil {
-				fyne.LogError("Unable to create an image for "+l.location.name+"["+l.location.country+"]: "+backgroundPicture.photoCache, err)
-				return
-			}
-			l.location.unsplash = backgroundPicture
-			l.n.store.save()
+			return
 		}
 
 		c.Objects[0] = unsplashBg
