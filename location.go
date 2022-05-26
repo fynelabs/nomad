@@ -6,6 +6,7 @@ import (
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/canvas"
 	"fyne.io/fyne/v2/container"
+	"fyne.io/fyne/v2/layout"
 	"fyne.io/fyne/v2/theme"
 	"fyne.io/fyne/v2/widget"
 )
@@ -16,6 +17,8 @@ type location struct {
 
 	date *widget.Select
 	time *widget.SelectEntry
+	dots *widget.Button
+	menu *fyne.Menu
 }
 
 func newLocation(loc *city) *location {
@@ -28,6 +31,16 @@ func newLocation(loc *city) *location {
 	l.time.PlaceHolder = "22:00" // longest
 	l.time.Wrapping = fyne.TextWrapOff
 	l.time.SetText(loc.localTime.Format("15:04"))
+	l.menu = fyne.NewMenu("",
+		fyne.NewMenuItem("Delete Place", func() { fmt.Println("Delete place") }),
+		fyne.NewMenuItem("Photo info", func() { fmt.Println("Photo info") }))
+
+	l.dots = widget.NewButton("...", func() {
+		position := fyne.CurrentApp().Driver().AbsolutePositionForObject(l.dots)
+		position.Y += l.dots.Size().Height
+
+		widget.ShowPopUpMenuAtPosition(l.menu, fyne.CurrentApp().Driver().CanvasForObject(l.dots), position)
+	})
 
 	return l
 }
@@ -41,7 +54,7 @@ func (l *location) CreateRenderer() fyne.WidgetRenderer {
 
 	c := container.NewMax(bg,
 		container.NewBorder(nil,
-			container.NewVBox(city, location, input), nil, nil))
+			container.NewVBox(container.NewHBox(city, layout.NewSpacer(), l.dots), location, input), nil, nil))
 	return widget.NewSimpleRenderer(c)
 }
 
