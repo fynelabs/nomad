@@ -71,7 +71,8 @@ func (n *nomad) autoCompleteEntry() *CompletionEntry {
 				fmt.Println("Bad submit")
 			} else {
 				zone, _ := time.LoadLocation(split[2])
-				l := newLocation(split[0], split[1], zone)
+				c := newCity(split[0], split[1], zone)
+				l := newLocation(c)
 				homeContainer.Objects = append(homeContainer.Objects[:len(homeContainer.Objects)-1], l, homeContainer.Objects[len(homeContainer.Objects)-1])
 			}
 		}
@@ -100,5 +101,6 @@ func (n *nomad) makeHome() fyne.CanvasObject {
 	}
 	cells = append(cells, n.makeAddCell())
 
-	return container.New(&nomadLayout{}, cells...)
+	homeContainer = container.New(&nomadLayout{}, cells...)
+	return homeContainer
 }
