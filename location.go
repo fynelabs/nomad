@@ -2,6 +2,8 @@ package main
 
 import (
 	"fmt"
+	"image/color"
+	"strings"
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/canvas"
@@ -35,13 +37,16 @@ func newLocation(loc *city) *location {
 func (l *location) CreateRenderer() fyne.WidgetRenderer {
 	bg := canvas.NewImageFromResource(theme.FileImageIcon())
 	bg.Translucency = 0.5
-	city := widget.NewRichTextFromMarkdown("# " + l.location.name)
-	location := widget.NewRichTextFromMarkdown("## " + l.location.country + " · " + l.location.localTime.Format("MST"))
+	city := widget.NewRichTextFromMarkdown("# " + strings.ToUpper(l.location.name))
+	location := canvas.NewText(" "+strings.ToUpper(l.location.country)+" · "+l.location.localTime.Format("MST"), color.NRGBA{0xFF, 0xFF, 0xFF, 0xBF})
+	location.TextStyle.Monospace = true
+	location.TextSize = 10
+	location.Move(fyne.NewPos(theme.Padding(), city.MinSize().Height-location.TextSize*.5))
 	input := container.NewBorder(nil, nil, l.date, l.time)
 
 	c := container.NewMax(bg,
 		container.NewBorder(nil,
-			container.NewVBox(city, location, input), nil, nil))
+			container.NewVBox(container.NewWithoutLayout(city, location), input), nil, nil))
 	return widget.NewSimpleRenderer(c)
 }
 

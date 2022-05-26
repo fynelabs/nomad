@@ -1,9 +1,12 @@
 package main
 
 import (
+	"image/color"
 	"strings"
+	"time"
 
 	"fyne.io/fyne/v2"
+	"fyne.io/fyne/v2/canvas"
 	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/theme"
 	"fyne.io/fyne/v2/widget"
@@ -142,21 +145,31 @@ func newNavigableList(items []string, entry *widget.Entry, setTextFromMenu func(
 			return len(n.items)
 		},
 		CreateItem: func() fyne.CanvasObject {
-			return container.NewVBox(
-				widget.NewLabel("City Name"),
-				widget.NewLabel("Country"),
-			)
+
+			city := widget.NewRichTextFromMarkdown("City Lowercase")
+			city.Move(fyne.NewPos(0, 0))
+
+			location := canvas.NewText("COUNTRY - BST", color.NRGBA{0xFF, 0xFF, 0xFF, 0xBF})
+			location.TextStyle.Monospace = true
+			location.TextSize = 10
+			location.Move(fyne.NewPos(theme.Padding()*2, -theme.Padding()*2))
+
+			return container.NewVBox(city, container.NewWithoutLayout(location))
+
 		},
 		UpdateItem: func(i widget.ListItemID, o fyne.CanvasObject) {
 
+			//would be nice to pass city struct in here instead of splitting a string
 			c := o.(*fyne.Container)
 			split := strings.Split(n.items[i], "--")
 
-			city := c.Objects[0].(*widget.Label)
-			city.SetText(split[0])
+			city := c.Objects[0].(*widget.RichText)
+			city.ParseMarkdown(split[0])
 
-			countryAndTZ := c.Objects[1].(*widget.Label)
-			countryAndTZ.SetText(split[1] + " • " + split[2])
+			countryAndTZ := c.Objects[1].(*fyne.Container).Objects[0].(*canvas.Text)
+			z, _ := time.LoadLocation(split[2])
+			t := time.Now().In(z)
+			countryAndTZ.Text = (strings.ToUpper(split[1]) + " · " + t.Format("MST"))
 
 		},
 		OnSelected: func(id widget.ListItemID) {
