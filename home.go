@@ -94,13 +94,11 @@ func (n *nomad) makeAddCell() fyne.CanvasObject {
 var homeContainer *fyne.Container
 
 func (n *nomad) makeHome() fyne.CanvasObject {
-	zone, _ := time.LoadLocation("Europe/London")
-	cell := newLocation("Edinburgh", "United Kingdom", zone)
+	cells := []fyne.CanvasObject{}
+	for _, c := range n.store.cities() {
+		cells = append(cells, newLocation(c))
+	}
+	cells = append(cells, n.makeAddCell())
 
-	homeContainer = container.New(
-		&nomadLayout{},
-		cell,
-		n.makeAddCell())
-
-	return homeContainer
+	return container.New(&nomadLayout{}, cells...)
 }
