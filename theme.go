@@ -39,7 +39,6 @@ func (m myTheme) Font(style fyne.TextStyle) fyne.Resource {
 	} else if style.Monospace {
 		//Spaced out smaller font
 		return resourceWorkSansRegularTtf
-		//regular
 	} else {
 		//standard bold
 		return resourceWorkSansBoldTtf
