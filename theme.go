@@ -11,20 +11,19 @@ type myTheme struct{}
 
 func (m myTheme) Color(name fyne.ThemeColorName, variant fyne.ThemeVariant) color.Color {
 	if name == theme.ColorNameBackground {
-		return color.RGBA{0x18, 0x0C, 0x27, 0xFF}
+		return color.NRGBA{0x18, 0x0C, 0x27, 0xFF}
 	}
 
 	if name == theme.ColorNamePrimary {
-		return color.RGBA{0xFF, 0x85, 0x00, 0x40}
+		return color.NRGBA{0xFF, 0x85, 0x00, 0x00}
 	}
 
 	if name == theme.ColorNameInputBackground {
-		return color.RGBA{0x00, 0x00, 0x00, 0x00}
+		return color.NRGBA{0x00, 0x00, 0x00, 0x00}
 	}
 
 	if name == theme.ColorNamePlaceHolder {
-		// return color.RGBA{0xFF, 0xFF, 0xFF, 0x40} //Text doesn't display with transparency?
-		return color.RGBA{0x5B, 0x5B, 0x5B, 0xFF}
+		return color.NRGBA{0xFF, 0xFF, 0xFF, 0x40}
 	}
 	return theme.DefaultTheme().Color(name, variant)
 }
