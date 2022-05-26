@@ -72,6 +72,10 @@ func (n *nomad) autoCompleteEntry() *CompletionEntry {
 			} else {
 				zone, _ := time.LoadLocation(split[2])
 				c := newCity(split[0], split[1], zone)
+
+				n.store.list = append(n.store.list, c)
+				n.store.save()
+
 				l := newLocation(c)
 				homeContainer.Objects = append(homeContainer.Objects[:len(homeContainer.Objects)-1], l, homeContainer.Objects[len(homeContainer.Objects)-1])
 			}
