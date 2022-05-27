@@ -14,12 +14,13 @@ import (
 )
 
 type photo struct {
-	cache                 string
-	description           string
-	photographerName      string
-	photographerPortfolio *url.URL
-	photoDownloaded       *url.URL
-	photoLink             *url.URL
+	cache            string
+	description      string
+	photographerName string
+	portfolio        *url.URL
+	original         *url.URL
+	full             *url.URL
+	photoWebsite     *url.URL
 }
 
 type unsplashSession struct {
@@ -93,21 +94,22 @@ func (us *unsplashSession) fetchMetadata(city string, country string) (photo, er
 	}
 
 	return photo{
-		cache:                 "unsplash-photo-cache-" + city + "-" + country + ".jpg",
-		description:           getString((*photos.Results)[0].Description),
-		photographerName:      getPhotographerName((*photos.Results)[0].Photographer),
-		photographerPortfolio: getPhotographerPortfolio((*photos.Results)[0].Photographer),
-		photoDownloaded:       getUrl((*photos.Results)[0]),
-		photoLink:             (*photos.Results)[0].Links.Self.URL,
+		cache:            "unsplash-photo-cache-" + city + "-" + country + ".jpg",
+		description:      getString((*photos.Results)[0].Description),
+		photographerName: getPhotographerName((*photos.Results)[0].Photographer),
+		portfolio:        getPhotographerPortfolio((*photos.Results)[0].Photographer),
+		original:         getUrl((*photos.Results)[0]),
+		full:             (*photos.Results)[0].Urls.Full.URL,
+		photoWebsite:     (*photos.Results)[0].Links.Self.URL,
 	}, nil
 }
 
 func (us *unsplashSession) download(p photo) (*canvas.Image, error) {
-	if p.photoDownloaded == nil {
+	if p.original == nil {
 		return nil, fmt.Errorf("no photo download target")
 	}
 
-	httpResponse, err := http.Get(p.photoDownloaded.String())
+	httpResponse, err := http.Get(p.original.String())
 	if err != nil {
 		return nil, err
 	}
@@ -127,7 +129,7 @@ func (us *unsplashSession) download(p photo) (*canvas.Image, error) {
 
 	reader := io.TeeReader(httpResponse.Body, write)
 
-	return canvas.NewImageFromReader(reader, p.photoDownloaded.String()), nil
+	return canvas.NewImageFromReader(reader, p.original.String()), nil
 }
 
 func (us *unsplashSession) cached(cache string) (*canvas.Image, error) {

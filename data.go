@@ -38,24 +38,30 @@ func newCityPhoto(p fyne.Preferences, prefix string) photo {
 	if err != nil {
 		fyne.LogError("Failed to parse photographer portfolio uri: "+photographerPortfolio, err)
 	}
-	downloaded := p.String(prefix + "photoDownloaded")
-	downloadedUrl, err := url.Parse(downloaded)
+	original := p.String(prefix + "photoOriginal")
+	originalUrl, err := url.Parse(original)
 	if err != nil {
-		fyne.LogError("Failed to parse photo uri: "+downloaded, err)
+		fyne.LogError("Failed to parse photo uri: "+original, err)
 	}
-	link := p.String(prefix + "photoLink")
+	full := p.String(prefix + "photoFull")
+	fullUrl, err := url.Parse(full)
+	if err != nil {
+		fyne.LogError("Failed to parse photo uri: "+full, err)
+	}
+	link := p.String(prefix + "photoWebsite")
 	linkUrl, err := url.Parse(link)
 	if err != nil {
 		fyne.LogError("Failed to parse photo uri: "+link, err)
 	}
 
 	return photo{
-		cache:                 cache,
-		description:           description,
-		photographerName:      photographerName,
-		photographerPortfolio: photographerPortfolioUrl,
-		photoDownloaded:       downloadedUrl,
-		photoLink:             linkUrl,
+		cache:            cache,
+		description:      description,
+		photographerName: photographerName,
+		portfolio:        photographerPortfolioUrl,
+		original:         originalUrl,
+		full:             fullUrl,
+		photoWebsite:     linkUrl,
 	}
 }
 
@@ -96,14 +102,17 @@ func (s *cityStore) savePhoto(prefix string, unsplash *photo) {
 	s.prefs.SetString(prefix+"cache", unsplash.cache)
 	s.prefs.SetString(prefix+"photoDescription", unsplash.description)
 	s.prefs.SetString(prefix+"photographerName", unsplash.photographerName)
-	if unsplash.photographerPortfolio != nil {
-		s.prefs.SetString(prefix+"photographerPortfolio", unsplash.photographerPortfolio.String())
+	if unsplash.portfolio != nil {
+		s.prefs.SetString(prefix+"photographerPortfolio", unsplash.portfolio.String())
 	}
-	if unsplash.photoDownloaded != nil {
-		s.prefs.SetString(prefix+"photoDownloaded", unsplash.photoDownloaded.String())
+	if unsplash.original != nil {
+		s.prefs.SetString(prefix+"photoOriginal", unsplash.original.String())
 	}
-	if unsplash.photoLink != nil {
-		s.prefs.SetString(prefix+"photoLink", unsplash.photoLink.String())
+	if unsplash.full != nil {
+		s.prefs.SetString(prefix+"photoFull", unsplash.full.String())
+	}
+	if unsplash.photoWebsite != nil {
+		s.prefs.SetString(prefix+"photoWebsite", unsplash.photoWebsite.String())
 	}
 
 }
