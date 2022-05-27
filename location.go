@@ -17,8 +17,7 @@ type location struct {
 
 	date *widget.Select
 	time *widget.SelectEntry
-	dots *widget.Button
-	menu *fyne.Menu
+	dots *fyne.Container
 }
 
 func newLocation(loc *city) *location {
@@ -31,16 +30,12 @@ func newLocation(loc *city) *location {
 	l.time.PlaceHolder = "22:00" // longest
 	l.time.Wrapping = fyne.TextWrapOff
 	l.time.SetText(loc.localTime.Format("15:04"))
-	l.menu = fyne.NewMenu("",
+
+	menu := fyne.NewMenu("",
 		fyne.NewMenuItem("Delete Place", func() { fmt.Println("Delete place") }),
 		fyne.NewMenuItem("Photo info", func() { fmt.Println("Photo info") }))
 
-	l.dots = widget.NewButton("...", func() {
-		position := fyne.CurrentApp().Driver().AbsolutePositionForObject(l.dots)
-		position.Y += l.dots.Size().Height
-
-		widget.ShowPopUpMenuAtPosition(l.menu, fyne.CurrentApp().Driver().CanvasForObject(l.dots), position)
-	})
+	l.dots = container.NewVBox(layout.NewSpacer(), newIconWithPopUpMenu(theme.MoreHorizontalIcon(), menu))
 
 	return l
 }
