@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"image/color"
 	"strings"
 	"time"
@@ -158,6 +159,12 @@ func newNavigableList(items []string, entry *widget.Entry, setTextFromMenu func(
 
 		},
 		UpdateItem: func(i widget.ListItemID, o fyne.CanvasObject) {
+
+			//bug catch
+			if i > len(n.items)-1 {
+				fmt.Println("Crashes if not caught here")
+				return
+			}
 
 			//would be nice to pass city struct in here instead of splitting a string
 			c := o.(*fyne.Container)

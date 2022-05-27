@@ -63,26 +63,26 @@ func (n *nomad) autoCompleteEntry() *CompletionEntry {
 		// then show them
 		entry.SetOptions(cardTexts)
 		entry.ShowCompletion()
+	}
 
-		entry.OnSubmitted = func(s string) {
+	entry.OnSubmitted = func(s string) {
 
-			//reset entry
-			entry.SetText("")
-			entry.PlaceHolder = "ADD A PLACE"
+		//reset entry
+		entry.SetText("")
+		entry.PlaceHolder = "ADD A PLACE"
 
-			split := strings.Split(s, "--")
-			if len(split) != 3 {
-				fmt.Println("Bad submit")
-			} else {
-				zone, _ := time.LoadLocation(split[2])
-				c := newCity(split[0], split[1], zone)
+		split := strings.Split(s, "--")
+		if len(split) != 3 {
+			fmt.Println("Bad submit")
+		} else {
+			zone, _ := time.LoadLocation(split[2])
+			c := newCity(split[0], split[1], zone)
 
-				n.store.list = append(n.store.list, c)
-				n.store.save()
+			n.store.list = append(n.store.list, c)
+			n.store.save()
 
-				l := newLocation(c)
-				homeContainer.Objects = append(homeContainer.Objects[:len(homeContainer.Objects)-1], l, homeContainer.Objects[len(homeContainer.Objects)-1])
-			}
+			l := newLocation(c)
+			homeContainer.Objects = append(homeContainer.Objects[:len(homeContainer.Objects)-1], l, homeContainer.Objects[len(homeContainer.Objects)-1])
 		}
 	}
 
