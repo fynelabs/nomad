@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 	"io"
-	"log"
 	"net/http"
 	"net/url"
 	"time"
@@ -103,16 +102,14 @@ func (us *unsplashSession) fetchMetadata(city string, country string) (photo, er
 	}, nil
 }
 
-func (us *unsplashSession) download(p photo) *canvas.Image {
+func (us *unsplashSession) download(p photo) (*canvas.Image, error) {
 	if p.photoDownloaded == nil {
-		log.Println("No photo download target")
-		return nil
+		return nil, fmt.Errorf("no photo download target")
 	}
 
 	httpResponse, err := http.Get(p.photoDownloaded.String())
 	if err != nil {
-		fyne.LogError("Unexpected error", err)
-		return nil
+		return nil, err
 	}
 	defer httpResponse.Body.Close()
 
@@ -121,57 +118,54 @@ func (us *unsplashSession) download(p photo) *canvas.Image {
 
 	childURI, err := storage.Child(us.storage.RootURI(), p.cache)
 	if err != nil {
-		fyne.LogError("Unexpected error", err)
-		return nil
+		return nil, err
 	}
 	write, err := storage.Writer(childURI)
 	if err != nil {
-		fyne.LogError("Unexpected error", err)
-		return nil
+		return nil, err
 	}
 
 	reader := io.TeeReader(httpResponse.Body, write)
 
-	return canvas.NewImageFromReader(reader, p.photoDownloaded.String())
+	return canvas.NewImageFromReader(reader, p.photoDownloaded.String()), nil
 }
 
-func (us *unsplashSession) cached(cache string) *canvas.Image {
+func (us *unsplashSession) cached(cache string) (*canvas.Image, error) {
 	childURI, err := storage.Child(us.storage.RootURI(), cache)
 	if err != nil {
-		fyne.LogError("Unable to get a URI for "+cache, err)
-		return nil
+		return nil, err
 	}
 
 	reader, err := storage.Reader(childURI)
 	if err != nil {
-		fyne.LogError("Unable to open a reader for "+cache, err)
-		return nil
+		return nil, err
 	}
 
-	return canvas.NewImageFromReader(reader, cache)
+	return canvas.NewImageFromReader(reader, cache), nil
 }
 
-func (us *unsplashSession) get(location *city) *canvas.Image {
-	var r *canvas.Image
-
+func (us *unsplashSession) get(location *city) (*canvas.Image, error) {
 	if location.unsplash.cache != "" {
-		r = us.cached(location.unsplash.cache)
+		r, err := us.cached(location.unsplash.cache)
+		if r != nil {
+			return r, nil
+		}
+		if err != nil {
+			fyne.LogError("existing cache corrupted", err)
+		}
 	}
 
-	if r == nil {
-		metadata, err := us.fetchMetadata(location.name, location.country)
-		if err != nil {
-			fyne.LogError("Unable to find a picture for "+location.name+"["+location.country+"]", err)
-			return nil
-		}
-
-		r = us.download(metadata)
-		if err != nil {
-			fyne.LogError("Unable to create an image for "+location.name+"["+location.country+"]: "+location.unsplash.cache, err)
-			return nil
-		}
-		location.unsplash = metadata
-		us.store.save()
+	metadata, err := us.fetchMetadata(location.name, location.country)
+	if err != nil {
+		return nil, err
 	}
-	return r
+
+	r, err := us.download(metadata)
+	if err != nil {
+		return nil, err
+	}
+	location.unsplash = metadata
+	us.store.save()
+
+	return r, nil
 }

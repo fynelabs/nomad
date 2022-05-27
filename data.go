@@ -16,14 +16,11 @@ type city struct {
 	localTime     time.Time
 }
 
-func newCity(name, country string, unsplash *photo, loc *time.Location) *city {
+func newCity(name, country string, unsplash photo, loc *time.Location) *city {
 	t := time.Now().In(loc)
-	if unsplash == nil {
-		unsplash = &photo{}
-	}
 	return &city{
 		name: name, country: country, localTime: t,
-		unsplash: *unsplash,
+		unsplash: unsplash,
 	}
 }
 
@@ -32,7 +29,7 @@ type cityStore struct {
 	list  []*city
 }
 
-func newCityPhoto(p fyne.Preferences, prefix string) *photo {
+func newCityPhoto(p fyne.Preferences, prefix string) photo {
 	cache := p.String(prefix + "cache")
 	description := p.String(prefix + "photoDescription")
 	photographerName := p.String(prefix + "photographerName")
@@ -52,7 +49,7 @@ func newCityPhoto(p fyne.Preferences, prefix string) *photo {
 		fyne.LogError("Failed to parse photo uri: "+link, err)
 	}
 
-	return &photo{
+	return photo{
 		cache:                 cache,
 		description:           description,
 		photographerName:      photographerName,
@@ -69,7 +66,7 @@ func newCityStore(p fyne.Preferences) *cityStore {
 	count := p.Int(preferenceKeyPrefix + "count")
 	if count == 0 {
 		s.list = []*city{
-			newCity("Edinburgh", "United Kingdom", nil, zone),
+			newCity("Edinburgh", "United Kingdom", photo{}, zone),
 		}
 		s.save()
 	} else {

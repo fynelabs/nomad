@@ -49,8 +49,9 @@ func (l *location) CreateRenderer() fyne.WidgetRenderer {
 			return
 		}
 
-		unsplashBg := l.session.get(l.location)
-		if unsplashBg == nil {
+		unsplashBg, err := l.session.get(l.location)
+		if err != nil {
+			fyne.LogError("unable to build Unsplash image", err)
 			return
 		}
 
