@@ -182,8 +182,7 @@ func newNavigableList(items []string, entry *widget.Entry, setTextFromMenu func(
 		},
 		OnSelected: func(id widget.ListItemID) {
 			if !n.navigating && id > -1 {
-				//TODO - Currently displays full string with -- seperators, need to show only city name
-				setTextFromMenu(n.items[id])
+				entry.OnSubmitted(n.items[id])
 			}
 			n.navigating = false
 		},
