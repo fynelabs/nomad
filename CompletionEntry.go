@@ -132,6 +132,7 @@ type navigableList struct {
 	items           []string
 }
 
+////Only changed function
 func newNavigableList(items []string, entry *widget.Entry, setTextFromMenu func(string), hide func()) *navigableList {
 	n := &navigableList{
 		entry:           entry,
@@ -181,6 +182,7 @@ func newNavigableList(items []string, entry *widget.Entry, setTextFromMenu func(
 		},
 		OnSelected: func(id widget.ListItemID) {
 			if !n.navigating && id > -1 {
+				//TODO - Currently displays full string with -- seperators, need to show only city name
 				setTextFromMenu(n.items[id])
 			}
 			n.navigating = false
