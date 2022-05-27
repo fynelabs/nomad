@@ -16,6 +16,7 @@ import (
 	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/theme"
 	"fyne.io/fyne/v2/widget"
+	"github.com/tidwall/cities"
 	"github.com/zsefvlol/timezonemapper"
 )
 
@@ -34,9 +35,9 @@ func (n *nomad) autoCompleteEntry() *CompletionEntry {
 			return
 		}
 
-		results := []City{}
+		results := []cities.City{}
 
-		for _, value := range Cities {
+		for _, value := range cities.Cities {
 
 			if len(value.City) < len(s) {
 				continue
@@ -63,6 +64,8 @@ func (n *nomad) autoCompleteEntry() *CompletionEntry {
 		// then show them
 		entry.SetOptions(cardTexts)
 		entry.ShowCompletion()
+
+		entry.Entry.SetText(strings.ToUpper(entry.Entry.Text))
 	}
 
 	entry.OnSubmitted = func(s string) {
@@ -83,6 +86,7 @@ func (n *nomad) autoCompleteEntry() *CompletionEntry {
 
 			l := newLocation(c)
 			homeContainer.Objects = append(homeContainer.Objects[:len(homeContainer.Objects)-1], l, homeContainer.Objects[len(homeContainer.Objects)-1])
+
 		}
 	}
 
