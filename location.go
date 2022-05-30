@@ -12,6 +12,10 @@ import (
 	"fyne.io/fyne/v2/widget"
 )
 
+var (
+	locationTextColor = color.NRGBA{0xFF, 0xFF, 0xFF, 0xBF}
+)
+
 type location struct {
 	widget.BaseWidget
 	location *city
@@ -39,7 +43,6 @@ func (l *location) CreateRenderer() fyne.WidgetRenderer {
 	bg.Translucency = 0.5
 	city := widget.NewRichTextFromMarkdown("# " + strings.ToUpper(l.location.name))
 
-	var locationTextColor = color.NRGBA{0xFF, 0xFF, 0xFF, 0xBF}
 	location := canvas.NewText(" "+strings.ToUpper(l.location.country)+" · "+l.location.localTime.Format("MST"), locationTextColor)
 	location.TextStyle.Monospace = true
 	location.TextSize = 10
