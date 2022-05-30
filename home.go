@@ -20,7 +20,7 @@ import (
 	"github.com/zsefvlol/timezonemapper"
 )
 
-func (n *nomad) autoCompleteEntry() *CompletionEntry {
+func (n *nomad) autoCompleteEntry(homeContainer *fyne.Container) *CompletionEntry {
 
 	entry := NewCompletionEntry([]string{})
 	entry.SetPlaceHolder("Add a Place")
@@ -85,17 +85,16 @@ func (n *nomad) autoCompleteEntry() *CompletionEntry {
 
 			l := newLocation(c)
 			homeContainer.Objects = append(homeContainer.Objects[:len(homeContainer.Objects)-1], l, homeContainer.Objects[len(homeContainer.Objects)-1])
-
 		}
 	}
 
 	return entry
 }
 
-func (n *nomad) makeAddCell() fyne.CanvasObject {
+func (n *nomad) makeAddCell(homeContainer *fyne.Container) fyne.CanvasObject {
 
 	add := widget.NewIcon(theme.NewPrimaryThemedResource(resourcePlusCircleSvg))
-	search := n.autoCompleteEntry()
+	search := n.autoCompleteEntry(homeContainer)
 
 	content := container.NewBorder(container.NewBorder(nil, nil, add, nil, search),
 		nil, nil, nil)
@@ -103,16 +102,15 @@ func (n *nomad) makeAddCell() fyne.CanvasObject {
 	return container.NewPadded(content)
 }
 
-var homeContainer *fyne.Container
-
 func (n *nomad) makeHome() fyne.CanvasObject {
 
 	cells := []fyne.CanvasObject{}
 	for _, c := range n.store.cities() {
 		cells = append(cells, newLocation(c))
 	}
-	cells = append(cells, n.makeAddCell())
 
-	homeContainer = container.New(&nomadLayout{}, cells...)
+	homeContainer := container.New(&nomadLayout{})
+	cells = append(cells, n.makeAddCell(homeContainer))
+	homeContainer.Objects = cells
 	return homeContainer
 }
