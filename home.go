@@ -78,12 +78,12 @@ func (n *nomad) autoCompleteEntry(homeContainer *fyne.Container) *CompletionEntr
 			fyne.LogError("Location entry string incorrect format", err1)
 		} else {
 			zone, _ := time.LoadLocation(split[2])
-			c := newCity(split[0], split[1], zone)
+			c := newCity(split[0], split[1], photo{}, zone)
 
 			n.store.list = append(n.store.list, c)
 			n.store.save()
 
-			l := newLocation(c)
+			l := newLocation(c, n.session)
 			homeContainer.Objects = append(homeContainer.Objects[:len(homeContainer.Objects)-1], l, homeContainer.Objects[len(homeContainer.Objects)-1])
 		}
 	}
@@ -106,7 +106,7 @@ func (n *nomad) makeHome() fyne.CanvasObject {
 
 	cells := []fyne.CanvasObject{}
 	for _, c := range n.store.cities() {
-		cells = append(cells, newLocation(c))
+		cells = append(cells, newLocation(c, n.session))
 	}
 
 	layout := &nomadLayout{}

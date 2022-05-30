@@ -19,13 +19,14 @@ var (
 type location struct {
 	widget.BaseWidget
 	location *city
+	session  *unsplashSession
 
 	date *widget.Select
 	time *widget.SelectEntry
 }
 
-func newLocation(loc *city) *location {
-	l := &location{location: loc}
+func newLocation(loc *city, session *unsplashSession) *location {
+	l := &location{location: loc, session: session}
 	l.ExtendBaseWidget(l)
 
 	l.date = widget.NewSelect([]string{}, func(string) {})
@@ -52,6 +53,22 @@ func (l *location) CreateRenderer() fyne.WidgetRenderer {
 	c := container.NewMax(bg,
 		container.NewBorder(nil,
 			container.NewVBox(container.NewWithoutLayout(city, location), input), nil, nil))
+
+	go func() {
+		if l.session == nil {
+			return
+		}
+
+		unsplashBg, err := l.session.get(l.location)
+		if err != nil {
+			fyne.LogError("unable to build Unsplash image", err)
+			return
+		}
+
+		c.Objects[0] = unsplashBg
+		c.Refresh()
+	}()
+
 	return widget.NewSimpleRenderer(c)
 }
 
