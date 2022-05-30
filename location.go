@@ -38,7 +38,9 @@ func (l *location) CreateRenderer() fyne.WidgetRenderer {
 	bg := canvas.NewImageFromResource(theme.FileImageIcon())
 	bg.Translucency = 0.5
 	city := widget.NewRichTextFromMarkdown("# " + strings.ToUpper(l.location.name))
-	location := canvas.NewText(" "+strings.ToUpper(l.location.country)+" · "+l.location.localTime.Format("MST"), color.NRGBA{0xFF, 0xFF, 0xFF, 0xBF})
+
+	var locationTextColor = color.NRGBA{0xFF, 0xFF, 0xFF, 0xBF}
+	location := canvas.NewText(" "+strings.ToUpper(l.location.country)+" · "+l.location.localTime.Format("MST"), locationTextColor)
 	location.TextStyle.Monospace = true
 	location.TextSize = 10
 	location.Move(fyne.NewPos(theme.Padding(), city.MinSize().Height-location.TextSize*.5))

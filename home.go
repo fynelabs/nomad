@@ -8,7 +8,7 @@
 package main
 
 import (
-	"fmt"
+	"log"
 	"strings"
 	"time"
 
@@ -24,8 +24,6 @@ func (n *nomad) autoCompleteEntry() *CompletionEntry {
 
 	entry := NewCompletionEntry([]string{})
 	entry.SetPlaceHolder("Add a Place")
-
-	cardTexts := []string{}
 
 	entry.OnChanged = func(s string) {
 
@@ -53,7 +51,7 @@ func (n *nomad) autoCompleteEntry() *CompletionEntry {
 			return
 		}
 
-		cardTexts = []string{}
+		cardTexts := []string{}
 		for _, r := range results {
 			timezone := timezonemapper.LatLngToTimezoneString(r.Latitude, r.Longitude)
 
@@ -76,7 +74,7 @@ func (n *nomad) autoCompleteEntry() *CompletionEntry {
 
 		split := strings.Split(s, "--")
 		if len(split) != 3 {
-			fmt.Println("Bad submit")
+			log.Fatal("Location entry string incorrect format " + s)
 		} else {
 			zone, _ := time.LoadLocation(split[2])
 			c := newCity(split[0], split[1], zone)
