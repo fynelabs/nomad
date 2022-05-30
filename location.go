@@ -22,9 +22,10 @@ type location struct {
 	location *city
 	session  *unsplashSession
 
-	date *widget.Select
-	time *widget.SelectEntry
-	dots *fyne.Container
+	date   *widget.Select
+	time   *widget.SelectEntry
+	button *widget.Button
+	dots   *fyne.Container
 }
 
 func newLocation(loc *city, session *unsplashSession) *location {
@@ -42,7 +43,15 @@ func newLocation(loc *city, session *unsplashSession) *location {
 		fyne.NewMenuItem("Delete Place", func() { fmt.Println("Delete place") }),
 		fyne.NewMenuItem("Photo info", func() { fmt.Println("Photo info") }))
 
-	l.dots = container.NewVBox(layout.NewSpacer(), newIconWithPopUpMenu(theme.MoreHorizontalIcon(), menu))
+	l.button = widget.NewButtonWithIcon("", theme.MoreHorizontalIcon(), func() {
+		position := fyne.CurrentApp().Driver().AbsolutePositionForObject(l.button)
+		position.Y += l.button.Size().Height
+
+		widget.ShowPopUpMenuAtPosition(menu, fyne.CurrentApp().Driver().CanvasForObject(l.button), position)
+	})
+	l.button.Importance = widget.LowImportance
+
+	l.dots = container.NewVBox(layout.NewSpacer(), l.button)
 
 	return l
 }
@@ -60,7 +69,7 @@ func (l *location) CreateRenderer() fyne.WidgetRenderer {
 
 	c := container.NewMax(bg,
 		container.NewBorder(nil,
-			container.NewVBox(container.NewWithoutLayout(container.NewHBox(city, layout.NewSpacer(), l.dots), location), input), nil, nil))
+			container.NewVBox(container.NewHBox(container.NewWithoutLayout(city, location), layout.NewSpacer(), l.dots), input), nil, nil))
 
 	go func() {
 		if l.session == nil {
