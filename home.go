@@ -8,7 +8,7 @@
 package main
 
 import (
-	"log"
+	"errors"
 	"strings"
 	"time"
 
@@ -74,7 +74,8 @@ func (n *nomad) autoCompleteEntry() *CompletionEntry {
 
 		split := strings.Split(s, "--")
 		if len(split) != 3 {
-			log.Fatal("Location entry string incorrect format " + s)
+			err1 := errors.New(s)
+			fyne.LogError("Location entry string incorrect format", err1)
 		} else {
 			zone, _ := time.LoadLocation(split[2])
 			c := newCity(split[0], split[1], zone)
