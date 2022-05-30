@@ -55,6 +55,9 @@ func getPhotographerPortfolio(user *unsplash.User) *url.URL {
 	if user == nil {
 		return nil
 	}
+	if user.PortfolioURL == nil {
+		return nil
+	}
 	return user.PortfolioURL.URL
 }
 

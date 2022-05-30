@@ -6,6 +6,8 @@ require (
 	fyne.io/fyne/v2 v2.1.4
 	fyne.io/x/fyne v0.0.0-20220524111314-5922941e6ea8
 	github.com/hbagdi/go-unsplash v0.0.0-20210330151707-a7612e80fdd5
+	github.com/tidwall/cities v0.1.0
+	github.com/zsefvlol/timezonemapper v1.0.0
 )
 
 require (
