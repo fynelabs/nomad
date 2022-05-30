@@ -2,6 +2,8 @@ package main
 
 import (
 	"fmt"
+	"image/color"
+	"strings"
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/canvas"
@@ -11,17 +13,22 @@ import (
 	"fyne.io/fyne/v2/widget"
 )
 
+var (
+	locationTextColor = color.NRGBA{0xFF, 0xFF, 0xFF, 0xBF}
+)
+
 type location struct {
 	widget.BaseWidget
 	location *city
+	session  *unsplashSession
 
 	date *widget.Select
 	time *widget.SelectEntry
 	dots *fyne.Container
 }
 
-func newLocation(loc *city) *location {
-	l := &location{location: loc}
+func newLocation(loc *city, session *unsplashSession) *location {
+	l := &location{location: loc, session: session}
 	l.ExtendBaseWidget(l)
 
 	l.date = widget.NewSelect([]string{}, func(string) {})
@@ -43,13 +50,33 @@ func newLocation(loc *city) *location {
 func (l *location) CreateRenderer() fyne.WidgetRenderer {
 	bg := canvas.NewImageFromResource(theme.FileImageIcon())
 	bg.Translucency = 0.5
-	city := widget.NewRichTextFromMarkdown("# " + l.location.name)
-	location := widget.NewRichTextFromMarkdown("## " + l.location.country + " · " + l.location.localTime.Format("MST"))
+	city := widget.NewRichTextFromMarkdown("# " + strings.ToUpper(l.location.name))
+
+	location := canvas.NewText(" "+strings.ToUpper(l.location.country)+" · "+l.location.localTime.Format("MST"), locationTextColor)
+	location.TextStyle.Monospace = true
+	location.TextSize = 10
+	location.Move(fyne.NewPos(theme.Padding(), city.MinSize().Height-location.TextSize*.5))
 	input := container.NewBorder(nil, nil, l.date, l.time)
 
 	c := container.NewMax(bg,
 		container.NewBorder(nil,
-			container.NewVBox(container.NewHBox(city, layout.NewSpacer(), l.dots), location, input), nil, nil))
+			container.NewVBox(container.NewWithoutLayout(container.NewHBox(city, layout.NewSpacer(), l.dots), location), input), nil, nil))
+
+	go func() {
+		if l.session == nil {
+			return
+		}
+
+		unsplashBg, err := l.session.get(l.location)
+		if err != nil {
+			fyne.LogError("unable to build Unsplash image", err)
+			return
+		}
+
+		c.Objects[0] = unsplashBg
+		c.Refresh()
+	}()
+
 	return widget.NewSimpleRenderer(c)
 }
 
