@@ -109,8 +109,22 @@ func (n *nomad) makeHome() fyne.CanvasObject {
 		cells = append(cells, newLocation(c))
 	}
 
-	homeContainer := container.New(&nomadLayout{})
-	cells = append(cells, n.makeAddCell(homeContainer))
-	homeContainer.Objects = cells
-	return homeContainer
+	// <<<<<<< HEAD
+	// 	homeContainer := container.New(&nomadLayout{})
+	// 	cells = append(cells, n.makeAddCell(homeContainer))
+	// 	homeContainer.Objects = cells
+	// 	return homeContainer
+	// =======
+	// 	layout := &nomadLayout{}
+	// 	scroll := container.NewVScroll(container.New(layout, cells...))
+	// 	scroll.SetMinSize(layout.minOuterSize())
+	// 	return scroll
+	// >>>>>>> main
+	layout := &nomadLayout{}
+	homeContainer := container.New(layout)
+	homeContainer.Objects = append(cells, n.makeAddCell(homeContainer))
+	scroll := container.NewVScroll(homeContainer)
+	scroll.SetMinSize(layout.minOuterSize())
+	return scroll
+
 }
