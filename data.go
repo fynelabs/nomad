@@ -117,14 +117,26 @@ func (s *cityStore) savePhoto(prefix string, unsplash *photo) {
 
 }
 
-func (s *cityStore) save() {
-	s.prefs.SetInt(preferenceKeyPrefix+"count", len(s.list))
+var saveChannel chan *cityStore
 
-	for i, c := range s.list {
-		prefix := preferenceKeyPrefix + strconv.Itoa(i) + "."
-		s.prefs.SetString(prefix+"name", c.name)
-		s.prefs.SetString(prefix+"country", c.country)
-		s.prefs.SetString(prefix+"zone", c.localTime.Location().String())
-		s.savePhoto(prefix, &c.unsplash)
-	}
+func init() {
+	saveChannel = make(chan *cityStore)
+
+	go func() {
+		for s := range saveChannel {
+			s.prefs.SetInt(preferenceKeyPrefix+"count", len(s.list))
+
+			for i, c := range s.list {
+				prefix := preferenceKeyPrefix + strconv.Itoa(i) + "."
+				s.prefs.SetString(prefix+"name", c.name)
+				s.prefs.SetString(prefix+"country", c.country)
+				s.prefs.SetString(prefix+"zone", c.localTime.Location().String())
+				s.savePhoto(prefix, &c.unsplash)
+			}
+		}
+	}()
+}
+
+func (s *cityStore) save() {
+	saveChannel <- s
 }
