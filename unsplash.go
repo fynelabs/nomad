@@ -103,7 +103,7 @@ func (us *unsplashSession) fetchMetadata(city string, country string) (photo, er
 		portfolio:        getPhotographerPortfolio((*photos.Results)[0].Photographer),
 		original:         getURL((*photos.Results)[0]),
 		full:             (*photos.Results)[0].Urls.Full.URL,
-		photoWebsite:     (*photos.Results)[0].Links.Self.URL,
+		photoWebsite:     (*photos.Results)[0].Links.HTML.URL,
 	}, nil
 }
 
