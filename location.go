@@ -42,7 +42,10 @@ func newLocation(loc *city, session *unsplashSession, canvas fyne.Canvas) *locat
 
 	menu := fyne.NewMenu("",
 		fyne.NewMenuItem("Delete Place", func() { fmt.Println("Delete place") }),
-		fyne.NewMenuItem("Photo info", func() { fmt.Println("Photo info") }))
+		fyne.NewMenuItem("Photo info", func() {
+			c := fyne.CurrentApp().Driver().CanvasForObject(l.button)
+			c.Overlays().Add(loc.newInfoScreen(c))
+		}))
 
 	l.button = widget.NewButtonWithIcon("", theme.MoreHorizontalIcon(), func() {
 		position := fyne.CurrentApp().Driver().AbsolutePositionForObject(l.button)

@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"image/color"
 	"io"
 	"net/http"
 	"net/url"
@@ -9,7 +10,11 @@ import (
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/canvas"
+	"fyne.io/fyne/v2/container"
+	"fyne.io/fyne/v2/layout"
 	"fyne.io/fyne/v2/storage"
+	"fyne.io/fyne/v2/theme"
+	"fyne.io/fyne/v2/widget"
 	"github.com/hbagdi/go-unsplash/unsplash"
 )
 
@@ -179,4 +184,57 @@ func canvasImage(r io.Reader, name string) *canvas.Image {
 	img.ScaleMode = canvas.ImageScaleFastest
 	img.Translucency = 0.15
 	return img
+}
+
+func (city city) newInfoScreen(c fyne.Canvas) fyne.CanvasObject {
+	photographer := canvas.NewText("Photographer", locationTextColor)
+	photographer.TextStyle.Monospace = true
+	photographer.TextSize = 10
+	photographer.Move(fyne.NewPos(theme.Padding(), theme.Padding()))
+	photographerName := canvas.NewText(city.unsplash.photographerName, color.White)
+	photographerName.Move(fyne.NewPos(theme.Padding(), photographer.MinSize().Height))
+
+	location := canvas.NewText("Location", locationTextColor)
+	location.TextStyle.Monospace = true
+	location.TextSize = 10
+	location.Move(fyne.NewPos(theme.Padding(), theme.Padding()))
+	cityCountry := canvas.NewText(city.name+","+city.country, color.White)
+	cityCountry.Move(fyne.NewPos(theme.Padding(), location.MinSize().Height))
+
+	linkImage := widget.NewHyperlink("View on unsplash", city.unsplash.photoWebsite)
+
+	max := container.NewMax(canvas.NewRectangle(theme.BackgroundColor()), canvas.NewImageFromResource(theme.FileImageIcon()))
+	border := container.NewBorder(nil, nil, nil, nil, max)
+
+	exitButton := widget.NewButtonWithIcon("", theme.CancelIcon(), func() {
+		c.Overlays().Remove(border)
+	})
+	exitButton.Importance = widget.LowImportance
+
+	hbox := container.NewHBox(container.NewVBox(
+		container.NewMax(canvas.NewRectangle(color.NRGBA{R: 0, G: 0, B: 0, A: 128}), container.NewVBox(
+			container.NewWithoutLayout(photographer, photographerName), layout.NewSpacer(),
+			container.NewWithoutLayout(location, cityCountry), layout.NewSpacer(),
+			container.NewHBox(linkImage, layout.NewSpacer()))),
+		layout.NewSpacer()),
+		layout.NewSpacer(), container.NewVBox(exitButton, layout.NewSpacer()))
+
+	max.Add(hbox)
+
+	go func() {
+		if city.unsplash.full == nil {
+			return
+		}
+		httpResponse, err := http.Get(city.unsplash.full.String())
+		if err != nil {
+			fyne.LogError("Unable to download full image", err)
+			return
+		}
+		defer httpResponse.Body.Close()
+
+		max.Objects[1] = canvasImage(httpResponse.Body, city.unsplash.full.String())
+		max.Refresh()
+	}()
+
+	return border
 }
