@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"image/color"
+	"os"
 	"strings"
 
 	"fyne.io/fyne/v2"
@@ -52,6 +53,13 @@ func newLocation(loc *city, session *unsplashSession, n *nomad, homeContainer *f
 							homeContainer.Objects = append(homeContainer.Objects[:j], homeContainer.Objects[j+1:]...)
 							break
 						}
+					}
+
+					imageLocation := session.storage.RootURI().String() + "/" + loc.unsplash.cache
+					//session.storage.RootURI() gives file location prefixed with file://
+					e := os.Remove(strings.Split(imageLocation, "//")[1])
+					if e != nil {
+						fyne.LogError("Image could not be deleted from cache", e)
 					}
 				}
 			}
