@@ -55,7 +55,7 @@ func newLocation(loc *city, session *unsplashSession, n *nomad, homeContainer *f
 						}
 					}
 
-					imageLocation := session.storage.RootURI().String() + "/" + loc.unsplash.cache
+					imageLocation := session.storage.RootURI().String() + string(os.PathSeparator) + loc.unsplash.cache
 					//session.storage.RootURI() gives file location prefixed with file://
 					e := os.Remove(strings.Split(imageLocation, "//")[1])
 					if e != nil {
