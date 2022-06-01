@@ -28,7 +28,7 @@ type location struct {
 	dots   *fyne.Container
 }
 
-func newLocation(loc *city, session *unsplashSession) *location {
+func newLocation(loc *city, session *unsplashSession, n *nomad, homeContainer *fyne.Container) *location {
 	l := &location{location: loc, session: session}
 	l.ExtendBaseWidget(l)
 
@@ -40,7 +40,22 @@ func newLocation(loc *city, session *unsplashSession) *location {
 	l.time.SetText(loc.localTime.Format("15:04"))
 
 	menu := fyne.NewMenu("",
-		fyne.NewMenuItem("Delete Place", func() { fmt.Println("Delete place") }),
+		fyne.NewMenuItem("Delete Place", func() {
+			for i := 0; i < len(n.store.list); i++ {
+				if l.location == n.store.list[i] {
+
+					n.store.list = append(n.store.list[:i], n.store.list[i+1:]...)
+					n.store.save()
+
+					for j := 0; j < len(homeContainer.Objects)-1; j++ {
+						if l.location.name == homeContainer.Objects[j].(*location).location.name {
+							homeContainer.Objects = append(homeContainer.Objects[:j], homeContainer.Objects[j+1:]...)
+							break
+						}
+					}
+				}
+			}
+		}),
 		fyne.NewMenuItem("Photo info", func() { fmt.Println("Photo info") }))
 
 	l.button = widget.NewButtonWithIcon("", theme.MoreHorizontalIcon(), func() {
