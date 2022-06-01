@@ -184,9 +184,10 @@ func (l *location) CreateRenderer() fyne.WidgetRenderer {
 	location := widget.NewRichTextFromMarkdown("## " + l.location.country + " · " + l.location.localTime.Format("MST"))
 
 	input := container.NewBorder(nil, nil, l.dateButton, l.time)
+	locationAndDots := container.NewBorder(nil, nil, location, l.dots)
 	c := container.NewMax(bg,
 		container.NewBorder(nil,
-			container.NewVBox(city, location, input), nil, nil))
+			container.NewVBox(city, locationAndDots, input), nil, nil))
 
 	go func() {
 		if l.session == nil {
