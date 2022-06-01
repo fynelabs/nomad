@@ -181,13 +181,15 @@ func (l *location) CreateRenderer() fyne.WidgetRenderer {
 	bg := canvas.NewImageFromResource(theme.FileImageIcon())
 	bg.Translucency = 0.5
 	city := widget.NewRichTextFromMarkdown("# " + l.location.name)
-	location := widget.NewRichTextFromMarkdown("## " + l.location.country + " · " + l.location.localTime.Format("MST"))
-
+	location := canvas.NewText(" "+strings.ToUpper(l.location.country)+" · "+l.location.localTime.Format("MST"), locationTextColor)
+	location.TextStyle.Monospace = true
+	location.TextSize = 10
+	location.Move(fyne.NewPos(theme.Padding(), city.MinSize().Height-location.TextSize*.5))
 	input := container.NewBorder(nil, nil, l.dateButton, l.time)
-	locationAndDots := container.NewBorder(nil, nil, location, l.dots)
+
 	c := container.NewMax(bg,
 		container.NewBorder(nil,
-			container.NewVBox(city, locationAndDots, input), nil, nil))
+			container.NewVBox(container.NewHBox(container.NewWithoutLayout(city, location), layout.NewSpacer(), l.dots), input), nil, nil))
 
 	go func() {
 		if l.session == nil {
