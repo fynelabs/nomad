@@ -3,7 +3,9 @@ package main
 import (
 	"fmt"
 	"image/color"
+	"strconv"
 	"strings"
+	"time"
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/canvas"
@@ -22,18 +24,126 @@ type location struct {
 	location *city
 	session  *unsplashSession
 
-	date   *widget.Select
 	time   *widget.SelectEntry
 	button *widget.Button
 	dots   *fyne.Container
+
+	selectedDay   int
+	selectedMonth int
+	selectedYear  int
+
+	dateButton    *widget.Button
+	monthLabel    *widget.RichText
+	monthPrevious *widget.Button
+	monthNext     *widget.Button
+
+	dateContainer *fyne.Container
+	calendar      *fyne.Container
 }
 
-func newLocation(loc *city, session *unsplashSession) *location {
+func daysOfMonth(l *location) []fyne.CanvasObject {
+	start, _ := time.Parse("2006-1-2", strconv.Itoa(l.selectedYear)+"-"+strconv.Itoa(l.selectedMonth)+"-"+strconv.Itoa(1))
+
+	buttons := []fyne.CanvasObject{}
+
+	//account for Go time pkg starting on sunday at index 0
+	dayIndex := int(start.Weekday())
+	if dayIndex == 0 {
+		dayIndex += 7
+	}
+
+	//add spacers if week doesn't start on Monday
+	for i := 0; i < dayIndex-1; i++ {
+		buttons = append(buttons, layout.NewSpacer())
+	}
+
+	for d := start; d.Month() == start.Month(); d = d.AddDate(0, 0, 1) {
+
+		s := fmt.Sprint(d.Day())
+		var b fyne.CanvasObject = widget.NewButton(s, func() {
+			//functionality for task #12 "Change time using calendar and time picker affecting all city"
+			//to go here
+			fmt.Println("Date selected  = "+s, d.Month(), d.Year())
+		})
+
+		buttons = append(buttons, b)
+	}
+
+	return buttons
+}
+
+func monthYear(l *location) string {
+	return time.Month(l.selectedMonth).String() + " " + strconv.Itoa(l.selectedYear)
+}
+
+func dayMonthYear(l *location) string {
+	d, _ := time.Parse("2006-1-2", strconv.Itoa(l.selectedYear)+"-"+strconv.Itoa(l.selectedMonth)+"-"+strconv.Itoa(l.selectedDay))
+	return d.Weekday().String()[:3] + " " + d.Month().String() + " " + strconv.Itoa(d.Year())
+}
+
+func columnHeadings(textSize float32) []fyne.CanvasObject {
+	l := []fyne.CanvasObject{}
+	for i := 0; i < 7; i++ {
+		j := i + 1
+		if j == 7 {
+			j = 0
+		}
+
+		var canvasObject fyne.CanvasObject = canvas.NewText(strings.ToUpper(time.Weekday(j).String()[:3]), color.NRGBA{0xFF, 0xFF, 0xFF, 0xBF})
+		canvasObject.(*canvas.Text).TextSize = textSize
+		canvasObject.(*canvas.Text).Alignment = fyne.TextAlignCenter
+		l = append(l, canvasObject)
+	}
+
+	return l
+}
+
+func calendarObjects(l *location) []fyne.CanvasObject {
+	c := columnHeadings(8)
+	c = append(c, daysOfMonth(l)...)
+
+	return c
+}
+
+func navigation(l *location) {
+
+	l.monthPrevious = widget.NewButtonWithIcon("", theme.NavigateBackIcon(), func() {
+		l.selectedMonth--
+		if l.selectedMonth < 1 {
+			l.selectedMonth = 12
+			l.selectedYear--
+		}
+		l.monthLabel.ParseMarkdown(monthYear(l))
+
+		l.calendar.Objects = calendarObjects(l)
+	})
+	l.monthNext = widget.NewButtonWithIcon("", theme.NavigateNextIcon(), func() {
+		l.selectedMonth++
+		if l.selectedMonth > 12 {
+			l.selectedMonth = 1
+			l.selectedYear++
+		}
+		l.monthLabel.ParseMarkdown(monthYear(l))
+
+		l.calendar.Objects = calendarObjects(l)
+	})
+
+	l.monthLabel = widget.NewRichTextFromMarkdown(monthYear(l))
+}
+
+func calendar(l *location) {
+	l.calendar = container.New(NewCalendarLayout(32), calendarObjects(l)...)
+
+	b := container.New(layout.NewBorderLayout(nil, nil, l.monthPrevious, l.monthNext),
+		l.monthPrevious, l.monthNext, container.NewCenter(l.monthLabel))
+
+	l.dateContainer = container.NewVBox(b, l.calendar)
+}
+
+func newLocation(loc *city, session *unsplashSession, n *nomad) *location {
 	l := &location{location: loc, session: session}
 	l.ExtendBaseWidget(l)
 
-	l.date = widget.NewSelect([]string{}, func(string) {})
-	l.date.PlaceHolder = loc.localTime.Format("Mon 02 Jan")
 	l.time = widget.NewSelectEntry(listTimes())
 	l.time.PlaceHolder = "22:00" // longest
 	l.time.Wrapping = fyne.TextWrapOff
@@ -53,23 +163,30 @@ func newLocation(loc *city, session *unsplashSession) *location {
 
 	l.dots = container.NewVBox(layout.NewSpacer(), l.button)
 
+	l.selectedDay = time.Now().Day()
+	l.selectedMonth = int(time.Now().Month())
+	l.selectedYear = time.Now().Year()
+
+	navigation(l)
+	calendar(l)
+
+	l.dateButton = widget.NewButton(dayMonthYear(l), func() {
+		widget.ShowPopUpAtPosition(l.dateContainer, n.main.Canvas(), fyne.NewPos(0, l.Size().Height)) //wait for merge to use "homeContainer" for second object position
+	})
+
 	return l
 }
 
 func (l *location) CreateRenderer() fyne.WidgetRenderer {
 	bg := canvas.NewImageFromResource(theme.FileImageIcon())
 	bg.Translucency = 0.5
-	city := widget.NewRichTextFromMarkdown("# " + strings.ToUpper(l.location.name))
+	city := widget.NewRichTextFromMarkdown("# " + l.location.name)
+	location := widget.NewRichTextFromMarkdown("## " + l.location.country + " · " + l.location.localTime.Format("MST"))
 
-	location := canvas.NewText(" "+strings.ToUpper(l.location.country)+" · "+l.location.localTime.Format("MST"), locationTextColor)
-	location.TextStyle.Monospace = true
-	location.TextSize = 10
-	location.Move(fyne.NewPos(theme.Padding(), city.MinSize().Height-location.TextSize*.5))
-	input := container.NewBorder(nil, nil, l.date, l.time)
-
+	input := container.NewBorder(nil, nil, l.dateButton, l.time)
 	c := container.NewMax(bg,
 		container.NewBorder(nil,
-			container.NewVBox(container.NewHBox(container.NewWithoutLayout(city, location), layout.NewSpacer(), l.dots), input), nil, nil))
+			container.NewVBox(city, location, input), nil, nil))
 
 	go func() {
 		if l.session == nil {
