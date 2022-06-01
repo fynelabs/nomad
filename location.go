@@ -171,7 +171,7 @@ func newLocation(loc *city, session *unsplashSession, n *nomad) *location {
 	calendar(l)
 
 	l.dateButton = widget.NewButton(dayMonthYear(l), func() {
-		widget.ShowPopUpAtPosition(l.dateContainer, n.main.Canvas(), fyne.NewPos(0, l.Size().Height)) //wait for merge to use "homeContainer" for second object position
+		widget.ShowPopUpAtPosition(l.dateContainer, n.main.Canvas(), fyne.NewPos(0, l.Size().Height))
 	})
 
 	return l
