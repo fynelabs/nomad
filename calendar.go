@@ -50,6 +50,10 @@ func daysOfMonth(c *calendar) []fyne.CanvasObject {
 
 		s := fmt.Sprint(d.Day())
 		var b fyne.CanvasObject = widget.NewButton(s, func() {
+
+			overlayList := c.canvas.Overlays().List()
+			overlayList[0].Hide()
+
 			//functionality for task #12 "Change time using calendar and time picker affecting all city"
 			//to go here
 			fmt.Println("Date selected  = "+s, c.month, c.year)
