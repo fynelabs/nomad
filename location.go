@@ -22,18 +22,19 @@ type location struct {
 	location *city
 	session  *unsplashSession
 
-	date   *widget.Select
 	time   *widget.SelectEntry
 	button *widget.Button
 	dots   *fyne.Container
+
+	dateButton *widget.Button
+
+	calendar *calendar
 }
 
-func newLocation(loc *city, session *unsplashSession) *location {
+func newLocation(loc *city, session *unsplashSession, canvas fyne.Canvas) *location {
 	l := &location{location: loc, session: session}
 	l.ExtendBaseWidget(l)
 
-	l.date = widget.NewSelect([]string{}, func(string) {})
-	l.date.PlaceHolder = loc.localTime.Format("Mon 02 Jan")
 	l.time = widget.NewSelectEntry(listTimes())
 	l.time.PlaceHolder = "22:00" // longest
 	l.time.Wrapping = fyne.TextWrapOff
@@ -53,19 +54,25 @@ func newLocation(loc *city, session *unsplashSession) *location {
 
 	l.dots = container.NewVBox(layout.NewSpacer(), l.button)
 
+	l.calendar = newCalendar()
+
+	l.dateButton = widget.NewButton(dayMonthYear(l.calendar), func() {
+		newCalendarPopUpAtPos(l.calendar, canvas, fyne.NewPos(0, l.Size().Height))
+	})
+	l.dateButton.Alignment = widget.ButtonAlignLeading
+
 	return l
 }
 
 func (l *location) CreateRenderer() fyne.WidgetRenderer {
 	bg := canvas.NewImageFromResource(theme.FileImageIcon())
 	bg.Translucency = 0.5
-	city := widget.NewRichTextFromMarkdown("# " + strings.ToUpper(l.location.name))
-
+	city := widget.NewRichTextFromMarkdown("# " + l.location.name)
 	location := canvas.NewText(" "+strings.ToUpper(l.location.country)+" · "+l.location.localTime.Format("MST"), locationTextColor)
 	location.TextStyle.Monospace = true
 	location.TextSize = 10
 	location.Move(fyne.NewPos(theme.Padding(), city.MinSize().Height-location.TextSize*.5))
-	input := container.NewBorder(nil, nil, l.date, l.time)
+	input := container.NewBorder(nil, nil, l.dateButton, l.time)
 
 	c := container.NewMax(bg,
 		container.NewBorder(nil,
