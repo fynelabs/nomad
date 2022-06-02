@@ -57,8 +57,7 @@ func newLocation(loc *city, session *unsplashSession, n *nomad) *location {
 	l.calendar = newCalendar()
 
 	l.dateButton = widget.NewButton(dayMonthYear(l.calendar), func() {
-		//widget.ShowPopUpAtPosition(l.dateContainer, n.main.Canvas(), fyne.NewPos(0, l.Size().Height))
-		widget.ShowPopUpAtPosition(l.calendar, n.main.Canvas(), fyne.NewPos(0, l.Size().Height)) //newCalendarPopAtPos
+		newCalendarPopUpAtPos(l.calendar, n.main.Canvas(), fyne.NewPos(0, l.Size().Height))
 	})
 
 	return l

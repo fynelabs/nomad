@@ -21,6 +21,7 @@ type calendar struct {
 	monthPrevious *widget.Button
 	monthNext     *widget.Button
 	monthLabel    *widget.RichText
+	canvas        fyne.Canvas
 
 	day   int
 	month int
@@ -93,6 +94,11 @@ func calendarObjects(c *calendar) []fyne.CanvasObject {
 	return cH
 }
 
+func newCalendarPopUpAtPos(c *calendar, canvas fyne.Canvas, pos fyne.Position) {
+	c.canvas = canvas
+	widget.ShowPopUpAtPosition(c, canvas, pos)
+}
+
 func (c *calendar) CreateRenderer() fyne.WidgetRenderer {
 
 	c.monthPrevious = widget.NewButtonWithIcon("", theme.NavigateBackIcon(), func() {
@@ -118,13 +124,10 @@ func (c *calendar) CreateRenderer() fyne.WidgetRenderer {
 
 	c.monthLabel = widget.NewRichTextFromMarkdown(monthYear(c))
 
-	cH := columnHeadings(8)
-	cH = append(cH, daysOfMonth(c)...)
-
 	nav := container.New(layout.NewBorderLayout(nil, nil, c.monthPrevious, c.monthNext),
 		c.monthPrevious, c.monthNext, container.NewCenter(c.monthLabel))
 
-	c.dates = container.New(NewCalendarLayout(32), cH...)
+	c.dates = container.New(NewCalendarLayout(32), calendarObjects(c)...)
 
 	dateContainer := container.NewVBox(nav, c.dates)
 	return widget.NewSimpleRenderer(dateContainer)
