@@ -5,6 +5,8 @@ import (
 	"io"
 	"net/http"
 	"net/url"
+	"os"
+	"path"
 	"time"
 
 	"fyne.io/fyne/v2"
@@ -179,4 +181,13 @@ func canvasImage(r io.Reader, name string) *canvas.Image {
 	img.ScaleMode = canvas.ImageScaleFastest
 	img.Translucency = 0.15
 	return img
+}
+
+func removeImageFromCache(l *location, n *nomad) {
+	imageLocation := path.Join(n.session.storage.RootURI().Path(), l.location.unsplash.cache)
+
+	e := os.Remove(imageLocation)
+	if e != nil {
+		fyne.LogError("Image could not be deleted from cache", e)
+	}
 }

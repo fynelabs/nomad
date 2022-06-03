@@ -31,6 +31,28 @@ type location struct {
 	calendar *calendar
 }
 
+func (s *cityStore) remove(l *location, homeContainer *fyne.Container, n *nomad) {
+	for i := 0; i < len(n.store.list); i++ {
+		if l.location == n.store.list[i] {
+
+			s.removeCityFromStoreList(i)
+
+			removeLocationFromContainer(l, homeContainer)
+
+			removeImageFromCache(l, n)
+		}
+	}
+}
+
+func removeLocationFromContainer(l *location, homeContainer *fyne.Container) {
+	for j := 0; j < len(homeContainer.Objects)-1; j++ {
+		if l.location.name == homeContainer.Objects[j].(*location).location.name {
+			homeContainer.Remove(homeContainer.Objects[j])
+			break
+		}
+	}
+}
+
 func newLocation(loc *city, n *nomad, canvas fyne.Canvas, homeContainer *fyne.Container) *location {
 	l := &location{location: loc, session: n.session}
 	l.ExtendBaseWidget(l)
