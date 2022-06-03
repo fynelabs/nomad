@@ -29,11 +29,12 @@ type location struct {
 	dateButton      *widget.Button
 	locationTZLabel *canvas.Text
 
-	calendar *calendar
+	calendar      *calendar
+	homeContainer *fyne.Container
 }
 
-func newLocation(loc *city, session *unsplashSession, canvas fyne.Canvas) *location {
-	l := &location{location: loc, session: session}
+func newLocation(loc *city, session *unsplashSession, canvas fyne.Canvas, homeC *fyne.Container) *location {
+	l := &location{location: loc, session: session, homeContainer: homeC}
 	l.ExtendBaseWidget(l)
 
 	l.time = widget.NewSelectEntry(listTimes())
@@ -58,7 +59,7 @@ func newLocation(loc *city, session *unsplashSession, canvas fyne.Canvas) *locat
 	l.calendar = newCalendar()
 
 	l.dateButton = widget.NewButton(fullDate(l.calendar), func() {
-		newCalendarPopUpAtPos(l, l.calendar, l.dateButton, l.locationTZLabel, canvas, fyne.NewPos(0, l.Size().Height))
+		newCalendarPopUpAtPos(l.calendar, l, canvas, fyne.NewPos(0, l.Size().Height))
 	})
 	l.dateButton.Alignment = widget.ButtonAlignLeading
 

@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"image/color"
+	"reflect"
 	"strconv"
 	"strings"
 	"time"
@@ -18,12 +19,11 @@ import (
 type calendar struct {
 	widget.BaseWidget
 
-	dateButton      *widget.Button
-	monthPrevious   *widget.Button
-	monthNext       *widget.Button
-	monthLabel      *widget.RichText
-	canvas          fyne.Canvas
-	locationTZLabel *canvas.Text
+	dateButton    *widget.Button
+	monthPrevious *widget.Button
+	monthNext     *widget.Button
+	monthLabel    *widget.RichText
+	canvas        fyne.Canvas
 
 	l *location
 
@@ -60,8 +60,6 @@ func daysOfMonth(c *calendar) []fyne.CanvasObject {
 			c.day, _ = strconv.Atoi(s)
 			fmt.Println("Date selected  = ", c.day, c.month, c.year)
 
-			c.dateButton.SetText(fullDate(c))
-
 			//selectedTime
 			selectedTime := c.l.time.Text
 			fmt.Println("selected time:", selectedTime)
@@ -69,17 +67,28 @@ func daysOfMonth(c *calendar) []fyne.CanvasObject {
 			minute, _ := strconv.Atoi(split[0])
 			hour, _ := strconv.Atoi(split[1])
 
-			//create a date
-			date := time.Date(c.year, time.Month(c.month), c.day, hour, minute, 0, 0, c.l.location.localTime.Location())
-
-			c.locationTZLabel.Text = strings.ToUpper(c.l.location.country + " · " + date.Format("MST"))
-			c.locationTZLabel.TextStyle.Monospace = true
-			c.locationTZLabel.TextSize = 10
-			c.locationTZLabel.Move(fyne.NewPos(theme.Padding()*2, 40)) //first time clicked this label moves ever so slightly
-			c.locationTZLabel.Refresh()
-
 			//do for the other locations
+			for i := 0; i < len(c.l.homeContainer.Objects); i++ {
+				if reflect.TypeOf(c.l.homeContainer.Objects[i]) != reflect.TypeOf(c.l) {
+					continue
+				}
+				loc := c.l.homeContainer.Objects[i].(*location)
+				loc.dateButton.SetText(fullDate(c.l.calendar)) //this
 
+				//create a date
+				date := time.Date(c.year, time.Month(c.month), c.day, hour, minute, 0, 0, loc.location.localTime.Location())
+
+				loc.locationTZLabel.Text = strings.ToUpper(loc.location.country + " · " + date.Format("MST"))
+				loc.locationTZLabel.TextStyle.Monospace = true
+				loc.locationTZLabel.TextSize = 10
+				loc.locationTZLabel.Move(fyne.NewPos(theme.Padding()*2, 40)) //first time clicked this label moves ever so slightly
+				loc.locationTZLabel.Refresh()
+
+				//and change time
+				time := fmt.Sprintf("%02d:%02d", hour)
+				loc.time.SetText(time)
+
+			}
 		})
 
 		buttons = append(buttons, b)
@@ -121,11 +130,9 @@ func calendarObjects(c *calendar) []fyne.CanvasObject {
 	return cH
 }
 
-func newCalendarPopUpAtPos(l *location, c *calendar, dateButton *widget.Button, locationTZLabel *canvas.Text, canvas fyne.Canvas, pos fyne.Position) {
+func newCalendarPopUpAtPos(c *calendar, l *location, canvas fyne.Canvas, pos fyne.Position) {
 	c.canvas = canvas
-	c.dateButton = dateButton
-	c.locationTZLabel = locationTZLabel // not directly related to widget - use callback?
-	c.l = l                             //I don't want to pass this!
+	c.l = l //I don't want to pass this!
 
 	widget.ShowPopUpAtPosition(c, canvas, pos)
 }
