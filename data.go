@@ -2,6 +2,8 @@ package main
 
 import (
 	"net/url"
+	"os"
+	"path"
 	"strconv"
 	"time"
 
@@ -126,5 +128,41 @@ func (s *cityStore) save() {
 		s.prefs.SetString(prefix+"country", c.country)
 		s.prefs.SetString(prefix+"zone", c.localTime.Location().String())
 		s.savePhoto(prefix, &c.unsplash)
+	}
+}
+
+func (s *cityStore) remove(l *location, homeContainer *fyne.Container, n *nomad) {
+	for i := 0; i < len(n.store.list); i++ {
+		if l.location == n.store.list[i] {
+
+			removeCityFromStoreList(i, n)
+
+			removeLocationFromContainer(l, homeContainer)
+
+			removeImageFromCache(l, n)
+		}
+	}
+}
+
+func removeCityFromStoreList(i int, n *nomad) {
+	n.store.list = append(n.store.list[:i], n.store.list[i+1:]...)
+	n.store.save()
+}
+
+func removeLocationFromContainer(l *location, homeContainer *fyne.Container) {
+	for j := 0; j < len(homeContainer.Objects)-1; j++ {
+		if l.location.name == homeContainer.Objects[j].(*location).location.name {
+			homeContainer.Remove(homeContainer.Objects[j])
+			break
+		}
+	}
+}
+
+func removeImageFromCache(l *location, n *nomad) {
+	imageLocation := path.Join(n.session.storage.RootURI().Path(), l.location.unsplash.cache)
+
+	e := os.Remove(imageLocation)
+	if e != nil {
+		fyne.LogError("Image could not be deleted from cache", e)
 	}
 }

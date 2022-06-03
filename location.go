@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 	"image/color"
-	"os"
 	"strings"
 
 	"fyne.io/fyne/v2"
@@ -32,8 +31,8 @@ type location struct {
 	calendar *calendar
 }
 
-func newLocation(loc *city, session *unsplashSession, canvas fyne.Canvas, homeContainer *fyne.Container, n *nomad) *location {
-	l := &location{location: loc, session: session}
+func newLocation(loc *city, n *nomad, canvas fyne.Canvas, homeContainer *fyne.Container) *location {
+	l := &location{location: loc, session: n.session}
 	l.ExtendBaseWidget(l)
 
 	l.time = widget.NewSelectEntry(listTimes())
@@ -42,28 +41,7 @@ func newLocation(loc *city, session *unsplashSession, canvas fyne.Canvas, homeCo
 	l.time.SetText(loc.localTime.Format("15:04"))
 
 	menu := fyne.NewMenu("",
-		fyne.NewMenuItem("Delete Place", func() {
-			for i := 0; i < len(n.store.list); i++ {
-				if l.location == n.store.list[i] {
-
-					n.store.list = append(n.store.list[:i], n.store.list[i+1:]...)
-					n.store.save()
-
-					for j := 0; j < len(homeContainer.Objects)-1; j++ {
-						if l.location.name == homeContainer.Objects[j].(*location).location.name {
-							homeContainer.Objects = append(homeContainer.Objects[:j], homeContainer.Objects[j+1:]...)
-							break
-						}
-					}
-
-					imageLocation := n.session.storage.RootURI().String() + string(os.PathSeparator) + loc.unsplash.cache
-					e := os.Remove(strings.Split(imageLocation, "//")[1])
-					if e != nil {
-						fyne.LogError("Image could not be deleted from cache", e)
-					}
-				}
-			}
-		}),
+		fyne.NewMenuItem("Delete Place", func() { n.store.remove(l, homeContainer, n) }),
 		fyne.NewMenuItem("Photo info", func() { fmt.Println("Photo info") }))
 
 	l.button = widget.NewButtonWithIcon("", theme.MoreHorizontalIcon(), func() {
