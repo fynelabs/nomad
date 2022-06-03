@@ -84,8 +84,10 @@ func daysOfMonth(c *calendar) []fyne.CanvasObject {
 				loc.locationTZLabel.Move(fyne.NewPos(theme.Padding()*2, 40)) //first time clicked this label moves ever so slightly
 				loc.locationTZLabel.Refresh()
 
+				//need to find time in time zone
+
 				//and change time
-				time := fmt.Sprintf("%02d:%02d", hour, minute)
+				time := fmt.Sprintf("%02d:%02d", date.Hour(), date.Minute())
 				loc.time.SetText(time)
 
 			}
