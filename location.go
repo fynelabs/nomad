@@ -26,7 +26,8 @@ type location struct {
 	button *widget.Button
 	dots   *fyne.Container
 
-	dateButton *widget.Button
+	dateButton      *widget.Button
+	locationTZLabel *canvas.Text
 
 	calendar *calendar
 }
@@ -57,7 +58,7 @@ func newLocation(loc *city, session *unsplashSession, canvas fyne.Canvas) *locat
 	l.calendar = newCalendar()
 
 	l.dateButton = widget.NewButton(fullDate(l.calendar), func() {
-		newCalendarPopUpAtPos(l.calendar, l.dateButton, canvas, fyne.NewPos(0, l.Size().Height))
+		newCalendarPopUpAtPos(l, l.calendar, l.dateButton, l.locationTZLabel, canvas, fyne.NewPos(0, l.Size().Height))
 	})
 	l.dateButton.Alignment = widget.ButtonAlignLeading
 
@@ -68,15 +69,15 @@ func (l *location) CreateRenderer() fyne.WidgetRenderer {
 	bg := canvas.NewImageFromResource(theme.FileImageIcon())
 	bg.Translucency = 0.5
 	city := widget.NewRichTextFromMarkdown("# " + l.location.name)
-	location := canvas.NewText(" "+strings.ToUpper(l.location.country)+" · "+l.location.localTime.Format("MST"), locationTextColor)
-	location.TextStyle.Monospace = true
-	location.TextSize = 10
-	location.Move(fyne.NewPos(theme.Padding(), city.MinSize().Height-location.TextSize*.5))
+	l.locationTZLabel = canvas.NewText(" "+strings.ToUpper(l.location.country)+" · "+l.location.localTime.Format("MST"), locationTextColor)
+	l.locationTZLabel.TextStyle.Monospace = true
+	l.locationTZLabel.TextSize = 10
+	l.locationTZLabel.Move(fyne.NewPos(theme.Padding(), city.MinSize().Height-l.locationTZLabel.TextSize*.5))
 	input := container.NewBorder(nil, nil, l.dateButton, l.time)
 
 	c := container.NewMax(bg,
 		container.NewBorder(nil,
-			container.NewVBox(container.NewHBox(container.NewWithoutLayout(city, location), layout.NewSpacer(), l.dots), input), nil, nil))
+			container.NewVBox(container.NewHBox(container.NewWithoutLayout(city, l.locationTZLabel), layout.NewSpacer(), l.dots), input), nil, nil))
 
 	go func() {
 		if l.session == nil {

@@ -18,11 +18,14 @@ import (
 type calendar struct {
 	widget.BaseWidget
 
-	dateButton    *widget.Button
-	monthPrevious *widget.Button
-	monthNext     *widget.Button
-	monthLabel    *widget.RichText
-	canvas        fyne.Canvas
+	dateButton      *widget.Button
+	monthPrevious   *widget.Button
+	monthNext       *widget.Button
+	monthLabel      *widget.RichText
+	canvas          fyne.Canvas
+	locationTZLabel *canvas.Text
+
+	l *location
 
 	day   int
 	month int
@@ -58,6 +61,36 @@ func daysOfMonth(c *calendar) []fyne.CanvasObject {
 			fmt.Println("Date selected  = ", c.day, c.month, c.year)
 
 			c.dateButton.SetText(fullDate(c))
+
+			//create a date
+			date := time.Date(c.year, time.Month(c.month), c.day, time.Now().Hour(), time.Now().Minute(), time.Now().Second(), 0, c.l.location.localTime.Location())
+
+			c.locationTZLabel.Text = strings.ToUpper(c.l.location.country + " · " + date.Format("MST"))
+			c.locationTZLabel.TextStyle.Monospace = true
+			c.locationTZLabel.TextSize = 10
+			c.locationTZLabel.Move(fyne.NewPos(theme.Padding()*2, 40))
+			c.locationTZLabel.Refresh()
+
+			// //location card in the home container
+			// target := homeContainer.Objects[i].(*location)
+
+			// t := time.Date(l.selectedYear, time.Month(l.selectedMonth), l.selectedDay, time.Now().UTC().Hour(), time.Now().UTC().Minute(), time.Now().UTC().Second(), 0, time.UTC)
+
+			// a := t.In(target.location.localTime.Location())
+
+			// //pop up button text
+			// fullDate := a.Weekday().String()[:3] + " " + s + " " + a.Month().String() + " " + strconv.Itoa(a.Year())
+			// target.dateButton.SetText(fullDate)
+
+			// //apply to ui
+			// target.locationTZLabel.Text = strings.ToUpper(target.location.country + " · " + a.Format("MST"))
+			// target.locationTZLabel.TextStyle.Monospace = true
+			// target.locationTZLabel.TextSize = 10
+			// target.locationTZLabel.Move(fyne.NewPos(theme.Padding()*2, 40))
+			// target.locationTZLabel.Refresh()
+
+			// //time
+			// target.time.SetText(a.Format("15:04"))
 
 		})
 
@@ -100,9 +133,12 @@ func calendarObjects(c *calendar) []fyne.CanvasObject {
 	return cH
 }
 
-func newCalendarPopUpAtPos(c *calendar, dateButton *widget.Button, canvas fyne.Canvas, pos fyne.Position) {
+func newCalendarPopUpAtPos(l *location, c *calendar, dateButton *widget.Button, locationTZLabel *canvas.Text, canvas fyne.Canvas, pos fyne.Position) {
 	c.canvas = canvas
 	c.dateButton = dateButton
+	c.locationTZLabel = locationTZLabel // not directly related to widget - use callback?
+	c.l = l                             //I don't want to pass this!
+
 	widget.ShowPopUpAtPosition(c, canvas, pos)
 }
 
