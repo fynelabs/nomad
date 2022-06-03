@@ -18,7 +18,7 @@ type calendarLayout struct {
 	vertical, adapt bool
 }
 
-func NewCalendarLayout(s float64) fyne.Layout {
+func newCalendarLayout(s float64) fyne.Layout {
 	cellSize = s
 	return &calendarLayout{Cols: 7}
 }

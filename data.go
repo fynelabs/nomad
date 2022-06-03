@@ -34,22 +34,22 @@ func newCityPhoto(p fyne.Preferences, prefix string) photo {
 	description := p.String(prefix + "photoDescription")
 	photographerName := p.String(prefix + "photographerName")
 	photographerPortfolio := p.String(prefix + "photographerPortfolio")
-	photographerPortfolioUrl, err := url.Parse(photographerPortfolio)
+	photographerPortfolioURL, err := url.Parse(photographerPortfolio)
 	if err != nil {
 		fyne.LogError("Failed to parse photographer portfolio uri: "+photographerPortfolio, err)
 	}
 	original := p.String(prefix + "photoOriginal")
-	originalUrl, err := url.Parse(original)
+	originalURL, err := url.Parse(original)
 	if err != nil {
 		fyne.LogError("Failed to parse photo uri: "+original, err)
 	}
 	full := p.String(prefix + "photoFull")
-	fullUrl, err := url.Parse(full)
+	fullURL, err := url.Parse(full)
 	if err != nil {
 		fyne.LogError("Failed to parse photo uri: "+full, err)
 	}
 	link := p.String(prefix + "photoWebsite")
-	linkUrl, err := url.Parse(link)
+	linkURL, err := url.Parse(link)
 	if err != nil {
 		fyne.LogError("Failed to parse photo uri: "+link, err)
 	}
@@ -58,10 +58,10 @@ func newCityPhoto(p fyne.Preferences, prefix string) photo {
 		cache:            cache,
 		description:      description,
 		photographerName: photographerName,
-		portfolio:        photographerPortfolioUrl,
-		original:         originalUrl,
-		full:             fullUrl,
-		photoWebsite:     linkUrl,
+		portfolio:        photographerPortfolioURL,
+		original:         originalURL,
+		full:             fullURL,
+		photoWebsite:     linkURL,
 	}
 }
 
