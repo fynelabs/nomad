@@ -56,10 +56,12 @@ func newLocation(loc *city, session *unsplashSession, canvas fyne.Canvas) *locat
 
 	l.calendar = newCalendar()
 
-	l.dateButton = widget.NewButton(dayMonthYear(l.calendar), func() {
+	l.dateButton = widget.NewButtonWithIcon(dayMonthYear(l.calendar), theme.MenuDropDownIcon(), func() {
 		newCalendarPopUpAtPos(l.calendar, canvas, fyne.NewPos(0, l.Size().Height))
 	})
 	l.dateButton.Alignment = widget.ButtonAlignLeading
+	l.dateButton.IconPlacement = widget.ButtonIconTrailingText
+	l.dateButton.Importance = widget.LowImportance
 
 	return l
 }
