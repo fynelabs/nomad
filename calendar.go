@@ -18,6 +18,7 @@ import (
 type calendar struct {
 	widget.BaseWidget
 
+	dateButton    *widget.Button
 	monthPrevious *widget.Button
 	monthNext     *widget.Button
 	monthLabel    *widget.RichText
@@ -53,10 +54,11 @@ func daysOfMonth(c *calendar) []fyne.CanvasObject {
 
 			overlayList := c.canvas.Overlays().List()
 			overlayList[0].Hide()
+			c.day, _ = strconv.Atoi(s)
+			fmt.Println("Date selected  = ", c.day, c.month, c.year)
 
-			//functionality for task #12 "Change time using calendar and time picker affecting all city"
-			//to go here
-			fmt.Println("Date selected  = "+s, c.month, c.year)
+			c.dateButton.SetText(fullDate(c))
+
 		})
 
 		buttons = append(buttons, b)
@@ -69,9 +71,9 @@ func monthYear(c *calendar) string {
 	return time.Month(c.month).String() + " " + strconv.Itoa(c.year)
 }
 
-func dayMonthYear(c *calendar) string {
+func fullDate(c *calendar) string {
 	d, _ := time.Parse("2006-1-2", strconv.Itoa(c.year)+"-"+strconv.Itoa(c.month)+"-"+strconv.Itoa(c.day))
-	return d.Weekday().String()[:3] + " " + d.Month().String() + " " + strconv.Itoa(d.Year())
+	return d.Weekday().String()[:3] + " " + strconv.Itoa(d.Day()) + " " + d.Month().String() + " " + strconv.Itoa(d.Year())
 }
 
 func columnHeadings(textSize float32) []fyne.CanvasObject {
@@ -98,8 +100,9 @@ func calendarObjects(c *calendar) []fyne.CanvasObject {
 	return cH
 }
 
-func newCalendarPopUpAtPos(c *calendar, canvas fyne.Canvas, pos fyne.Position) {
+func newCalendarPopUpAtPos(c *calendar, dateButton *widget.Button, canvas fyne.Canvas, pos fyne.Position) {
 	c.canvas = canvas
+	c.dateButton = dateButton
 	widget.ShowPopUpAtPosition(c, canvas, pos)
 }
 
