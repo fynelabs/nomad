@@ -64,8 +64,10 @@ github.com/fredbi/uri v0.0.0-20181227131451-3dcfdacbaaf3/go.mod h1:CzM2G82Q9BDUv
 github.com/fsnotify/fsnotify v1.4.9/go.mod h1:znqG4EE+3YCdAaPaxE2ZRY/06pZUdp0tY4IgpuI1SZQ=
 github.com/fsnotify/fsnotify v1.5.1 h1:mZcQUHVQUQWoPXXtuf9yuEXKudkV2sx1E06UadKWpgI=
 github.com/fsnotify/fsnotify v1.5.1/go.mod h1:T3375wBYaZdLLcVNkcVbzGHY7f1l/uK5T5Ai1i3InKU=
-github.com/fynelabs/selfupdate v0.0.0-20220603000419-444d39477e4a h1:ASjvVN3sWHTo93Hnzla7KSWZDS2ipKn+RfSxmnD07IQ=
-github.com/fynelabs/selfupdate v0.0.0-20220603000419-444d39477e4a/go.mod h1:n0XqnuiHUlOE3CuS1l1uVXvSlADxxleYWtqPwRYv5sI=
+github.com/fynelabs/fyneselfupdate v0.0.0-20220603205731-c5bb0df533b2 h1:1cPkhpZj6h8OL3vShyfmKeNTflwdFhOKXtNzYlm3gLA=
+github.com/fynelabs/fyneselfupdate v0.0.0-20220603205731-c5bb0df533b2/go.mod h1:h0Teq0bKVzyhdym7KtOFs5FbYwuRop2CGAq2hZx/4TE=
+github.com/fynelabs/selfupdate v0.0.0-20220603204439-a69db6be85fb h1:TSLxo12ugy025SR9e0VJKvtHZG0O3xcLqG5Y1a9tuuE=
+github.com/fynelabs/selfupdate v0.0.0-20220603204439-a69db6be85fb/go.mod h1:n0XqnuiHUlOE3CuS1l1uVXvSlADxxleYWtqPwRYv5sI=
 github.com/go-gl/gl v0.0.0-20210813123233-e4099ee2221f/go.mod h1:wjpnOv6ONl2SuJSxqCPVaPZibGFdSci9HFocT9qtVYM=
 github.com/go-gl/gl v0.0.0-20211210172815-726fda9656d6 h1:zDw5v7qm4yH7N8C8uWd+8Ii9rROdgWxQuGoJ9WDXxfk=
 github.com/go-gl/gl v0.0.0-20211210172815-726fda9656d6/go.mod h1:9YTyiznxEY1fVinfM7RvRcjRHbw2xLBJ3AAGIT0I4Nw=

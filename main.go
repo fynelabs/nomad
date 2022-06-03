@@ -13,11 +13,10 @@ type nomad struct {
 }
 
 func main() {
-
-	selfUpdate()
-
 	a := app.NewWithID("com.fynelabs.nomad")
 	w := a.NewWindow("Nomad")
+
+	selfUpdate(a, w)
 
 	store := newCityStore(a.Preferences())
 	session := newUnsplashSession(a.Storage(), store)
