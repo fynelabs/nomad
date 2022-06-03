@@ -56,8 +56,7 @@ func newLocation(loc *city, session *unsplashSession, canvas fyne.Canvas, homeCo
 						}
 					}
 
-					imageLocation := session.storage.RootURI().String() + string(os.PathSeparator) + loc.unsplash.cache
-					//session.storage.RootURI() gives file location prefixed with file://
+					imageLocation := n.session.storage.RootURI().String() + string(os.PathSeparator) + loc.unsplash.cache
 					e := os.Remove(strings.Split(imageLocation, "//")[1])
 					if e != nil {
 						fyne.LogError("Image could not be deleted from cache", e)

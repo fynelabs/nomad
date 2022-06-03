@@ -83,7 +83,7 @@ func (n *nomad) autoCompleteEntry(homeContainer *fyne.Container) *CompletionEntr
 			n.store.list = append(n.store.list, c)
 			n.store.save()
 
-			l := newLocation(c, n.session, n.main.Canvas())
+			l := newLocation(c, n.session, n.main.Canvas(), homeContainer, n)
 			homeContainer.Objects = append(homeContainer.Objects[:len(homeContainer.Objects)-1], l, homeContainer.Objects[len(homeContainer.Objects)-1])
 		}
 	}
