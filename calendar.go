@@ -64,8 +64,8 @@ func daysOfMonth(c *calendar) []fyne.CanvasObject {
 			selectedTime := c.l.time.Text
 			fmt.Println("selected time:", selectedTime)
 			split := strings.Split(selectedTime, ":")
-			minute, _ := strconv.Atoi(split[0])
-			hour, _ := strconv.Atoi(split[1])
+			hour, _ := strconv.Atoi(split[0])
+			minute, _ := strconv.Atoi(split[1])
 
 			//do for the other locations
 			for i := 0; i < len(c.l.homeContainer.Objects); i++ {
@@ -85,7 +85,7 @@ func daysOfMonth(c *calendar) []fyne.CanvasObject {
 				loc.locationTZLabel.Refresh()
 
 				//and change time
-				time := fmt.Sprintf("%02d:%02d", hour)
+				time := fmt.Sprintf("%02d:%02d", hour, minute)
 				loc.time.SetText(time)
 
 			}
