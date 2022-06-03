@@ -129,7 +129,7 @@ func (s *cityStore) save() {
 	}
 }
 
-func (s *cityStore) removeCityFromStoreList(i int) {
+func removeCityFromStoreList(s *cityStore, i int) {
 	s.list = append(s.list[:i], s.list[i+1:]...)
 	s.save()
 }

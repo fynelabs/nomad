@@ -183,7 +183,7 @@ func canvasImage(r io.Reader, name string) *canvas.Image {
 	return img
 }
 
-func removeImageFromCache(l *location, n *nomad) {
+func (us *unsplashSession) removeImageFromCache(l *location, n *nomad) {
 	imageLocation := path.Join(n.session.storage.RootURI().Path(), l.location.unsplash.cache)
 
 	e := os.Remove(imageLocation)

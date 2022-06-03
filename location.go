@@ -31,7 +31,8 @@ type location struct {
 	calendar *calendar
 }
 
-func newLocation(loc *city, n *nomad, canvas fyne.Canvas, homeContainer *fyne.Container) *location {
+func newLocation(loc *city, n *nomad, homeContainer *fyne.Container) *location {
+
 	l := &location{location: loc, session: n.session}
 	l.ExtendBaseWidget(l)
 
@@ -41,7 +42,7 @@ func newLocation(loc *city, n *nomad, canvas fyne.Canvas, homeContainer *fyne.Co
 	l.time.SetText(loc.localTime.Format("15:04"))
 
 	menu := fyne.NewMenu("",
-		fyne.NewMenuItem("Delete Place", func() { n.store.remove(l, homeContainer, n) }),
+		fyne.NewMenuItem("Delete Place", func() { l.remove(homeContainer, n) }),
 		fyne.NewMenuItem("Photo info", func() { fmt.Println("Photo info") }))
 
 	l.button = widget.NewButtonWithIcon("", theme.MoreHorizontalIcon(), func() {
@@ -57,7 +58,7 @@ func newLocation(loc *city, n *nomad, canvas fyne.Canvas, homeContainer *fyne.Co
 	l.calendar = newCalendar()
 
 	l.dateButton = widget.NewButton(dayMonthYear(l.calendar), func() {
-		newCalendarPopUpAtPos(l.calendar, canvas, fyne.NewPos(0, l.Size().Height))
+		newCalendarPopUpAtPos(l.calendar, n.main.Canvas(), fyne.NewPos(0, l.Size().Height))
 	})
 	l.dateButton.Alignment = widget.ButtonAlignLeading
 
@@ -105,20 +106,20 @@ func listTimes() (times []string) {
 	return times
 }
 
-func (s *cityStore) remove(l *location, homeContainer *fyne.Container, n *nomad) {
+func (l *location) remove(homeContainer *fyne.Container, n *nomad) {
 	for i := 0; i < len(n.store.list); i++ {
 		if l.location == n.store.list[i] {
 
-			s.removeCityFromStoreList(i)
+			removeCityFromStoreList(n.store, i)
 
-			removeLocationFromContainer(l, homeContainer)
+			l.removeLocationFromContainer(homeContainer)
 
-			removeImageFromCache(l, n)
+			l.session.removeImageFromCache(l, n)
 		}
 	}
 }
 
-func removeLocationFromContainer(l *location, homeContainer *fyne.Container) {
+func (l *location) removeLocationFromContainer(homeContainer *fyne.Container) {
 	for j := 0; j < len(homeContainer.Objects)-1; j++ {
 		if l.location.name == homeContainer.Objects[j].(*location).location.name {
 			homeContainer.Remove(homeContainer.Objects[j])
