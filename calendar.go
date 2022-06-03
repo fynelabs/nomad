@@ -62,35 +62,23 @@ func daysOfMonth(c *calendar) []fyne.CanvasObject {
 
 			c.dateButton.SetText(fullDate(c))
 
+			//selectedTime
+			selectedTime := c.l.time.Text
+			fmt.Println("selected time:", selectedTime)
+			split := strings.Split(selectedTime, ":")
+			minute, _ := strconv.Atoi(split[0])
+			hour, _ := strconv.Atoi(split[1])
+
 			//create a date
-			date := time.Date(c.year, time.Month(c.month), c.day, time.Now().Hour(), time.Now().Minute(), time.Now().Second(), 0, c.l.location.localTime.Location())
+			date := time.Date(c.year, time.Month(c.month), c.day, hour, minute, 0, 0, c.l.location.localTime.Location())
 
 			c.locationTZLabel.Text = strings.ToUpper(c.l.location.country + " · " + date.Format("MST"))
 			c.locationTZLabel.TextStyle.Monospace = true
 			c.locationTZLabel.TextSize = 10
-			c.locationTZLabel.Move(fyne.NewPos(theme.Padding()*2, 40))
+			c.locationTZLabel.Move(fyne.NewPos(theme.Padding()*2, 40)) //first time clicked this label moves ever so slightly
 			c.locationTZLabel.Refresh()
 
-			// //location card in the home container
-			// target := homeContainer.Objects[i].(*location)
-
-			// t := time.Date(l.selectedYear, time.Month(l.selectedMonth), l.selectedDay, time.Now().UTC().Hour(), time.Now().UTC().Minute(), time.Now().UTC().Second(), 0, time.UTC)
-
-			// a := t.In(target.location.localTime.Location())
-
-			// //pop up button text
-			// fullDate := a.Weekday().String()[:3] + " " + s + " " + a.Month().String() + " " + strconv.Itoa(a.Year())
-			// target.dateButton.SetText(fullDate)
-
-			// //apply to ui
-			// target.locationTZLabel.Text = strings.ToUpper(target.location.country + " · " + a.Format("MST"))
-			// target.locationTZLabel.TextStyle.Monospace = true
-			// target.locationTZLabel.TextSize = 10
-			// target.locationTZLabel.Move(fyne.NewPos(theme.Padding()*2, 40))
-			// target.locationTZLabel.Refresh()
-
-			// //time
-			// target.time.SetText(a.Format("15:04"))
+			//do for the other locations
 
 		})
 

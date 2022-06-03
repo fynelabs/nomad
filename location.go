@@ -72,7 +72,7 @@ func (l *location) CreateRenderer() fyne.WidgetRenderer {
 	l.locationTZLabel = canvas.NewText(" "+strings.ToUpper(l.location.country)+" · "+l.location.localTime.Format("MST"), locationTextColor)
 	l.locationTZLabel.TextStyle.Monospace = true
 	l.locationTZLabel.TextSize = 10
-	l.locationTZLabel.Move(fyne.NewPos(theme.Padding(), city.MinSize().Height-l.locationTZLabel.TextSize*.5))
+	l.locationTZLabel.Move(fyne.NewPos(theme.Padding(), 40))
 	input := container.NewBorder(nil, nil, l.dateButton, l.time)
 
 	c := container.NewMax(bg,
