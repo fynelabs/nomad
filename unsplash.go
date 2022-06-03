@@ -131,8 +131,7 @@ func (us *unsplashSession) download(p photo) (*canvas.Image, error) {
 	}
 
 	reader := io.TeeReader(httpResponse.Body, write)
-
-	return canvas.NewImageFromReader(reader, p.original.String()), nil
+	return canvasImage(reader, p.original.String()), nil
 }
 
 func (us *unsplashSession) cached(cache string) (*canvas.Image, error) {
@@ -146,7 +145,7 @@ func (us *unsplashSession) cached(cache string) (*canvas.Image, error) {
 		return nil, err
 	}
 
-	return canvas.NewImageFromReader(reader, cache), nil
+	return canvasImage(reader, cache), nil
 }
 
 func (us *unsplashSession) get(location *city) (*canvas.Image, error) {
@@ -173,4 +172,11 @@ func (us *unsplashSession) get(location *city) (*canvas.Image, error) {
 	us.store.save()
 
 	return r, nil
+}
+
+func canvasImage(r io.Reader, name string) *canvas.Image {
+	img := canvas.NewImageFromReader(r, name)
+	img.ScaleMode = canvas.ImageScaleFastest
+	img.Translucency = 0.15
+	return img
 }

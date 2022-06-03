@@ -83,7 +83,7 @@ func (n *nomad) autoCompleteEntry(homeContainer *fyne.Container) *CompletionEntr
 			n.store.list = append(n.store.list, c)
 			n.store.save()
 
-			l := newLocation(c, n.session, n, homeContainer)
+			l := newLocation(c, n.session, n.main.Canvas())
 			homeContainer.Objects = append(homeContainer.Objects[:len(homeContainer.Objects)-1], l, homeContainer.Objects[len(homeContainer.Objects)-1])
 		}
 	}
@@ -109,7 +109,7 @@ func (n *nomad) makeHome() fyne.CanvasObject {
 
 	cells := []fyne.CanvasObject{}
 	for _, c := range n.store.cities() {
-		cells = append(cells, newLocation(c, n.session, n, homeContainer))
+		cells = append(cells, newLocation(c, n.session, n.main.Canvas(), homeContainer, n))
 	}
 
 	homeContainer.Objects = append(cells, n.makeAddCell(homeContainer))
