@@ -17,19 +17,12 @@ func selfManage(a fyne.App, w fyne.Window) {
 	// The public key above match the signature of the below file served by our CDN
 	httpSource := selfupdate.NewHTTPSource(nil, "http://geoffrey-test-artefacts.fynelabs.com/nomad.exe")
 
-	config := &selfupdate.Config{
-		Source:    httpSource,
-		Schedule:  selfupdate.Schedule{FetchOnStart: true, Interval: time.Hour * time.Duration(12)},
-		PublicKey: publicKey,
+	config := fyneselfupdate.NewConfigWithTimeout(a, w, time.Duration(1)*time.Minute,
+		httpSource,
+		selfupdate.Schedule{FetchOnStart: true, Interval: time.Hour * time.Duration(12)},
+		publicKey)
 
-		// This is here to force an update by announcing a time so old that nothing existed
-		Current: &selfupdate.Version{Date: time.Unix(100, 0)},
-
-		ProgressCallback:       fyneselfupdate.NewProgressCallback(w),
-		RestartConfirmCallback: fyneselfupdate.NewRestartConfirmCallbackWithTimeout(w, true, time.Duration(1)*time.Minute),
-		UpgradeConfirmCallback: fyneselfupdate.NewConfirmCallbackWithTimeout(w, time.Duration(1)*time.Minute),
-		ExitCallback:           fyneselfupdate.NewExitCallback(a, w),
-	}
+	config.Current = &selfupdate.Version{Date: time.Unix(100, 0)}
 
 	_, err := selfupdate.Manage(config)
 	if err != nil {
