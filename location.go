@@ -110,11 +110,13 @@ func (l *location) remove(homeContainer *fyne.Container, n *nomad) {
 	for i := 0; i < len(n.store.list); i++ {
 		if l.location == n.store.list[i] {
 
-			removeCityFromStoreList(n.store, i)
+			n.store.removeCityFromStoreList(i)
 
 			l.removeLocationFromContainer(homeContainer)
 
-			l.session.removeImageFromCache(l, n)
+			l.session.removeImageFromCache(l)
+
+			break
 		}
 	}
 }
