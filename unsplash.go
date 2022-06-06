@@ -186,12 +186,12 @@ func canvasImage(r io.Reader, name string) *canvas.Image {
 }
 
 func (city city) newInfoScreen(c fyne.Canvas) fyne.CanvasObject {
-	photographer := canvas.NewText("Photographer", locationTextColor)
+	photographer := canvas.NewText("PHOTOGRAPHER", locationTextColor)
 	photographer.TextStyle.Monospace = true
 	photographer.TextSize = 10
 	photographerName := canvas.NewText(city.unsplash.photographerName, color.White)
 
-	location := canvas.NewText("Location", locationTextColor)
+	location := canvas.NewText("LOCATION", locationTextColor)
 	location.TextStyle.Monospace = true
 	location.TextSize = 10
 	cityCountry := canvas.NewText(city.name+", "+city.country, color.White)
@@ -216,9 +216,9 @@ func (city city) newInfoScreen(c fyne.Canvas) fyne.CanvasObject {
 		defer httpResponse.Body.Close()
 
 		bg = canvasImage(httpResponse.Body, city.unsplash.full.String())
-		fmt.Println("x", bg.Size())
 
-		bg.FillMode = canvas.ImageFillStretch
+		//		bg.FillMode = canvas.ImageFillContain
+		bg.FillMode = canvas.ImageFillOriginal
 
 		overlay.Objects[0] = bg
 		//defaults to 0.15 translucency
