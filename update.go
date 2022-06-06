@@ -22,6 +22,8 @@ func selfManage(a fyne.App, w fyne.Window) {
 		selfupdate.Schedule{FetchOnStart: true, Interval: time.Hour * time.Duration(12)},
 		publicKey)
 
+	// This is here to force an update by announcing a time so old that nothing existed
+	// TODO: remove once enough test are done
 	config.Current = &selfupdate.Version{Date: time.Unix(100, 0)}
 
 	_, err := selfupdate.Manage(config)
