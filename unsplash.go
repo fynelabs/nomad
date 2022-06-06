@@ -11,7 +11,6 @@ import (
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/canvas"
 	"fyne.io/fyne/v2/container"
-	"fyne.io/fyne/v2/layout"
 	"fyne.io/fyne/v2/storage"
 	"fyne.io/fyne/v2/theme"
 	"fyne.io/fyne/v2/widget"
@@ -190,36 +189,20 @@ func (city city) newInfoScreen(c fyne.Canvas) fyne.CanvasObject {
 	photographer := canvas.NewText("Photographer", locationTextColor)
 	photographer.TextStyle.Monospace = true
 	photographer.TextSize = 10
-	photographer.Move(fyne.NewPos(theme.Padding(), theme.Padding()))
 	photographerName := canvas.NewText(city.unsplash.photographerName, color.White)
-	photographerName.Move(fyne.NewPos(theme.Padding(), photographer.MinSize().Height))
 
 	location := canvas.NewText("Location", locationTextColor)
 	location.TextStyle.Monospace = true
 	location.TextSize = 10
-	location.Move(fyne.NewPos(theme.Padding(), theme.Padding()))
-	cityCountry := canvas.NewText(city.name+","+city.country, color.White)
-	cityCountry.Move(fyne.NewPos(theme.Padding(), location.MinSize().Height))
+	cityCountry := canvas.NewText(city.name+", "+city.country, color.White)
 
 	linkImage := widget.NewHyperlink("View on unsplash", city.unsplash.photoWebsite)
 
-	max := container.NewMax(canvas.NewRectangle(theme.BackgroundColor()), canvas.NewImageFromResource(theme.FileImageIcon()))
-	border := container.NewBorder(nil, nil, nil, nil, max)
+	overlay := container.NewMax()
 
-	exitButton := widget.NewButtonWithIcon("", theme.CancelIcon(), func() {
-		c.Overlays().Remove(border)
-	})
-	exitButton.Importance = widget.LowImportance
-
-	hbox := container.NewHBox(container.NewVBox(
-		container.NewMax(canvas.NewRectangle(color.NRGBA{R: 0, G: 0, B: 0, A: 128}), container.NewVBox(
-			container.NewWithoutLayout(photographer, photographerName), layout.NewSpacer(),
-			container.NewWithoutLayout(location, cityCountry), layout.NewSpacer(),
-			container.NewHBox(linkImage, layout.NewSpacer()))),
-		layout.NewSpacer()),
-		layout.NewSpacer(), container.NewVBox(exitButton, layout.NewSpacer()))
-
-	max.Add(hbox)
+	bg := canvas.NewImageFromResource(theme.FileImageIcon())
+	bg.SetMinSize(c.Size())
+	overlay.Add(bg)
 
 	go func() {
 		if city.unsplash.full == nil {
@@ -232,9 +215,26 @@ func (city city) newInfoScreen(c fyne.Canvas) fyne.CanvasObject {
 		}
 		defer httpResponse.Body.Close()
 
-		max.Objects[1] = canvasImage(httpResponse.Body, city.unsplash.full.String())
-		max.Refresh()
+		bg = canvasImage(httpResponse.Body, city.unsplash.full.String())
+		fmt.Println("x", bg.Size())
+
+		bg.FillMode = canvas.ImageFillStretch
+
+		overlay.Objects[0] = bg
+		//defaults to 0.15 translucency
+		overlay.Objects[0].(*canvas.Image).Translucency = 0
 	}()
 
-	return border
+	exitButton := widget.NewButtonWithIcon("", theme.CancelIcon(), func() {
+		c.Overlays().Remove(overlay)
+	})
+	exitButton.Importance = widget.LowImportance
+
+	pulldown := container.NewBorder(
+		container.NewMax(canvas.NewRectangle(&color.NRGBA{0x00, 0x00, 0x00, 0x80}),
+			container.NewBorder(nil, nil, nil, container.NewBorder(exitButton, nil, nil, nil)),
+			container.NewVBox(photographer, photographerName, location, cityCountry, linkImage)), nil, nil, nil)
+
+	overlay.Add(pulldown)
+	return overlay
 }
