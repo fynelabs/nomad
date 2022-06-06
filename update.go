@@ -15,7 +15,7 @@ func selfManage(a fyne.App, w fyne.Window) {
 	publicKey := ed25519.PublicKey{178, 103, 83, 57, 61, 138, 18, 249, 244, 80, 163, 162, 24, 251, 190, 241, 11, 168, 179, 41, 245, 27, 166, 70, 220, 254, 118, 169, 101, 26, 199, 129}
 
 	// The public key above match the signature of the below file served by our CDN
-	httpSource := selfupdate.NewHTTPSource(nil, "http://geoffrey-test-artefacts.fynelabs.com/nomad.exe")
+	httpSource := selfupdate.NewHTTPSource(nil, "http://geoffrey-test-artefacts.fynelabs.com/nomad-{{.OS}}-{{.Arch}}{{.Ext}}")
 
 	config := fyneselfupdate.NewConfigWithTimeout(a, w, time.Duration(1)*time.Minute,
 		httpSource,
