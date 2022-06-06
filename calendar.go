@@ -69,9 +69,9 @@ func monthYear(c *calendar) string {
 	return time.Month(c.month).String() + " " + strconv.Itoa(c.year)
 }
 
-func dayMonthYear(c *calendar) string {
+func fullDate(c *calendar) string {
 	d, _ := time.Parse("2006-1-2", strconv.Itoa(c.year)+"-"+strconv.Itoa(c.month)+"-"+strconv.Itoa(c.day))
-	return d.Weekday().String()[:3] + " " + d.Month().String() + " " + strconv.Itoa(d.Year())
+	return d.Weekday().String()[:3] + " " + strconv.Itoa(d.Day()) + " " + d.Month().String() + " " + strconv.Itoa(d.Year())
 }
 
 func columnHeadings(textSize float32) []fyne.CanvasObject {
