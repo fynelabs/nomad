@@ -10,7 +10,7 @@ import (
 	"github.com/fynelabs/selfupdate"
 )
 
-func selfUpdate(a fyne.App, w fyne.Window) {
+func selfManage(a fyne.App, w fyne.Window) {
 	// Used `selfupdatectl create-keys` followed by `selfupdatectl print-key`
 	publicKey := ed25519.PublicKey{178, 103, 83, 57, 61, 138, 18, 249, 244, 80, 163, 162, 24, 251, 190, 241, 11, 168, 179, 41, 245, 27, 166, 70, 220, 254, 118, 169, 101, 26, 199, 129}
 
