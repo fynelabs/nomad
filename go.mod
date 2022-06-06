@@ -40,8 +40,6 @@ require (
 
 replace github.com/hbagdi/go-unsplash => github.com/Bluebugs/go-unsplash v0.0.0-20220525000733-ea882dd1d0c0
 
-//replace github.com/fynelabs/selfupdate => github.com/fynelabs/selfupdate v0.0.0-20220603000419-444d39477e4a
-
 replace github.com/fynelabs/selfupdate => github.com/fynelabs/selfupdate v0.0.0-20220603204439-a69db6be85fb
 
 replace github.com/fynelabs/fyneselfupdate => github.com/fynelabs/fyneselfupdate v0.0.0-20220603205731-c5bb0df533b2

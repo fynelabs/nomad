@@ -26,12 +26,10 @@ func main() {
 	a.Settings().SetTheme(&myTheme{})
 
 	splash := ui.makeSplash()
-
-	w.SetContent(container.NewVBox(container.NewMax(ui.makeHome(), splash)))
+	w.SetContent(container.NewMax(ui.makeHome(), splash))
 	w.SetPadded(false)
 	w.Resize(fyne.NewSize(300, 500))
 
 	go ui.fadeSplash(splash)
 	w.ShowAndRun()
-
 }
