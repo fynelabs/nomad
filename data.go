@@ -128,3 +128,8 @@ func (s *cityStore) save() {
 		s.savePhoto(prefix, &c.unsplash)
 	}
 }
+
+func (s *cityStore) removeCityFromStoreList(i int) {
+	s.list = append(s.list[:i], s.list[i+1:]...)
+	s.save()
+}
