@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 	"image/color"
-	"reflect"
 	"strconv"
 	"strings"
 	"time"
@@ -63,7 +62,7 @@ func daysOfMonth(c *calendar) []fyne.CanvasObject {
 			c.setCachedDateInfo(selectedDate)
 
 			//apply selected date to all locations
-			c.setDate(selectedDate)
+			setDate(selectedDate, c.l.homeContainer.Objects)
 
 			//we are finished, hide overlay
 			c.hideOverlay()
@@ -77,7 +76,7 @@ func daysOfMonth(c *calendar) []fyne.CanvasObject {
 }
 
 //Andy - we need a newDateForTime which ignores the calendar picker state and just applies the time set based on old for the date etc
-//Del - ?
+// Del - ?
 var old = time.Now()
 
 func (c *calendar) newDateForCalendar(dayNum int) time.Time {
@@ -92,18 +91,20 @@ func (c *calendar) hideOverlay() {
 	overlayList[0].Hide()
 }
 
-func (c *calendar) setDate(dateToSet time.Time) {
+func setDate(dateToSet time.Time, containerObjects []fyne.CanvasObject) {
 
 	old = dateToSet
-	for i := 0; i < len(c.l.homeContainer.Objects); i++ {
-		if reflect.TypeOf(c.l.homeContainer.Objects[i]) != reflect.TypeOf(c.l) {
+	for i := 0; i < len(containerObjects); i++ {
+
+		loc, ok := containerObjects[i].(*location)
+
+		if !ok {
 			continue
 		}
 
-		loc := c.l.homeContainer.Objects[i].(*location)
 		locDate := dateToSet.In(loc.location.localTime.Location())
 
-		c.l.setLocationLabel(loc, locDate)
+		setLocationLabel(loc, locDate)
 	}
 }
 
@@ -113,15 +114,10 @@ func (c *calendar) setCachedDateInfo(dateToSet time.Time) {
 	c.l.calendar.year = dateToSet.Year()
 }
 
-// func (c *calendar) setTime(dateToSet time.Time) {
-// 	time := fmt.Sprintf("%02d:%02d", dateToSet.Hour(), dateToSet.Minute())
-// 	c.l.time.SetText(time)
-// }
-
-func (l *location) setLocationLabel(loc *location, locDate time.Time) {
+func setLocationLabel(loc *location, locDate time.Time) {
 
 	loc.time.SetText(locDate.Format("15:04"))
-	loc.locationTZLabel.Text = strings.ToUpper(l.location.country + " · " + locDate.Format("MST"))
+	loc.locationTZLabel.Text = strings.ToUpper(loc.location.country + " · " + locDate.Format("MST"))
 	loc.locationTZLabel.Refresh()
 	loc.dateButton.SetText(locDate.Format("Mon 02 Jan 2006"))
 }
