@@ -71,7 +71,7 @@ func monthYear(c *calendar) string {
 
 func fullDate(c *calendar) string {
 	d, _ := time.Parse("2006-1-2", strconv.Itoa(c.year)+"-"+strconv.Itoa(c.month)+"-"+strconv.Itoa(c.day))
-	return d.Weekday().String()[:3] + " " + d.Format("02 Jan 2006")
+	return d.Format("Mon 02 Jan 2006")
 }
 
 func columnHeadings(textSize float32) []fyne.CanvasObject {
