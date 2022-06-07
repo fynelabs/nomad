@@ -52,51 +52,91 @@ func daysOfMonth(c *calendar) []fyne.CanvasObject {
 
 	for d := start; d.Month() == start.Month(); d = d.AddDate(0, 0, 1) {
 
-		s := fmt.Sprint(d.Day())
+		dayNum := d.Day()
+		s := fmt.Sprint(dayNum)
 		var b fyne.CanvasObject = widget.NewButton(s, func() {
 
-			overlayList := c.canvas.Overlays().List()
-			overlayList[0].Hide()
-			c.day, _ = strconv.Atoi(s)
-			fmt.Println("Date selected  = ", c.day, c.month, c.year)
+			//create new date with data from calendar picker
+			selectedDate := c.selectedDate(dayNum)
 
-			//selectedTime
-			selectedTime := c.l.time.Text
-			fmt.Println("selected time:", selectedTime)
-			split := strings.Split(selectedTime, ":")
-			hour, _ := strconv.Atoi(split[0])
-			minute, _ := strconv.Atoi(split[1])
+			//save this new data to calendar struct
+			c.setCachedDateInfo(selectedDate)
 
-			//do for the other locations
-			for i := 0; i < len(c.l.homeContainer.Objects); i++ {
-				if reflect.TypeOf(c.l.homeContainer.Objects[i]) != reflect.TypeOf(c.l) {
-					continue
-				}
-				loc := c.l.homeContainer.Objects[i].(*location)
-				loc.dateButton.SetText(fullDate(c.l.calendar)) //this
+			//apply selected date to all locations
+			c.setDate(selectedDate)
 
-				//create a date
-				date := time.Date(c.year, time.Month(c.month), c.day, hour, minute, 0, 0, loc.location.localTime.Location())
+			//we are finished, hide overlay
+			c.hideOverlay()
 
-				loc.locationTZLabel.Text = strings.ToUpper(loc.location.country + " · " + date.Format("MST"))
-				loc.locationTZLabel.TextStyle.Monospace = true
-				loc.locationTZLabel.TextSize = 10
-				loc.locationTZLabel.Move(fyne.NewPos(theme.Padding()*2, 40)) //first time clicked this label moves ever so slightly
-				loc.locationTZLabel.Refresh()
-
-				//need to find time in time zone
-
-				//and change time
-				time := fmt.Sprintf("%02d:%02d", date.Hour(), date.Minute())
-				loc.time.SetText(time)
-
-			}
 		})
 
 		buttons = append(buttons, b)
 	}
 
 	return buttons
+}
+
+func (c *calendar) selectedDate(dayNum int) time.Time {
+	selectedTime := c.l.time.Text
+
+	split := strings.Split(selectedTime, ":")
+	hour, _ := strconv.Atoi(split[0])
+	minute, _ := strconv.Atoi(split[1])
+
+	selectedDate := time.Date(c.year, time.Month(c.month), dayNum, hour, minute, 0, 0, c.l.location.localTime.Location())
+	fmt.Println("sel Date:", selectedDate)
+
+	return selectedDate
+}
+
+func (c *calendar) hideOverlay() {
+	overlayList := c.canvas.Overlays().List()
+	overlayList[0].Hide()
+}
+
+func (c *calendar) setDate(dateToSet time.Time) {
+
+	for i := 0; i < len(c.l.homeContainer.Objects); i++ {
+		if reflect.TypeOf(c.l.homeContainer.Objects[i]) != reflect.TypeOf(c.l) {
+			continue
+		}
+
+		loc := c.l.homeContainer.Objects[i].(*location)
+
+		locDate := time.Date(c.year, time.Month(c.month), c.day, dateToSet.Hour(), dateToSet.Minute(), 0, 0, loc.location.localTime.Location())
+
+		fmt.Println("locDate", locDate)
+		//locDate := dateToSet.In(
+
+		setButtonText(loc)
+		c.setTime(dateToSet)
+		c.setLocationLabel(dateToSet)
+	}
+}
+
+func (c *calendar) setCachedDateInfo(dateToSet time.Time) {
+	c.l.calendar.day = dateToSet.Day()
+	c.l.calendar.month = int(dateToSet.Month())
+	c.l.calendar.year = dateToSet.Year()
+}
+
+func setButtonText(loc *location) {
+	loc.dateButton.SetText(fullDate(loc.calendar))
+}
+
+func (c *calendar) setTime(dateToSet time.Time) {
+	time := fmt.Sprintf("%02d:%02d", dateToSet.Hour(), dateToSet.Minute())
+	c.l.time.SetText(time)
+}
+
+func (c *calendar) setLocationLabel(dateToSet time.Time) {
+
+	c.l.locationTZLabel.Text = strings.ToUpper(c.l.location.country + " · " + dateToSet.Format("MST"))
+	c.l.locationTZLabel.TextStyle.Monospace = true
+	c.l.locationTZLabel.TextSize = 10
+	c.l.locationTZLabel.Move(fyne.NewPos(theme.Padding()*2, 40)) //first time clicked this label moves ever so slightly
+	c.l.locationTZLabel.Refresh()
+
 }
 
 func monthYear(c *calendar) string {
