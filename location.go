@@ -77,7 +77,7 @@ func (l *location) CreateRenderer() fyne.WidgetRenderer {
 	l.locationTZLabel = canvas.NewText(" "+strings.ToUpper(l.location.country)+" · "+l.location.localTime.Format("MST"), locationTextColor)
 	l.locationTZLabel.TextStyle.Monospace = true
 	l.locationTZLabel.TextSize = 10
-	l.locationTZLabel.Move(fyne.NewPos(theme.Padding(), 40))
+	l.locationTZLabel.Move(fyne.NewPos(theme.Padding()*2, 40))
 	input := container.NewBorder(nil, nil, l.dateButton, l.time)
 
 	c := container.NewMax(bg,
@@ -115,6 +115,10 @@ func (l *location) setLocationLabel(locDate time.Time) {
 
 	l.time.SetText(locDate.Format("15:04"))
 	l.locationTZLabel.Text = strings.ToUpper(l.location.country + " · " + locDate.Format("MST"))
+
+	//Without this the text moves, but even with this, you can see the change happening
+	l.locationTZLabel.Move(fyne.NewPos(theme.Padding()*3, 40))
+
 	l.locationTZLabel.Refresh()
 	l.dateButton.SetText(locDate.Format("Mon 02 Jan 2006"))
 }
