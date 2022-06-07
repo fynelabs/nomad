@@ -76,15 +76,11 @@ func daysOfMonth(c *calendar) []fyne.CanvasObject {
 	return buttons
 }
 
+var old = time.Now()
+
 func (c *calendar) selectedDate(dayNum int) time.Time {
-	selectedTime := c.l.time.Text
-
-	split := strings.Split(selectedTime, ":")
-	hour, _ := strconv.Atoi(split[0])
-	minute, _ := strconv.Atoi(split[1])
-
-	selectedDate := time.Date(c.year, time.Month(c.month), dayNum, hour, minute, 0, 0, c.l.location.localTime.Location())
-	fmt.Println("sel Date:", selectedDate)
+	oldName, off := old.Zone()
+	selectedDate := time.Date(c.year, time.Month(c.month), dayNum, old.Hour(), old.Minute(), 0, 0, time.FixedZone(oldName, off)).In(c.l.location.localTime.Location())
 
 	return selectedDate
 }
@@ -103,11 +99,10 @@ func (c *calendar) setDate(dateToSet time.Time) {
 
 		loc := c.l.homeContainer.Objects[i].(*location)
 
-		locDate := time.Date(c.year, time.Month(c.month), c.day, dateToSet.Hour(), dateToSet.Minute(), 0, 0, loc.location.localTime.Location())
-		fmt.Println("locDate", locDate)
+		locDate := dateToSet.In(loc.location.localTime.Location())
 
-		//time picker - not working
-		c.setTime(dateToSet)
+		//time picker
+		loc.time.SetText(fmt.Sprintf("%02d:%02d", locDate.Hour(), locDate.Minute()))
 
 		//location label - working
 		c.setLocationLabel(dateToSet)
@@ -123,10 +118,10 @@ func (c *calendar) setCachedDateInfo(dateToSet time.Time) {
 	c.l.calendar.year = dateToSet.Year()
 }
 
-func (c *calendar) setTime(dateToSet time.Time) {
-	time := fmt.Sprintf("%02d:%02d", dateToSet.Hour(), dateToSet.Minute())
-	c.l.time.SetText(time)
-}
+// func (c *calendar) setTime(dateToSet time.Time) {
+// 	time := fmt.Sprintf("%02d:%02d", dateToSet.Hour(), dateToSet.Minute())
+// 	c.l.time.SetText(time)
+// }
 
 func (c *calendar) setLocationLabel(dateToSet time.Time) {
 
