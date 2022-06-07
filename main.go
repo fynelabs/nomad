@@ -1,6 +1,8 @@
 package main
 
 import (
+	"time"
+
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/app"
 	"fyne.io/fyne/v2/container"
@@ -11,6 +13,8 @@ type nomad struct {
 	store   *cityStore
 	session *unsplashSession
 }
+
+var globalAppTime = time.Now()
 
 func main() {
 	a := app.NewWithID("com.fynelabs.nomad")

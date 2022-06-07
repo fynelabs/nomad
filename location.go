@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"image/color"
 	"strings"
+	"time"
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/canvas"
@@ -56,10 +57,10 @@ func newLocation(loc *city, session *unsplashSession, canvas fyne.Canvas, homeC 
 
 	l.dots = container.NewVBox(layout.NewSpacer(), l.button)
 
-	l.calendar = newCalendar()
+	l.calendar = newCalendar(l)
 
-	l.dateButton = widget.NewButton(fullDate(l.calendar), func() {
-		newCalendarPopUpAtPos(l.calendar, l, canvas, fyne.NewPos(0, l.Size().Height))
+	l.dateButton = widget.NewButton(l.calendar.fullDate(), func() {
+		l.calendar.newCalendarPopUpAtPos(canvas, fyne.NewPos(0, l.Size().Height))
 	})
 	l.dateButton.Alignment = widget.ButtonAlignLeading
 
@@ -105,4 +106,12 @@ func listTimes() (times []string) {
 			fmt.Sprintf("%02d:30", hour), fmt.Sprintf("%02d:45", hour))
 	}
 	return times
+}
+
+func (l *location) setLocationLabel(locDate time.Time) {
+
+	l.time.SetText(locDate.Format("15:04"))
+	l.locationTZLabel.Text = strings.ToUpper(l.location.country + " · " + locDate.Format("MST"))
+	l.locationTZLabel.Refresh()
+	l.dateButton.SetText(locDate.Format("Mon 02 Jan 2006"))
 }

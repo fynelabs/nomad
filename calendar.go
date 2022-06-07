@@ -18,7 +18,6 @@ import (
 type calendar struct {
 	widget.BaseWidget
 
-	dateButton    *widget.Button
 	monthPrevious *widget.Button
 	monthNext     *widget.Button
 	monthLabel    *widget.RichText
@@ -33,7 +32,7 @@ type calendar struct {
 	dates *fyne.Container
 }
 
-func daysOfMonth(c *calendar) []fyne.CanvasObject {
+func (c *calendar) daysOfMonth() []fyne.CanvasObject {
 	start, _ := time.Parse("2006-1-2", strconv.Itoa(c.year)+"-"+strconv.Itoa(c.month)+"-"+strconv.Itoa(1))
 
 	buttons := []fyne.CanvasObject{}
@@ -55,16 +54,12 @@ func daysOfMonth(c *calendar) []fyne.CanvasObject {
 		s := fmt.Sprint(dayNum)
 		var b fyne.CanvasObject = widget.NewButton(s, func() {
 
-			//create new date with data from calendar picker
 			selectedDate := c.newDateForCalendar(dayNum)
 
-			//save this new data to calendar struct
 			c.setCachedDateInfo(selectedDate)
 
-			//apply selected date to all locations
 			setDate(selectedDate, c.l.homeContainer.Objects)
 
-			//we are finished, hide overlay
 			c.hideOverlay()
 
 		})
@@ -75,13 +70,9 @@ func daysOfMonth(c *calendar) []fyne.CanvasObject {
 	return buttons
 }
 
-//Andy - we need a newDateForTime which ignores the calendar picker state and just applies the time set based on old for the date etc
-// Del - ?
-var old = time.Now()
-
 func (c *calendar) newDateForCalendar(dayNum int) time.Time {
-	oldName, off := old.Zone()
-	selectedDate := time.Date(c.year, time.Month(c.month), dayNum, old.Hour(), old.Minute(), 0, 0, time.FixedZone(oldName, off)).In(c.l.location.localTime.Location())
+	oldName, off := globalAppTime.Zone()
+	selectedDate := time.Date(c.year, time.Month(c.month), dayNum, globalAppTime.Hour(), globalAppTime.Minute(), 0, 0, time.FixedZone(oldName, off)).In(c.l.location.localTime.Location())
 
 	return selectedDate
 }
@@ -93,7 +84,7 @@ func (c *calendar) hideOverlay() {
 
 func setDate(dateToSet time.Time, containerObjects []fyne.CanvasObject) {
 
-	old = dateToSet
+	globalAppTime = dateToSet
 	for i := 0; i < len(containerObjects); i++ {
 
 		loc, ok := containerObjects[i].(*location)
@@ -104,7 +95,7 @@ func setDate(dateToSet time.Time, containerObjects []fyne.CanvasObject) {
 
 		locDate := dateToSet.In(loc.location.localTime.Location())
 
-		setLocationLabel(loc, locDate)
+		loc.setLocationLabel(locDate)
 	}
 }
 
@@ -114,25 +105,18 @@ func (c *calendar) setCachedDateInfo(dateToSet time.Time) {
 	c.l.calendar.year = dateToSet.Year()
 }
 
-func setLocationLabel(loc *location, locDate time.Time) {
-
-	loc.time.SetText(locDate.Format("15:04"))
-	loc.locationTZLabel.Text = strings.ToUpper(loc.location.country + " · " + locDate.Format("MST"))
-	loc.locationTZLabel.Refresh()
-	loc.dateButton.SetText(locDate.Format("Mon 02 Jan 2006"))
-}
-
-func monthYear(c *calendar) string {
+func (c *calendar) monthYear() string {
 	return time.Month(c.month).String() + " " + strconv.Itoa(c.year)
 }
 
-func fullDate(c *calendar) string {
+func (c *calendar) fullDate() string {
 	d, _ := time.Parse("2006-1-2", strconv.Itoa(c.year)+"-"+strconv.Itoa(c.month)+"-"+strconv.Itoa(c.day))
-	return d.Weekday().String()[:3] + " " + strconv.Itoa(d.Day()) + " " + d.Month().String() + " " + strconv.Itoa(d.Year())
+	return d.Format("Mon 02 Jan 2006")
 }
 
-func columnHeadings(textSize float32) []fyne.CanvasObject {
-	l := []fyne.CanvasObject{}
+func (c *calendar) calendarObjects() []fyne.CanvasObject {
+	textSize := float32(8)
+	columnHeadings := []fyne.CanvasObject{}
 	for i := 0; i < 7; i++ {
 		j := i + 1
 		if j == 7 {
@@ -142,23 +126,15 @@ func columnHeadings(textSize float32) []fyne.CanvasObject {
 		var canvasObject fyne.CanvasObject = canvas.NewText(strings.ToUpper(time.Weekday(j).String()[:3]), color.NRGBA{0xFF, 0xFF, 0xFF, 0xBF})
 		canvasObject.(*canvas.Text).TextSize = textSize
 		canvasObject.(*canvas.Text).Alignment = fyne.TextAlignCenter
-		l = append(l, canvasObject)
+		columnHeadings = append(columnHeadings, canvasObject)
 	}
+	columnHeadings = append(columnHeadings, c.daysOfMonth()...)
 
-	return l
+	return columnHeadings
 }
 
-func calendarObjects(c *calendar) []fyne.CanvasObject {
-	cH := columnHeadings(8)
-	cH = append(cH, daysOfMonth(c)...)
-
-	return cH
-}
-
-func newCalendarPopUpAtPos(c *calendar, l *location, canvas fyne.Canvas, pos fyne.Position) {
+func (c *calendar) newCalendarPopUpAtPos(canvas fyne.Canvas, pos fyne.Position) {
 	c.canvas = canvas
-	c.l = l //I don't want to pass this!
-
 	widget.ShowPopUpAtPosition(c, canvas, pos)
 }
 
@@ -170,9 +146,9 @@ func (c *calendar) CreateRenderer() fyne.WidgetRenderer {
 			c.month = 12
 			c.year--
 		}
-		c.monthLabel.ParseMarkdown(monthYear(c))
+		c.monthLabel.ParseMarkdown(c.monthYear())
 
-		c.dates.Objects = calendarObjects(c)
+		c.dates.Objects = c.calendarObjects()
 	})
 	c.monthNext = widget.NewButtonWithIcon("", theme.NavigateNextIcon(), func() {
 		c.month++
@@ -180,25 +156,26 @@ func (c *calendar) CreateRenderer() fyne.WidgetRenderer {
 			c.month = 1
 			c.year++
 		}
-		c.monthLabel.ParseMarkdown(monthYear(c))
+		c.monthLabel.ParseMarkdown(c.monthYear())
 
-		c.dates.Objects = calendarObjects(c)
+		c.dates.Objects = c.calendarObjects()
 	})
 
-	c.monthLabel = widget.NewRichTextFromMarkdown(monthYear(c))
+	c.monthLabel = widget.NewRichTextFromMarkdown(c.monthYear())
 
 	nav := container.New(layout.NewBorderLayout(nil, nil, c.monthPrevious, c.monthNext),
 		c.monthPrevious, c.monthNext, container.NewCenter(c.monthLabel))
 
-	c.dates = container.New(NewCalendarLayout(32), calendarObjects(c)...)
+	c.dates = container.New(NewCalendarLayout(32), c.calendarObjects()...)
 
 	dateContainer := container.NewVBox(nav, c.dates)
+
 	return widget.NewSimpleRenderer(dateContainer)
 }
 
-func newCalendar() *calendar {
+func newCalendar(loc *location) *calendar {
 
-	c := &calendar{day: time.Now().Day(), month: int(time.Now().Month()), year: time.Now().Year()}
+	c := &calendar{day: time.Now().Day(), month: int(time.Now().Month()), year: time.Now().Year(), l: loc}
 	c.ExtendBaseWidget(c)
 
 	return c
