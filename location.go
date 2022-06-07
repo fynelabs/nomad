@@ -34,9 +34,9 @@ type location struct {
 	homeContainer *fyne.Container
 }
 
-func newLocation(loc *city, n *nomad, homeContainer *fyne.Container) *location {
+func newLocation(loc *city, n *nomad, homeC *fyne.Container) *location {
 
-	l := &location{location: loc, session: n.session}
+	l := &location{location: loc, session: n.session, homeContainer: homeC}
 	l.ExtendBaseWidget(l)
 
 	l.time = widget.NewSelectEntry(listTimes())
@@ -45,7 +45,7 @@ func newLocation(loc *city, n *nomad, homeContainer *fyne.Container) *location {
 	l.time.SetText(loc.localTime.Format("15:04"))
 
 	menu := fyne.NewMenu("",
-		fyne.NewMenuItem("Delete Place", func() { l.remove(homeContainer, n) }),
+		fyne.NewMenuItem("Delete Place", func() { l.remove(homeC, n) }),
 		fyne.NewMenuItem("Photo info", func() { fmt.Println("Photo info") }))
 
 	l.button = widget.NewButtonWithIcon("", theme.MoreHorizontalIcon(), func() {
@@ -61,7 +61,7 @@ func newLocation(loc *city, n *nomad, homeContainer *fyne.Container) *location {
 	l.calendar = newCalendar(l)
 
 	l.dateButton = widget.NewButton(l.calendar.fullDate(), func() {
-		l.calendar.newCalendarPopUpAtPos(canvas, fyne.NewPos(0, l.Size().Height))
+		l.calendar.newCalendarPopUpAtPos(n.main.Canvas(), fyne.NewPos(0, l.Size().Height))
 	})
 	l.dateButton.Alignment = widget.ButtonAlignLeading
 	l.dateButton.IconPlacement = widget.ButtonIconTrailingText

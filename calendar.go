@@ -166,7 +166,7 @@ func (c *calendar) CreateRenderer() fyne.WidgetRenderer {
 	nav := container.New(layout.NewBorderLayout(nil, nil, c.monthPrevious, c.monthNext),
 		c.monthPrevious, c.monthNext, container.NewCenter(c.monthLabel))
 
-	c.dates = container.New(NewCalendarLayout(32), c.calendarObjects()...)
+	c.dates = container.New(newCalendarLayout(32), c.calendarObjects()...)
 
 	dateContainer := container.NewVBox(nav, c.dates)
 
