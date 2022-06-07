@@ -34,8 +34,9 @@ type location struct {
 	homeContainer *fyne.Container
 }
 
-func newLocation(loc *city, session *unsplashSession, canvas fyne.Canvas, homeC *fyne.Container) *location {
-	l := &location{location: loc, session: session, homeContainer: homeC}
+func newLocation(loc *city, n *nomad, homeContainer *fyne.Container) *location {
+
+	l := &location{location: loc, session: n.session}
 	l.ExtendBaseWidget(l)
 
 	l.time = widget.NewSelectEntry(listTimes())
@@ -44,7 +45,7 @@ func newLocation(loc *city, session *unsplashSession, canvas fyne.Canvas, homeC 
 	l.time.SetText(loc.localTime.Format("15:04"))
 
 	menu := fyne.NewMenu("",
-		fyne.NewMenuItem("Delete Place", func() { fmt.Println("Delete place") }),
+		fyne.NewMenuItem("Delete Place", func() { l.remove(homeContainer, n) }),
 		fyne.NewMenuItem("Photo info", func() { fmt.Println("Photo info") }))
 
 	l.button = widget.NewButtonWithIcon("", theme.MoreHorizontalIcon(), func() {
@@ -63,6 +64,8 @@ func newLocation(loc *city, session *unsplashSession, canvas fyne.Canvas, homeC 
 		l.calendar.newCalendarPopUpAtPos(canvas, fyne.NewPos(0, l.Size().Height))
 	})
 	l.dateButton.Alignment = widget.ButtonAlignLeading
+	l.dateButton.IconPlacement = widget.ButtonIconTrailingText
+	l.dateButton.Importance = widget.LowImportance
 
 	return l
 }
@@ -114,4 +117,28 @@ func (l *location) setLocationLabel(locDate time.Time) {
 	l.locationTZLabel.Text = strings.ToUpper(l.location.country + " · " + locDate.Format("MST"))
 	l.locationTZLabel.Refresh()
 	l.dateButton.SetText(locDate.Format("Mon 02 Jan 2006"))
+}
+
+func (l *location) remove(homeContainer *fyne.Container, n *nomad) {
+	for i := 0; i < len(n.store.list); i++ {
+		if l.location == n.store.list[i] {
+
+			n.store.removeCityFromStoreList(i)
+
+			l.removeLocationFromContainer(homeContainer)
+
+			l.session.removeImageFromCache(l)
+
+			break
+		}
+	}
+}
+
+func (l *location) removeLocationFromContainer(homeContainer *fyne.Container) {
+	for j := 0; j < len(homeContainer.Objects)-1; j++ {
+		if l.location.name == homeContainer.Objects[j].(*location).location.name {
+			homeContainer.Remove(homeContainer.Objects[j])
+			break
+		}
+	}
 }

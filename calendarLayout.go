@@ -14,21 +14,12 @@ var (
 )
 
 type calendarLayout struct {
-	Cols            int
-	vertical, adapt bool
+	cols int
 }
 
-func NewCalendarLayout(s float64) fyne.Layout {
+func newCalendarLayout(s float64) fyne.Layout {
 	cellSize = s
-	return &calendarLayout{Cols: 7}
-}
-
-func (g *calendarLayout) horizontal() bool {
-	if g.adapt {
-		return fyne.IsHorizontal(fyne.CurrentDevice().Orientation())
-	}
-
-	return !g.vertical
+	return &calendarLayout{cols: 7}
 }
 
 func (g *calendarLayout) countRows(objects []fyne.CanvasObject) int {
@@ -39,7 +30,7 @@ func (g *calendarLayout) countRows(objects []fyne.CanvasObject) int {
 		}
 	}
 
-	return int(math.Ceil(float64(count) / float64(g.Cols)))
+	return int(math.Ceil(float64(count) / float64(g.cols)))
 }
 
 // Get the leading (top or left) edge of a grid cell.
@@ -75,20 +66,11 @@ func (g *calendarLayout) Layout(objects []fyne.CanvasObject, size fyne.Size) {
 		child.Move(fyne.NewPos(x1, y1))
 		child.Resize(fyne.NewSize(x2-x1, y2-y1))
 
-		if g.horizontal() {
-			if (i+1)%g.Cols == 0 {
-				row++
-				col = 0
-			} else {
-				col++
-			}
+		if (i+1)%g.cols == 0 {
+			row++
+			col = 0
 		} else {
-			if (i+1)%g.Cols == 0 {
-				col++
-				row = 0
-			} else {
-				row++
-			}
+			col++
 		}
 		i++
 	}

@@ -5,6 +5,8 @@ import (
 	"io"
 	"net/http"
 	"net/url"
+	"os"
+	"path"
 	"time"
 
 	"fyne.io/fyne/v2"
@@ -24,17 +26,17 @@ type photo struct {
 }
 
 type unsplashSession struct {
-	storage   fyne.Storage
-	store     *cityStore
-	client_id string
+	storage  fyne.Storage
+	store    *cityStore
+	clientID string
 }
 
 func newUnsplashSession(storage fyne.Storage, store *cityStore) *unsplashSession {
-	client_id := secret()
-	if client_id == "" {
+	clientID := secret()
+	if clientID == "" {
 		return nil
 	}
-	return &unsplashSession{storage: storage, store: store, client_id: client_id}
+	return &unsplashSession{storage: storage, store: store, clientID: clientID}
 }
 
 func getString(str *string) string {
@@ -61,7 +63,7 @@ func getPhotographerPortfolio(user *unsplash.User) *url.URL {
 	return user.PortfolioURL.URL
 }
 
-func getUrl(photo unsplash.Photo) *url.URL {
+func getURL(photo unsplash.Photo) *url.URL {
 	if photo.Urls.Small != nil {
 		return photo.Urls.Small.URL
 	}
@@ -77,7 +79,7 @@ func getUrl(photo unsplash.Photo) *url.URL {
 func (us *unsplashSession) fetchMetadata(city string, country string) (photo, error) {
 	client := http.Client{Timeout: time.Duration(60) * time.Second}
 	//use the http.Client to instantiate unsplash
-	u := unsplash.NewWithClientID(&client, us.client_id)
+	u := unsplash.NewWithClientID(&client, us.clientID)
 
 	opt := unsplash.SearchOpt{
 		Page:    1,
@@ -101,7 +103,7 @@ func (us *unsplashSession) fetchMetadata(city string, country string) (photo, er
 		description:      getString((*photos.Results)[0].Description),
 		photographerName: getPhotographerName((*photos.Results)[0].Photographer),
 		portfolio:        getPhotographerPortfolio((*photos.Results)[0].Photographer),
-		original:         getUrl((*photos.Results)[0]),
+		original:         getURL((*photos.Results)[0]),
 		full:             (*photos.Results)[0].Urls.Full.URL,
 		photoWebsite:     (*photos.Results)[0].Links.Self.URL,
 	}, nil
@@ -119,7 +121,7 @@ func (us *unsplashSession) download(p photo) (*canvas.Image, error) {
 	defer httpResponse.Body.Close()
 
 	httpResponse.Header.Set("Accept-Version", "v1")
-	httpResponse.Header.Set("Authorization", fmt.Sprintf("CLIENT-IS %v", us.client_id))
+	httpResponse.Header.Set("Authorization", fmt.Sprintf("CLIENT-IS %v", us.clientID))
 
 	childURI, err := storage.Child(us.storage.RootURI(), p.cache)
 	if err != nil {
@@ -179,4 +181,13 @@ func canvasImage(r io.Reader, name string) *canvas.Image {
 	img.ScaleMode = canvas.ImageScaleFastest
 	img.Translucency = 0.15
 	return img
+}
+
+func (us *unsplashSession) removeImageFromCache(l *location) {
+	imageLocation := path.Join(us.storage.RootURI().Path(), l.location.unsplash.cache)
+
+	e := os.Remove(imageLocation)
+	if e != nil {
+		fyne.LogError("Image could not be deleted from cache", e)
+	}
 }
