@@ -104,13 +104,16 @@ func (c *calendar) setDate(dateToSet time.Time) {
 		loc := c.l.homeContainer.Objects[i].(*location)
 
 		locDate := time.Date(c.year, time.Month(c.month), c.day, dateToSet.Hour(), dateToSet.Minute(), 0, 0, loc.location.localTime.Location())
-
 		fmt.Println("locDate", locDate)
-		//locDate := dateToSet.In(
 
-		setButtonText(loc)
+		//time picker - not working
 		c.setTime(dateToSet)
+
+		//location label - working
 		c.setLocationLabel(dateToSet)
+
+		//all date buttons - working
+		loc.dateButton.SetText(dateToSet.Weekday().String()[:3] + " " + dateToSet.Format("02 Jan 2006"))
 	}
 }
 
@@ -118,10 +121,6 @@ func (c *calendar) setCachedDateInfo(dateToSet time.Time) {
 	c.l.calendar.day = dateToSet.Day()
 	c.l.calendar.month = int(dateToSet.Month())
 	c.l.calendar.year = dateToSet.Year()
-}
-
-func setButtonText(loc *location) {
-	loc.dateButton.SetText(fullDate(loc.calendar))
 }
 
 func (c *calendar) setTime(dateToSet time.Time) {
