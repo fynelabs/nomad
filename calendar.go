@@ -57,7 +57,7 @@ func daysOfMonth(c *calendar) []fyne.CanvasObject {
 		var b fyne.CanvasObject = widget.NewButton(s, func() {
 
 			//create new date with data from calendar picker
-			selectedDate := c.selectedDate(dayNum)
+			selectedDate := c.newDateForCalendar(dayNum)
 
 			//save this new data to calendar struct
 			c.setCachedDateInfo(selectedDate)
@@ -76,9 +76,11 @@ func daysOfMonth(c *calendar) []fyne.CanvasObject {
 	return buttons
 }
 
+//Andy - we need a newDateForTime which ignores the calendar picker state and just applies the time set based on old for the date etc
+//Del - ?
 var old = time.Now()
 
-func (c *calendar) selectedDate(dayNum int) time.Time {
+func (c *calendar) newDateForCalendar(dayNum int) time.Time {
 	oldName, off := old.Zone()
 	selectedDate := time.Date(c.year, time.Month(c.month), dayNum, old.Hour(), old.Minute(), 0, 0, time.FixedZone(oldName, off)).In(c.l.location.localTime.Location())
 
@@ -92,23 +94,16 @@ func (c *calendar) hideOverlay() {
 
 func (c *calendar) setDate(dateToSet time.Time) {
 
+	old = dateToSet
 	for i := 0; i < len(c.l.homeContainer.Objects); i++ {
 		if reflect.TypeOf(c.l.homeContainer.Objects[i]) != reflect.TypeOf(c.l) {
 			continue
 		}
 
 		loc := c.l.homeContainer.Objects[i].(*location)
-
 		locDate := dateToSet.In(loc.location.localTime.Location())
 
-		//time picker
-		loc.time.SetText(fmt.Sprintf("%02d:%02d", locDate.Hour(), locDate.Minute()))
-
-		//location label - working
-		c.setLocationLabel(dateToSet)
-
-		//all date buttons - working
-		loc.dateButton.SetText(dateToSet.Weekday().String()[:3] + " " + dateToSet.Format("02 Jan 2006"))
+		c.l.setLocationLabel(loc, locDate)
 	}
 }
 
@@ -123,14 +118,12 @@ func (c *calendar) setCachedDateInfo(dateToSet time.Time) {
 // 	c.l.time.SetText(time)
 // }
 
-func (c *calendar) setLocationLabel(dateToSet time.Time) {
+func (l *location) setLocationLabel(loc *location, locDate time.Time) {
 
-	c.l.locationTZLabel.Text = strings.ToUpper(c.l.location.country + " · " + dateToSet.Format("MST"))
-	c.l.locationTZLabel.TextStyle.Monospace = true
-	c.l.locationTZLabel.TextSize = 10
-	c.l.locationTZLabel.Move(fyne.NewPos(theme.Padding()*2, 40)) //first time clicked this label moves ever so slightly
-	c.l.locationTZLabel.Refresh()
-
+	loc.time.SetText(locDate.Format("15:04"))
+	loc.locationTZLabel.Text = strings.ToUpper(l.location.country + " · " + locDate.Format("MST"))
+	loc.locationTZLabel.Refresh()
+	loc.dateButton.SetText(locDate.Format("Mon 02 Jan 2006"))
 }
 
 func monthYear(c *calendar) string {
