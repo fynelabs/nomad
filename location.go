@@ -58,7 +58,9 @@ func newLocation(loc *city, n *nomad, homeC *fyne.Container) *location {
 
 	l.dots = container.NewVBox(layout.NewSpacer(), l.button)
 
-	l.calendar = newCalendar(l)
+	l.calendar = newCalendar(loc.localTime, func(t time.Time) {
+		setDate(t, l.homeContainer.Objects)
+	})
 
 	l.dateButton = widget.NewButton(l.calendar.fullDate(), func() {
 		l.calendar.newCalendarPopUpAtPos(n.main.Canvas(), fyne.NewPos(0, l.Size().Height))
@@ -74,7 +76,7 @@ func (l *location) CreateRenderer() fyne.WidgetRenderer {
 	bg := canvas.NewImageFromResource(theme.FileImageIcon())
 	bg.Translucency = 0.5
 	city := widget.NewRichTextFromMarkdown("# " + l.location.name)
-	l.locationTZLabel = canvas.NewText(" "+strings.ToUpper(l.location.country)+" · "+l.location.localTime.Format("MST"), locationTextColor)
+	l.locationTZLabel = canvas.NewText(strings.ToUpper(l.location.country)+" · "+l.location.localTime.Format("MST"), locationTextColor)
 	l.locationTZLabel.TextStyle.Monospace = true
 	l.locationTZLabel.TextSize = 10
 	l.locationTZLabel.Move(fyne.NewPos(theme.Padding()*2, 40))
@@ -111,14 +113,10 @@ func listTimes() (times []string) {
 	return times
 }
 
-func (l *location) setLocationLabel(locDate time.Time) {
+func (l *location) updateCountry(locDate time.Time) {
 
 	l.time.SetText(locDate.Format("15:04"))
 	l.locationTZLabel.Text = strings.ToUpper(l.location.country + " · " + locDate.Format("MST"))
-
-	//Without this the text moves, but even with this, you can see the change happening
-	l.locationTZLabel.Move(fyne.NewPos(theme.Padding()*3, 40))
-
 	l.locationTZLabel.Refresh()
 	l.dateButton.SetText(locDate.Format("Mon 02 Jan 2006"))
 }

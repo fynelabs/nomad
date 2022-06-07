@@ -23,13 +23,15 @@ type calendar struct {
 	monthLabel    *widget.RichText
 	canvas        fyne.Canvas
 
-	l *location
+	t time.Time
 
 	day   int
 	month int
 	year  int
 
 	dates *fyne.Container
+
+	callback func(time.Time)
 }
 
 func (c *calendar) daysOfMonth() []fyne.CanvasObject {
@@ -58,7 +60,8 @@ func (c *calendar) daysOfMonth() []fyne.CanvasObject {
 
 			c.setCachedDateInfo(selectedDate)
 
-			setDate(selectedDate, c.l.homeContainer.Objects)
+			// setDate(selectedDate)
+			c.callback(selectedDate)
 
 			c.hideOverlay()
 
@@ -72,7 +75,7 @@ func (c *calendar) daysOfMonth() []fyne.CanvasObject {
 
 func (c *calendar) newDateForCalendar(dayNum int) time.Time {
 	oldName, off := globalAppTime.Zone()
-	selectedDate := time.Date(c.year, time.Month(c.month), dayNum, globalAppTime.Hour(), globalAppTime.Minute(), 0, 0, time.FixedZone(oldName, off)).In(c.l.location.localTime.Location())
+	selectedDate := time.Date(c.year, time.Month(c.month), dayNum, globalAppTime.Hour(), globalAppTime.Minute(), 0, 0, time.FixedZone(oldName, off)).In(c.t.Location())
 
 	return selectedDate
 }
@@ -82,27 +85,10 @@ func (c *calendar) hideOverlay() {
 	overlayList[0].Hide()
 }
 
-func setDate(dateToSet time.Time, containerObjects []fyne.CanvasObject) {
-
-	globalAppTime = dateToSet
-	for i := 0; i < len(containerObjects); i++ {
-
-		loc, ok := containerObjects[i].(*location)
-
-		if !ok {
-			continue
-		}
-
-		locDate := dateToSet.In(loc.location.localTime.Location())
-
-		loc.setLocationLabel(locDate)
-	}
-}
-
 func (c *calendar) setCachedDateInfo(dateToSet time.Time) {
-	c.l.calendar.day = dateToSet.Day()
-	c.l.calendar.month = int(dateToSet.Month())
-	c.l.calendar.year = dateToSet.Year()
+	c.day = dateToSet.Day()
+	c.month = int(dateToSet.Month())
+	c.year = dateToSet.Year()
 }
 
 func (c *calendar) monthYear() string {
@@ -173,9 +159,9 @@ func (c *calendar) CreateRenderer() fyne.WidgetRenderer {
 	return widget.NewSimpleRenderer(dateContainer)
 }
 
-func newCalendar(loc *location) *calendar {
+func newCalendar(_t time.Time, _callback func(time.Time)) *calendar {
 
-	c := &calendar{day: time.Now().Day(), month: int(time.Now().Month()), year: time.Now().Year(), l: loc}
+	c := &calendar{day: time.Now().Day(), month: int(time.Now().Month()), year: time.Now().Year(), t: _t, callback: _callback}
 	c.ExtendBaseWidget(c)
 
 	return c
