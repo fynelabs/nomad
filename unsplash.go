@@ -7,6 +7,8 @@ import (
 	"io"
 	"net/http"
 	"net/url"
+	"os"
+	"path"
 	"time"
 
 	"fyne.io/fyne/v2"
@@ -277,4 +279,13 @@ func (city city) newInfoScreen(c fyne.Canvas) fyne.CanvasObject {
 
 	overlay.Add(pulldown)
 	return overlay
+}
+
+func (us *unsplashSession) removeImageFromCache(l *location) {
+	imageLocation := path.Join(us.storage.RootURI().Path(), l.location.unsplash.cache)
+
+	e := os.Remove(imageLocation)
+	if e != nil {
+		fyne.LogError("Image could not be deleted from cache", e)
+	}
 }

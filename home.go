@@ -83,12 +83,25 @@ func (n *nomad) autoCompleteEntry(homeContainer *fyne.Container) *CompletionEntr
 			n.store.list = append(n.store.list, c)
 			n.store.save()
 
-			l := newLocation(c, n.session, n.main.Canvas())
+			l := newLocation(c, n, homeContainer)
 			homeContainer.Objects = append(homeContainer.Objects[:len(homeContainer.Objects)-1], l, homeContainer.Objects[len(homeContainer.Objects)-1])
 		}
 	}
 
 	return entry
+}
+
+func setDate(dateToSet time.Time, containerObjects []fyne.CanvasObject) {
+	globalAppTime = dateToSet
+
+	for i := 0; i < len(containerObjects); i++ {
+		loc, ok := containerObjects[i].(*location)
+		if !ok {
+			continue
+		}
+		locDate := dateToSet.In(loc.location.localTime.Location())
+		loc.updateCountry(locDate)
+	}
 }
 
 func (n *nomad) makeAddCell(homeContainer *fyne.Container) fyne.CanvasObject {
@@ -103,14 +116,14 @@ func (n *nomad) makeAddCell(homeContainer *fyne.Container) fyne.CanvasObject {
 }
 
 func (n *nomad) makeHome() fyne.CanvasObject {
+	layout := &nomadLayout{}
+	homeContainer := container.New(layout)
 
 	cells := []fyne.CanvasObject{}
 	for _, c := range n.store.cities() {
-		cells = append(cells, newLocation(c, n.session, n.main.Canvas()))
+		cells = append(cells, newLocation(c, n, homeContainer))
 	}
 
-	layout := &nomadLayout{}
-	homeContainer := container.New(layout)
 	homeContainer.Objects = append(cells, n.makeAddCell(homeContainer))
 	scroll := container.NewVScroll(homeContainer)
 	scroll.SetMinSize(layout.minOuterSize())
