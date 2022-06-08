@@ -189,45 +189,69 @@ func canvasImage(r io.Reader, name string) *canvas.Image {
 	return img
 }
 
-func cropImage(r io.Reader, c fyne.Canvas) *canvas.Image {
+func cropImage(r io.Reader, c fyne.Canvas) (*canvas.Image, bool) {
 
-	img, _, err := image.Decode(r)
+	f, err := os.Open("C:/Users/Del/Desktop/square.png")
 	if err != nil {
 		fyne.LogError("Image error", err)
 	}
 
-	var x float32 = float32(img.Bounds().Max.X)
-	var y float32 = float32(img.Bounds().Max.Y)
+	img, _, err := image.Decode(f)
+	if err != nil {
+		fyne.LogError("Image error", err)
+	}
 
-	if img.Bounds().Dx() > int(c.Size().Width) && img.Bounds().Dy() > int(c.Size().Height) {
-		//Image larger than canvas
-		if c.Size().Width > c.Size().Height {
-			//landscape
-			x = (float32(img.Bounds().Max.Y) * c.Size().Width) / c.Size().Height
-			if x > float32(img.Bounds().Dx()) {
-				//cropped target will be too wide and will stretch, adjust y
-				y = (float32(img.Bounds().Max.X) * c.Size().Height) / c.Size().Width
-			}
+	var w float32 = float32(img.Bounds().Dx())
+	var h float32 = float32(img.Bounds().Dy())
 
-		} else {
-			//portrait
-			x = (float32(img.Bounds().Max.Y) / c.Size().Height) * c.Size().Width
-		}
+	//is image smaller than canvas on either axis
+	// if w >
+
+	imageAspectRatio := h / w
+	canvasAspectRatio := c.Size().Height / c.Size().Width
+
+	if imageAspectRatio > canvasAspectRatio {
+		fmt.Println("Cut off Y")
+		scaledH := img.Bounds().Dx() * int(c.Scale())
+		h = (float32(scaledH) * c.Size().Height) / c.Size().Width
 	} else {
-		//Image smaller than canvas size
-		//Need to crop larger side, but unable to test due to inconsistent overlay/popup sizing
+		fmt.Println("Cut off X")
+		scaledW := img.Bounds().Dy() * int(c.Scale())
+		w = (float32(scaledW) / c.Size().Height) * c.Size().Width
 	}
 
 	croppedImg, _ := cutter.Crop(img, cutter.Config{
-		Width:   int(x),
-		Height:  int(y),
+		Width:   int(w),
+		Height:  int(h),
 		Options: cutter.Copy,
 		Mode:    cutter.Centered,
 	})
 
 	croppedCanvasImage := canvas.NewImageFromImage(croppedImg)
 
-	return croppedCanvasImage
+	return croppedCanvasImage, true
+
+	// if w*c.Scale() > c.Size().Width { // && h*c.Scale() > c.Size().Height {
+
+	// 	if c.Size().Width > c.Size().Height {
+	// 		//landscape
+	// 		w = (h * c.Size().Width) / c.Size().Height
+	// 		if w > float32(img.Bounds().Dx()) {
+	// 			//cropped target will be too wide and will stretch, adjust y
+	// 			h = (float32(img.Bounds().Dx()) * c.Size().Height) / c.Size().Width
+	// 		}
+
+	// 	} else {
+	// 		//portrait
+	// 		w = (float32(img.Bounds().Max.Y) / c.Size().Height) * c.Size().Width
+	// 	}
+
+	// } else {
+	// 	//Image smaller than canvas size
+	// 	//Need to crop larger side, but unable to test due to inconsistent overlay/popup sizing
+	// 	return canvas.NewImageFromImage(img), false
+	// }
+
 }
 
 func (city city) newInfoScreen(c fyne.Canvas) fyne.CanvasObject {
@@ -250,21 +274,27 @@ func (city city) newInfoScreen(c fyne.Canvas) fyne.CanvasObject {
 	overlay.Add(bg)
 
 	go func() {
-		if city.unsplash.full == nil {
-			return
-		}
-		httpResponse, err := http.Get(city.unsplash.full.String())
-		if err != nil {
-			fyne.LogError("Unable to download full image", err)
-			return
-		}
-		defer httpResponse.Body.Close()
+		// if city.unsplash.full == nil {
+		// 	return
+		// }
+		// httpResponse, err := http.Get(city.unsplash.full.String())
+		// if err != nil {
+		// 	fyne.LogError("Unable to download full image", err)
+		// 	return
+		// }
+		// defer httpResponse.Body.Close()
 
-		cropped := cropImage(httpResponse.Body, c)
+		croppedImage, cropped := cropImage(nil, c)
 
-		overlay.Objects[0] = cropped
+		if !cropped {
+			croppedImage.FillMode = canvas.ImageFillContain
+		}
+
+		overlay.Objects[0] = croppedImage
 		//defaults to 0.15 translucency
 		overlay.Objects[0].(*canvas.Image).Translucency = 0
+
+		defer overlay.Refresh()
 	}()
 
 	exitButton := widget.NewButtonWithIcon("", theme.CancelIcon(), func() {
@@ -280,6 +310,7 @@ func (city city) newInfoScreen(c fyne.Canvas) fyne.CanvasObject {
 				container.NewVBox(photographer, photographerName, location, cityCountry, linkImage))), nil, nil, nil)
 
 	overlay.Add(pulldown)
+
 	return overlay
 }
 
