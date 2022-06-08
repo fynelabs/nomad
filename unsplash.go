@@ -189,14 +189,9 @@ func canvasImage(r io.Reader, name string) *canvas.Image {
 	return img
 }
 
-func cropImage(r io.Reader, c fyne.Canvas) (*canvas.Image, bool) {
+func cropImage(r io.Reader, c fyne.Canvas) *canvas.Image {
 
-	f, err := os.Open("C:/Users/Del/Desktop/square.png")
-	if err != nil {
-		fyne.LogError("Image error", err)
-	}
-
-	img, _, err := image.Decode(f)
+	img, _, err := image.Decode(r)
 	if err != nil {
 		fyne.LogError("Image error", err)
 	}
@@ -204,18 +199,13 @@ func cropImage(r io.Reader, c fyne.Canvas) (*canvas.Image, bool) {
 	var w float32 = float32(img.Bounds().Dx())
 	var h float32 = float32(img.Bounds().Dy())
 
-	//is image smaller than canvas on either axis
-	// if w >
-
 	imageAspectRatio := h / w
 	canvasAspectRatio := c.Size().Height / c.Size().Width
 
 	if imageAspectRatio > canvasAspectRatio {
-		fmt.Println("Cut off Y")
 		scaledH := img.Bounds().Dx() * int(c.Scale())
 		h = (float32(scaledH) * c.Size().Height) / c.Size().Width
 	} else {
-		fmt.Println("Cut off X")
 		scaledW := img.Bounds().Dy() * int(c.Scale())
 		w = (float32(scaledW) / c.Size().Height) * c.Size().Width
 	}
@@ -229,29 +219,7 @@ func cropImage(r io.Reader, c fyne.Canvas) (*canvas.Image, bool) {
 
 	croppedCanvasImage := canvas.NewImageFromImage(croppedImg)
 
-	return croppedCanvasImage, true
-
-	// if w*c.Scale() > c.Size().Width { // && h*c.Scale() > c.Size().Height {
-
-	// 	if c.Size().Width > c.Size().Height {
-	// 		//landscape
-	// 		w = (h * c.Size().Width) / c.Size().Height
-	// 		if w > float32(img.Bounds().Dx()) {
-	// 			//cropped target will be too wide and will stretch, adjust y
-	// 			h = (float32(img.Bounds().Dx()) * c.Size().Height) / c.Size().Width
-	// 		}
-
-	// 	} else {
-	// 		//portrait
-	// 		w = (float32(img.Bounds().Max.Y) / c.Size().Height) * c.Size().Width
-	// 	}
-
-	// } else {
-	// 	//Image smaller than canvas size
-	// 	//Need to crop larger side, but unable to test due to inconsistent overlay/popup sizing
-	// 	return canvas.NewImageFromImage(img), false
-	// }
-
+	return croppedCanvasImage
 }
 
 func (city city) newInfoScreen(c fyne.Canvas) fyne.CanvasObject {
@@ -274,27 +242,22 @@ func (city city) newInfoScreen(c fyne.Canvas) fyne.CanvasObject {
 	overlay.Add(bg)
 
 	go func() {
-		// if city.unsplash.full == nil {
-		// 	return
-		// }
-		// httpResponse, err := http.Get(city.unsplash.full.String())
-		// if err != nil {
-		// 	fyne.LogError("Unable to download full image", err)
-		// 	return
-		// }
-		// defer httpResponse.Body.Close()
-
-		croppedImage, cropped := cropImage(nil, c)
-
-		if !cropped {
-			croppedImage.FillMode = canvas.ImageFillContain
+		if city.unsplash.full == nil {
+			return
 		}
+		httpResponse, err := http.Get(city.unsplash.full.String())
+		if err != nil {
+			fyne.LogError("Unable to download full image", err)
+			return
+		}
+		defer httpResponse.Body.Close()
+
+		croppedImage := cropImage(httpResponse.Body, c)
 
 		overlay.Objects[0] = croppedImage
 		//defaults to 0.15 translucency
 		overlay.Objects[0].(*canvas.Image).Translucency = 0
 
-		defer overlay.Refresh()
 	}()
 
 	exitButton := widget.NewButtonWithIcon("", theme.CancelIcon(), func() {
