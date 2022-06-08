@@ -2,10 +2,12 @@ package main
 
 import (
 	"fmt"
+	"image"
 	"image/color"
 	"io"
 	"net/http"
 	"net/url"
+	"os"
 	"time"
 
 	"fyne.io/fyne/v2"
@@ -15,6 +17,7 @@ import (
 	"fyne.io/fyne/v2/theme"
 	"fyne.io/fyne/v2/widget"
 	"github.com/hbagdi/go-unsplash/unsplash"
+	"github.com/oliamb/cutter"
 )
 
 type photo struct {
@@ -185,6 +188,50 @@ func canvasImage(r io.Reader, name string) *canvas.Image {
 	return img
 }
 
+func cropImage(r io.Reader, c fyne.Canvas) *canvas.Image {
+
+	f, err := os.Open("C:/Users/Del/Desktop/square.png")
+	if err != nil {
+		fyne.LogError("Image error", err)
+	}
+
+	img, _, err := image.Decode(f)
+	if err != nil {
+		fyne.LogError("Image error", err)
+	}
+
+	//portrait
+	// x := (float32(img.Bounds().Max.Y) / c.Size().Height) * c.Size().Width
+
+	var x float32
+	var y float32
+	if c.Size().Width > c.Size().Height {
+		//landscape
+		x = (float32(img.Bounds().Max.Y) * c.Size().Width) / c.Size().Height
+	} else {
+		//portrait
+		x = (float32(img.Bounds().Max.Y) / c.Size().Height) * c.Size().Width
+	}
+
+	if x > float32(img.Bounds().Dx()) {
+		//cropped target will be too wide, adjust y
+		y = (float32(img.Bounds().Max.X) * c.Size().Height) / c.Size().Width
+	} else {
+		y = float32(img.Bounds().Max.Y)
+	}
+
+	croppedImg, _ := cutter.Crop(img, cutter.Config{
+		Width:   int(x),
+		Height:  int(y),
+		Options: cutter.Copy,
+		Mode:    cutter.Centered,
+	})
+
+	croppedCanvasImage := canvas.NewImageFromImage(croppedImg)
+
+	return croppedCanvasImage
+}
+
 func (city city) newInfoScreen(c fyne.Canvas) fyne.CanvasObject {
 	photographer := canvas.NewText("PHOTOGRAPHER", locationTextColor)
 	photographer.TextStyle.Monospace = true
@@ -205,22 +252,19 @@ func (city city) newInfoScreen(c fyne.Canvas) fyne.CanvasObject {
 	overlay.Add(bg)
 
 	go func() {
-		if city.unsplash.full == nil {
-			return
-		}
-		httpResponse, err := http.Get(city.unsplash.full.String())
-		if err != nil {
-			fyne.LogError("Unable to download full image", err)
-			return
-		}
-		defer httpResponse.Body.Close()
+		// if city.unsplash.full == nil {
+		// 	return
+		// }
+		// httpResponse, err := http.Get(city.unsplash.full.String())
+		// if err != nil {
+		// 	fyne.LogError("Unable to download full image", err)
+		// 	return
+		// }
+		// defer httpResponse.Body.Close()
 
-		bg = canvasImage(httpResponse.Body, city.unsplash.full.String())
+		cropped := cropImage(nil, c)
 
-		//		bg.FillMode = canvas.ImageFillContain
-		bg.FillMode = canvas.ImageFillOriginal
-
-		overlay.Objects[0] = bg
+		overlay.Objects[0] = cropped
 		//defaults to 0.15 translucency
 		overlay.Objects[0].(*canvas.Image).Translucency = 0
 	}()
