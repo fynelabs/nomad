@@ -274,8 +274,10 @@ func (city city) newInfoScreen(c fyne.Canvas) fyne.CanvasObject {
 
 	pulldown := container.NewBorder(
 		container.NewMax(canvas.NewRectangle(&color.NRGBA{0x00, 0x00, 0x00, 0x80}),
-			container.NewBorder(nil, nil, nil, container.NewBorder(exitButton, nil, nil, nil)),
-			container.NewVBox(photographer, photographerName, location, cityCountry, linkImage)), nil, nil, nil)
+			container.NewBorder(nil, nil, nil,
+				container.NewBorder(exitButton, nil, nil, nil)),
+			container.NewPadded(
+				container.NewVBox(photographer, photographerName, location, cityCountry, linkImage))), nil, nil, nil)
 
 	overlay.Add(pulldown)
 	return overlay
