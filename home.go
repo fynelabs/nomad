@@ -91,6 +91,19 @@ func (n *nomad) autoCompleteEntry(homeContainer *fyne.Container) *CompletionEntr
 	return entry
 }
 
+func setDate(dateToSet time.Time, containerObjects []fyne.CanvasObject) {
+	globalAppTime = dateToSet
+
+	for i := 0; i < len(containerObjects); i++ {
+		loc, ok := containerObjects[i].(*location)
+		if !ok {
+			continue
+		}
+		locDate := dateToSet.In(loc.location.localTime.Location())
+		loc.updateCountry(locDate)
+	}
+}
+
 func (n *nomad) makeAddCell(homeContainer *fyne.Container) fyne.CanvasObject {
 
 	add := widget.NewIcon(theme.NewPrimaryThemedResource(resourcePlusCircleSvg))
@@ -103,7 +116,6 @@ func (n *nomad) makeAddCell(homeContainer *fyne.Container) fyne.CanvasObject {
 }
 
 func (n *nomad) makeHome() fyne.CanvasObject {
-
 	layout := &nomadLayout{}
 	homeContainer := container.New(layout)
 
