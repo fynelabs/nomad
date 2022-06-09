@@ -5,6 +5,7 @@ import (
 	"image"
 	"image/color"
 	"io"
+	"math"
 	"net/http"
 	"net/url"
 	"os"
@@ -191,7 +192,12 @@ func canvasImage(r io.Reader, name string) *canvas.Image {
 
 func cropImage(r io.Reader, c fyne.Canvas) *canvas.Image {
 
-	img, _, err := image.Decode(r)
+	f, err := os.Open("C:/Users/Del/Desktop/square.png")
+	if err != nil {
+		fyne.LogError("Image error", err)
+	}
+
+	img, _, err := image.Decode(f)
 	if err != nil {
 		fyne.LogError("Image error", err)
 	}
@@ -203,16 +209,14 @@ func cropImage(r io.Reader, c fyne.Canvas) *canvas.Image {
 	canvasAspectRatio := c.Size().Height / c.Size().Width
 
 	if imageAspectRatio > canvasAspectRatio {
-		scaledH := img.Bounds().Dx() * int(c.Scale())
-		h = (float32(scaledH) * c.Size().Height) / c.Size().Width
+		h = (w / c.Size().Width) * c.Size().Height
 	} else {
-		scaledW := img.Bounds().Dy() * int(c.Scale())
-		w = (float32(scaledW) / c.Size().Height) * c.Size().Width
+		w = (h / c.Size().Height) * c.Size().Width
 	}
 
 	croppedImg, _ := cutter.Crop(img, cutter.Config{
-		Width:   int(w),
-		Height:  int(h),
+		Width:   int(math.Round(float64(w))),
+		Height:  int(math.Round(float64(h))),
 		Options: cutter.Copy,
 		Mode:    cutter.Centered,
 	})
