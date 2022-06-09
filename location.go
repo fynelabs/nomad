@@ -32,6 +32,8 @@ type location struct {
 
 	calendar      *calendar
 	homeContainer *fyne.Container
+
+	currentTime bool
 }
 
 func newLocation(loc *city, n *nomad, homeC *fyne.Container) *location {
@@ -84,9 +86,13 @@ func newLocation(loc *city, n *nomad, homeC *fyne.Container) *location {
 
 func (l *location) clockTick() {
 	for range time.Tick(time.Second * 1) {
-		//set topmost location and the rest will be updated on this change
-		homeLocation := l.homeContainer.Objects[0].(*location)
-		homeLocation.time.OnChanged(time.Now().Format("15:04"))
+
+		if l.currentTime {
+			t := time.Now().In(l.calendar.t.Location())
+			l.time.SetText(t.Format("15:04"))
+			l.updateCountry(t)
+			l.dateButton.SetText(t.Format("Mon 02 Jan 2006"))
+		}
 	}
 }
 
