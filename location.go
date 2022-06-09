@@ -45,7 +45,14 @@ func newLocation(loc *city, n *nomad, homeC *fyne.Container) *location {
 	l.time.SetText(loc.localTime.Format("15:04"))
 	l.time.OnChanged = func(s string) {
 		var hour, minute int
-		fmt.Sscanf(s, "%d:%d", &hour, &minute)
+		if s == "Now" {
+			hour = time.Now().Hour()
+			minute = time.Now().Minute()
+			l.time.SetText(fmt.Sprintf("%02d:%02d", hour, minute))
+
+		} else {
+			fmt.Sscanf(s, "%d:%d", &hour, &minute)
+		}
 		localOld := globalAppTime.In(l.location.localTime.Location())
 		selectedDate := time.Date(localOld.Year(), localOld.Month(), localOld.Day(), hour, minute, 0, 0, l.location.localTime.Location())
 
@@ -113,6 +120,7 @@ func (l *location) CreateRenderer() fyne.WidgetRenderer {
 }
 
 func listTimes() (times []string) {
+	times = append(times, "Now")
 	for hour := 0; hour < 24; hour++ {
 		times = append(times,
 			fmt.Sprintf("%02d:00", hour), fmt.Sprintf("%02d:15", hour),
