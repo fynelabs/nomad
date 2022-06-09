@@ -77,7 +77,17 @@ func newLocation(loc *city, n *nomad, homeC *fyne.Container) *location {
 	l.dateButton.IconPlacement = widget.ButtonIconTrailingText
 	l.dateButton.Importance = widget.LowImportance
 
+	go l.clockTick()
+
 	return l
+}
+
+func (l *location) clockTick() {
+	for range time.Tick(time.Second * 1) {
+		//set topmost location and the rest will be updated on this change
+		homeLocation := l.homeContainer.Objects[0].(*location)
+		homeLocation.time.OnChanged(time.Now().Format("15:04"))
+	}
 }
 
 func (l *location) CreateRenderer() fyne.WidgetRenderer {
