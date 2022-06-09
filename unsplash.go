@@ -192,12 +192,7 @@ func canvasImage(r io.Reader, name string) *canvas.Image {
 
 func cropImage(r io.Reader, c fyne.Canvas) *canvas.Image {
 
-	f, err := os.Open("C:/Users/Del/Desktop/square.png")
-	if err != nil {
-		fyne.LogError("Image error", err)
-	}
-
-	img, _, err := image.Decode(f)
+	img, _, err := image.Decode(r)
 	if err != nil {
 		fyne.LogError("Image error", err)
 	}
