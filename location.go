@@ -86,7 +86,6 @@ func newLocation(loc *city, n *nomad, homeC *fyne.Container) *location {
 
 func (l *location) clockTick() {
 	for range time.Tick(time.Second * 1) {
-
 		if l.currentTime {
 			t := time.Now().In(l.calendar.t.Location())
 			l.time.SetText(t.Format("15:04"))
