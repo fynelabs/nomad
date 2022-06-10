@@ -49,7 +49,6 @@ func newLocation(loc *city, n *nomad, homeC *fyne.Container) *location {
 			hour = time.Now().Hour()
 			minute = time.Now().Minute()
 			l.time.SetText(fmt.Sprintf("%02d:%02d", hour, minute))
-
 		} else {
 			fmt.Sscanf(s, "%d:%d", &hour, &minute)
 		}
