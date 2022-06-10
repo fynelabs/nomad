@@ -53,6 +53,7 @@ func newLocation(loc *city, n *nomad, homeC *fyne.Container) *location {
 			currentTimeSelected = true
 		} else {
 			fmt.Sscanf(s, "%d:%d", &hour, &minute)
+			currentTimeSelected = false
 		}
 		localOld := globalAppTime.In(l.location.localTime.Location())
 		selectedDate := time.Date(localOld.Year(), localOld.Month(), localOld.Day(), hour, minute, 0, 0, l.location.localTime.Location())
@@ -94,10 +95,10 @@ func (l *location) clockTick() {
 	ticker := time.NewTicker(time.Second)
 	go func() {
 		for {
+			t := <-ticker.C
 			if !currentTimeSelected {
 				continue
 			}
-			t := <-ticker.C
 			local := t.In(l.location.localTime.Location()).Format("15:04")
 			//set text without triggering OnSelected
 			l.time.Text = local

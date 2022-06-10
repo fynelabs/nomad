@@ -15,7 +15,7 @@ type nomad struct {
 }
 
 var globalAppTime = time.Now()
-var currentTimeSelected bool = false
+var currentTimeSelected bool = true
 
 func main() {
 	a := app.NewWithID("com.fynelabs.nomad")
