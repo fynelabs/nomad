@@ -73,11 +73,11 @@ func (n *nomad) autoCompleteEntry(homeContainer *fyne.Container) *CompletionEntr
 		entry.PlaceHolder = "ADD A PLACE"
 		split := strings.Split(s, "--")
 		for i := 0; i < len(homeContainer.Objects); i++ {
-			l, err := homeContainer.Objects[i].(*location)
-			if !err {
+			l, ok := homeContainer.Objects[i].(*location)
+			if !ok {
 				continue
 			}
-			if l.location.name+"--"+l.location.country == split[0]+"--"+split[1] {
+			if l.location.name == split[0] && l.location.country == split[1] {
 				return
 			}
 		}
