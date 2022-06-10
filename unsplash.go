@@ -2,7 +2,10 @@ package main
 
 import (
 	"fmt"
+	"image"
+	"image/color"
 	"io"
+	"math"
 	"net/http"
 	"net/url"
 	"os"
@@ -11,8 +14,12 @@ import (
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/canvas"
+	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/storage"
+	"fyne.io/fyne/v2/theme"
+	"fyne.io/fyne/v2/widget"
 	"github.com/hbagdi/go-unsplash/unsplash"
+	"github.com/oliamb/cutter"
 )
 
 type photo struct {
@@ -105,7 +112,7 @@ func (us *unsplashSession) fetchMetadata(city string, country string) (photo, er
 		portfolio:        getPhotographerPortfolio((*photos.Results)[0].Photographer),
 		original:         getURL((*photos.Results)[0]),
 		full:             (*photos.Results)[0].Urls.Full.URL,
-		photoWebsite:     (*photos.Results)[0].Links.Self.URL,
+		photoWebsite:     (*photos.Results)[0].Links.HTML.URL,
 	}, nil
 }
 
@@ -181,6 +188,92 @@ func canvasImage(r io.Reader, name string) *canvas.Image {
 	img.ScaleMode = canvas.ImageScaleFastest
 	img.Translucency = 0.15
 	return img
+}
+
+func cropImage(r io.Reader, c fyne.Canvas) *canvas.Image {
+
+	img, _, err := image.Decode(r)
+	if err != nil {
+		fyne.LogError("Image error", err)
+	}
+
+	var w float32 = float32(img.Bounds().Dx())
+	var h float32 = float32(img.Bounds().Dy())
+
+	imageAspectRatio := h / w
+	canvasAspectRatio := c.Size().Height / c.Size().Width
+
+	if imageAspectRatio > canvasAspectRatio {
+		h = (w / c.Size().Width) * c.Size().Height
+	} else {
+		w = (h / c.Size().Height) * c.Size().Width
+	}
+
+	croppedImg, _ := cutter.Crop(img, cutter.Config{
+		Width:   int(math.Round(float64(w))),
+		Height:  int(math.Round(float64(h))),
+		Options: cutter.Copy,
+		Mode:    cutter.Centered,
+	})
+
+	croppedCanvasImage := canvas.NewImageFromImage(croppedImg)
+
+	return croppedCanvasImage
+}
+
+func (city city) newInfoScreen(c fyne.Canvas) fyne.CanvasObject {
+	photographer := canvas.NewText("PHOTOGRAPHER", locationTextColor)
+	photographer.TextStyle.Monospace = true
+	photographer.TextSize = 10
+	photographerName := canvas.NewText(city.unsplash.photographerName, color.White)
+
+	location := canvas.NewText("LOCATION", locationTextColor)
+	location.TextStyle.Monospace = true
+	location.TextSize = 10
+	cityCountry := canvas.NewText(city.name+", "+city.country, color.White)
+
+	linkImage := widget.NewHyperlink("View on unsplash", city.unsplash.photoWebsite)
+
+	overlay := container.NewMax()
+
+	bg := canvas.NewImageFromResource(theme.FileImageIcon())
+	bg.SetMinSize(c.Size())
+	overlay.Add(bg)
+
+	go func() {
+		if city.unsplash.full == nil {
+			return
+		}
+		httpResponse, err := http.Get(city.unsplash.full.String())
+		if err != nil {
+			fyne.LogError("Unable to download full image", err)
+			return
+		}
+		defer httpResponse.Body.Close()
+
+		croppedImage := cropImage(httpResponse.Body, c)
+
+		overlay.Objects[0] = croppedImage
+		//defaults to 0.15 translucency
+		overlay.Objects[0].(*canvas.Image).Translucency = 0
+
+	}()
+
+	exitButton := widget.NewButtonWithIcon("", theme.CancelIcon(), func() {
+		c.Overlays().Remove(overlay)
+	})
+	exitButton.Importance = widget.LowImportance
+
+	pulldown := container.NewBorder(
+		container.NewMax(canvas.NewRectangle(&color.NRGBA{0x00, 0x00, 0x00, 0x80}),
+			container.NewBorder(nil, nil, nil,
+				container.NewBorder(exitButton, nil, nil, nil)),
+			container.NewPadded(
+				container.NewVBox(photographer, photographerName, location, cityCountry, linkImage))), nil, nil, nil)
+
+	overlay.Add(pulldown)
+
+	return overlay
 }
 
 func (us *unsplashSession) removeImageFromCache(l *location) {
