@@ -32,8 +32,6 @@ type location struct {
 
 	calendar      *calendar
 	homeContainer *fyne.Container
-
-	currentTime bool
 }
 
 func newLocation(loc *city, n *nomad, homeC *fyne.Container) *location {
@@ -85,13 +83,17 @@ func newLocation(loc *city, n *nomad, homeC *fyne.Container) *location {
 }
 
 func (l *location) clockTick() {
+
 	ticker := time.NewTicker(time.Second)
 	go func() {
 		for {
+			if !currentTimeSelected {
+				continue
+			}
 			t := <-ticker.C
-			text := t.In(l.location.localTime.Location()).Format("15:04")
+			local := t.In(l.location.localTime.Location()).Format("15:04:05")
 			//set text without triggering OnSelected
-			l.time.Text = text
+			l.time.Text = local
 			l.time.Refresh()
 		}
 	}()
