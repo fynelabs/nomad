@@ -71,8 +71,17 @@ func (n *nomad) autoCompleteEntry(homeContainer *fyne.Container) *CompletionEntr
 		//reset entry
 		entry.SetText("")
 		entry.PlaceHolder = "ADD A PLACE"
-
 		split := strings.Split(s, "--")
+		for i := 0; i < len(homeContainer.Objects); i++ {
+			l, err := homeContainer.Objects[i].(*location)
+			if !err {
+				continue
+			}
+			if l.location.name+"--"+l.location.country == split[0]+"--"+split[1] {
+				return
+			}
+		}
+
 		if len(split) != 3 {
 			err1 := errors.New(s)
 			fyne.LogError("Location entry string incorrect format", err1)
