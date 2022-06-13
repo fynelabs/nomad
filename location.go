@@ -86,24 +86,7 @@ func newLocation(loc *city, n *nomad, homeC *fyne.Container) *location {
 	l.dateButton.IconPlacement = widget.ButtonIconTrailingText
 	l.dateButton.Importance = widget.LowImportance
 
-	l.clockTick()
-
 	return l
-}
-
-func (l *location) clockTick() {
-	ticker := time.NewTicker(time.Second)
-	go func() {
-		for t := range ticker.C {
-			if !currentTimeSelected {
-				continue
-			}
-			local := t.In(l.location.localTime.Location()).Format("15:04")
-			//set text without triggering OnSelected
-			l.time.Text = local
-			l.time.Refresh()
-		}
-	}()
 }
 
 func (l *location) CreateRenderer() fyne.WidgetRenderer {
