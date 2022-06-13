@@ -94,8 +94,7 @@ func newLocation(loc *city, n *nomad, homeC *fyne.Container) *location {
 func (l *location) clockTick() {
 	ticker := time.NewTicker(time.Second)
 	go func() {
-		for {
-			t := <-ticker.C
+		for t := range ticker.C {
 			if !currentTimeSelected {
 				continue
 			}
