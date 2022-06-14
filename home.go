@@ -142,12 +142,12 @@ func (n *nomad) makeHome() fyne.CanvasObject {
 	scroll := container.NewVScroll(homeContainer)
 	scroll.SetMinSize(layout.minOuterSize())
 
-	clockTick(homeContainer.Objects)
+	startClockTick(homeContainer.Objects)
 
 	return scroll
 }
 
-func clockTick(containerObjects []fyne.CanvasObject) {
+func startClockTick(containerObjects []fyne.CanvasObject) {
 	ticker := time.NewTicker(time.Second)
 	go func() {
 		for t := range ticker.C {
