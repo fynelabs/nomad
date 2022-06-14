@@ -114,7 +114,7 @@ func setDate(dateToSet time.Time, containerObjects []fyne.CanvasObject) {
 			continue
 		}
 		locDate := dateToSet.In(loc.location.localTime.Location())
-		loc.updateCountry(locDate)
+		loc.updateLocation(locDate)
 	}
 }
 
@@ -156,13 +156,7 @@ func startClockTick(containerObjects []fyne.CanvasObject) {
 			}
 			globalAppTime = t
 			for i := 0; i < len(containerObjects); i++ {
-				l, ok := containerObjects[i].(*location)
-				if !ok {
-					continue
-				}
-				local := t.In(l.location.localTime.Location()).Format("15:04")
-				l.time.Text = local
-				l.time.Refresh()
+				setDate(t, containerObjects)
 			}
 		}
 	}()
