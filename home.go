@@ -155,9 +155,7 @@ func startClockTick(containerObjects []fyne.CanvasObject) {
 				continue
 			}
 			globalAppTime = t
-			for i := 0; i < len(containerObjects); i++ {
-				setDate(t, containerObjects)
-			}
+			setDate(t, containerObjects)
 		}
 	}()
 }
