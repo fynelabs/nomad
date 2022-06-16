@@ -39,4 +39,10 @@ func fadeSplash(obj fyne.CanvasObject) {
 	time.Sleep(time.Second * 2)
 	obj.Hide()
 	obj.Refresh()
+	gifInSplash(obj).Stop()
+}
+
+func gifInSplash(o fyne.CanvasObject) *xWidget.AnimatedGif {
+	content := o.(*fyne.Container).Objects[1].(*fyne.Container).Objects[0].(*fyne.Container)
+	return content.Objects[0].(*fyne.Container).Objects[0].(*xWidget.AnimatedGif)
 }
