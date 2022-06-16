@@ -46,11 +46,13 @@ func newLocation(loc *city, n *nomad, homeC *fyne.Container) *location {
 	l.time.OnChanged = func(s string) {
 		var hour, minute int
 		if s == "Now" {
+			globalAppTime = time.Now()
 			hour = time.Now().Hour()
 			minute = time.Now().Minute()
-			l.time.SetText(fmt.Sprintf("%02d:%02d", hour, minute))
+			currentTimeSelected = true
 		} else {
 			fmt.Sscanf(s, "%d:%d", &hour, &minute)
+			currentTimeSelected = false
 		}
 		localOld := globalAppTime.In(l.location.localTime.Location())
 		selectedDate := time.Date(localOld.Year(), localOld.Month(), localOld.Day(), hour, minute, 0, 0, l.location.localTime.Location())
@@ -76,6 +78,7 @@ func newLocation(loc *city, n *nomad, homeC *fyne.Container) *location {
 	l.dots = container.NewVBox(layout.NewSpacer(), l.button)
 
 	l.calendar = newCalendar(loc.localTime, func(t time.Time) {
+		currentTimeSelected = false
 		setDate(t, l.homeContainer.Objects)
 	})
 
@@ -131,9 +134,9 @@ func listTimes() (times []string) {
 	return times
 }
 
-func (l *location) updateCountry(locDate time.Time) {
-
-	l.time.SetText(locDate.Format("15:04"))
+func (l *location) updateLocation(locDate time.Time) {
+	l.time.Text = locDate.Format("15:04")
+	l.time.Refresh()
 	l.locationTZLabel.Text = strings.ToUpper(l.location.country + " · " + locDate.Format("MST"))
 	l.locationTZLabel.Refresh()
 	l.dateButton.SetText(locDate.Format("Mon 02 Jan 2006"))

@@ -21,6 +21,11 @@ import (
 	"github.com/zsefvlol/timezonemapper"
 )
 
+var (
+	globalAppTime            = time.Now()
+	currentTimeSelected bool = true
+)
+
 func (n *nomad) autoCompleteEntry(homeContainer *fyne.Container) *CompletionEntry {
 
 	entry := NewCompletionEntry([]string{})
@@ -110,7 +115,7 @@ func setDate(dateToSet time.Time, containerObjects []fyne.CanvasObject) {
 			continue
 		}
 		locDate := dateToSet.In(loc.location.localTime.Location())
-		loc.updateCountry(locDate)
+		loc.updateLocation(locDate)
 	}
 }
 
@@ -137,5 +142,21 @@ func (n *nomad) makeHome() fyne.CanvasObject {
 	homeContainer.Objects = append(cells, n.makeAddCell(homeContainer))
 	scroll := container.NewVScroll(homeContainer)
 	scroll.SetMinSize(layout.minOuterSize())
+
+	startClockTick(homeContainer.Objects)
+
 	return scroll
+}
+
+func startClockTick(containerObjects []fyne.CanvasObject) {
+	ticker := time.NewTicker(time.Second)
+	go func() {
+		for t := range ticker.C {
+			if !currentTimeSelected {
+				continue
+			}
+			globalAppTime = t
+			setDate(t, containerObjects)
+		}
+	}()
 }
