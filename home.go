@@ -4,6 +4,7 @@
 //go:generate fyne bundle -append -o assets.go WorkSans-Black.ttf
 //go:generate fyne bundle -append -o assets.go WorkSans-Bold.ttf
 //go:generate fyne bundle -append -o assets.go WorkSans-Regular.ttf
+//go:generate fyne bundle -append -o assets.go Icon.png
 
 package main
 

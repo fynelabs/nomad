@@ -31,6 +31,7 @@ func main() {
 	w.SetContent(container.NewMax(ui.makeHome(), splash))
 	w.SetPadded(false)
 	w.Resize(fyne.NewSize(300, 500))
+	w.SetIcon(resourceIconPng)
 
 	go ui.fadeSplash(splash)
 	w.ShowAndRun()
