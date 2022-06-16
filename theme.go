@@ -25,6 +25,11 @@ func (m myTheme) Color(name fyne.ThemeColorName, variant fyne.ThemeVariant) colo
 	if name == theme.ColorNamePlaceHolder {
 		return color.NRGBA{0xFF, 0xFF, 0xFF, 0x40}
 	}
+
+	if name == theme.ColorNameFocus {
+		return theme.HoverColor()
+	}
+
 	return theme.DefaultTheme().Color(name, variant)
 }
 
