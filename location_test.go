@@ -14,7 +14,7 @@ import (
 func TestNewLocation(t *testing.T) {
 	n := &nomad{}
 	c := newCity("Test", "Country", photo{}, time.UTC)
-	l := newLocation(c, n, fyne.NewContainer())
+	l := newLocation(c, n, fyne.NewContainerWithoutLayout())
 	_ = test.WidgetRenderer(l)
 
 	utc := time.Now().In(time.UTC)
@@ -25,7 +25,7 @@ func TestNewLocation(t *testing.T) {
 func TestLocation_PickTime(t *testing.T) {
 	n := &nomad{}
 	c := newCity("Test", "Country", photo{}, time.UTC)
-	l := newLocation(c, n, fyne.NewContainer())
+	l := newLocation(c, n, fyne.NewContainerWithoutLayout())
 	_ = test.WidgetRenderer(l)
 
 	zone, _ := time.LoadLocation("EST")
