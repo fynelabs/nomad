@@ -94,8 +94,9 @@ func newCityStore(p fyne.Preferences) *cityStore {
 	return s
 }
 
-func (s *cityStore) cities() []*city {
-	return s.list
+func (s *cityStore) add(c *city) {
+	s.list = append(s.list, c)
+	s.save()
 }
 
 func (s *cityStore) savePhoto(prefix string, unsplash *photo) {
@@ -129,7 +130,7 @@ func (s *cityStore) save() {
 	}
 }
 
-func (s *cityStore) removeCityFromStoreList(i int) {
+func (s *cityStore) remove(i int) {
 	s.list = append(s.list[:i], s.list[i+1:]...)
 	s.save()
 }

@@ -56,7 +56,7 @@ func (c *calendar) daysOfMonth() []fyne.CanvasObject {
 		s := fmt.Sprint(dayNum)
 		var b fyne.CanvasObject = widget.NewButton(s, func() {
 
-			selectedDate := c.newDateForCalendar(dayNum)
+			selectedDate := c.dateForButton(dayNum)
 
 			c.setCachedDateInfo(selectedDate)
 
@@ -71,11 +71,9 @@ func (c *calendar) daysOfMonth() []fyne.CanvasObject {
 	return buttons
 }
 
-func (c *calendar) newDateForCalendar(dayNum int) time.Time {
+func (c *calendar) dateForButton(dayNum int) time.Time {
 	oldName, off := globalAppTime.Zone()
-	selectedDate := time.Date(c.year, time.Month(c.month), dayNum, globalAppTime.Hour(), globalAppTime.Minute(), 0, 0, time.FixedZone(oldName, off)).In(c.t.Location())
-
-	return selectedDate
+	return time.Date(c.year, time.Month(c.month), dayNum, globalAppTime.Hour(), globalAppTime.Minute(), 0, 0, time.FixedZone(oldName, off)).In(c.t.Location())
 }
 
 func (c *calendar) hideOverlay() {
@@ -117,7 +115,7 @@ func (c *calendar) calendarObjects() []fyne.CanvasObject {
 	return columnHeadings
 }
 
-func (c *calendar) newCalendarPopUpAtPos(canvas fyne.Canvas, pos fyne.Position) {
+func (c *calendar) showAtPos(canvas fyne.Canvas, pos fyne.Position) {
 	c.canvas = canvas
 	widget.ShowPopUpAtPosition(c, canvas, pos)
 }
@@ -158,8 +156,7 @@ func (c *calendar) CreateRenderer() fyne.WidgetRenderer {
 }
 
 func newCalendar(t time.Time, callback func(time.Time)) *calendar {
-
-	c := &calendar{day: time.Now().Day(), month: int(time.Now().Month()), year: time.Now().Year(), t: t, callback: callback}
+	c := &calendar{day: t.Day(), month: int(t.Month()), year: t.Year(), t: t, callback: callback}
 	c.ExtendBaseWidget(c)
 
 	return c
