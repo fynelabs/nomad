@@ -5,7 +5,7 @@ import (
 	"testing"
 	"time"
 
-	"fyne.io/fyne/v2"
+	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/test"
 
 	"github.com/stretchr/testify/assert"
@@ -14,7 +14,7 @@ import (
 func TestNewLocation(t *testing.T) {
 	n := &nomad{}
 	c := newCity("Test", "Country", photo{}, time.UTC)
-	l := newLocation(c, n, fyne.NewContainerWithoutLayout())
+	l := newLocation(c, n, container.NewWithoutLayout())
 	_ = test.WidgetRenderer(l)
 
 	utc := time.Now().In(time.UTC)
@@ -25,7 +25,7 @@ func TestNewLocation(t *testing.T) {
 func TestLocation_PickTime(t *testing.T) {
 	n := &nomad{}
 	c := newCity("Test", "Country", photo{}, time.UTC)
-	l := newLocation(c, n, fyne.NewContainerWithoutLayout())
+	l := newLocation(c, n, container.NewWithoutLayout())
 	_ = test.WidgetRenderer(l)
 
 	zone, _ := time.LoadLocation("EST")
