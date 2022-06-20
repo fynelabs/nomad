@@ -30,17 +30,26 @@ func TestNewCalendar_ButtonDate(t *testing.T) {
 	endNextMonth := date.AddDate(0, 1, 0).AddDate(0, 0, -(date.Day() - 1))
 	last := endNextMonth.AddDate(0, 0, -1)
 
-	var firstDate *widget.Button
-	for _, b := range c.dates.Objects {
-		if nonBlank, ok := b.(*widget.Button); ok {
-			firstDate = nonBlank
-			break
-		}
-	}
-
+	firstDate := firstDateButton(c.dates)
 	assert.Equal(t, "1", firstDate.Text)
 	lastDate := c.dates.Objects[len(c.dates.Objects)-1].(*widget.Button)
 	assert.Equal(t, strconv.Itoa(last.Day()), lastDate.Text)
+}
+
+func TestNewCalendar_ButtonTap(t *testing.T) {
+	tapped := time.Now()
+	c := newCalendar(time.Now(), func(t time.Time) {
+		tapped = t
+	})
+	win := test.NewCanvas()
+	pos := fyne.NewPos(10, 10)
+	c.showAtPos(win, pos)
+	_ = test.WidgetRenderer(c) // and render
+
+	firstDate := firstDateButton(c.dates)
+	test.Tap(firstDate)
+	assert.Equal(t, 1, tapped.Day())
+	assert.Equal(t, 0, len(win.Overlays().List()))
 }
 
 func TestNewCalendar_Next(t *testing.T) {
@@ -77,4 +86,14 @@ func TestNewCalendar_ShowHide(t *testing.T) {
 
 	c.hideOverlay()
 	assert.Equal(t, 0, len(win.Overlays().List()))
+}
+
+func firstDateButton(c *fyne.Container) *widget.Button {
+	for _, b := range c.Objects {
+		if nonBlank, ok := b.(*widget.Button); ok {
+			return nonBlank
+		}
+	}
+
+	return nil
 }
