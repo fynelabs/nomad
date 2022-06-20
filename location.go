@@ -83,7 +83,7 @@ func newLocation(loc *city, n *nomad, homeC *fyne.Container) *location {
 	})
 
 	l.dateButton = widget.NewButtonWithIcon(l.calendar.fullDate(), theme.MenuDropDownIcon(), func() {
-		l.calendar.newCalendarPopUpAtPos(n.main.Canvas(), fyne.NewPos(0, l.Size().Height))
+		l.calendar.showAtPos(n.main.Canvas(), fyne.NewPos(0, l.Size().Height))
 	})
 	l.dateButton.Alignment = widget.ButtonAlignLeading
 	l.dateButton.IconPlacement = widget.ButtonIconTrailingText
