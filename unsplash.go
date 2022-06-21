@@ -190,35 +190,36 @@ func canvasImage(r io.Reader, name string) *canvas.Image {
 	return img
 }
 
-func cropImage(r io.Reader, c fyne.Canvas) *canvas.Image {
+func cropImage(r io.Reader, c fyne.Canvas) *canvas.Raster {
 
 	img, _, err := image.Decode(r)
 	if err != nil {
 		fyne.LogError("Image error", err)
 	}
 
-	var w float32 = float32(img.Bounds().Dx())
-	var h float32 = float32(img.Bounds().Dy())
+	return canvas.NewRaster(func(rasterWidth, rasterHeight int) image.Image {
 
-	imageAspectRatio := h / w
-	canvasAspectRatio := c.Size().Height / c.Size().Width
+		var w float32 = float32(img.Bounds().Dx())
+		var h float32 = float32(img.Bounds().Dy())
 
-	if imageAspectRatio > canvasAspectRatio {
-		h = (w / c.Size().Width) * c.Size().Height
-	} else {
-		w = (h / c.Size().Height) * c.Size().Width
-	}
+		imageAspectRatio := h / w
+		canvasAspectRatio := float32(rasterHeight) / float32(rasterWidth)
 
-	croppedImg, _ := cutter.Crop(img, cutter.Config{
-		Width:   int(math.Round(float64(w))),
-		Height:  int(math.Round(float64(h))),
-		Options: cutter.Copy,
-		Mode:    cutter.Centered,
+		if imageAspectRatio > canvasAspectRatio {
+			h = (w / float32(rasterWidth)) * float32(rasterHeight)
+		} else {
+			w = (h / float32(rasterHeight)) * float32(rasterWidth)
+		}
+
+		croppedImg, _ := cutter.Crop(img, cutter.Config{
+			Width:   int(math.Round(float64(w))),
+			Height:  int(math.Round(float64(h))),
+			Options: cutter.Copy,
+			Mode:    cutter.Centered,
+		})
+
+		return croppedImg
 	})
-
-	croppedCanvasImage := canvas.NewImageFromImage(croppedImg)
-
-	return croppedCanvasImage
 }
 
 func (city city) newInfoScreen(c fyne.Canvas) fyne.CanvasObject {
@@ -255,7 +256,7 @@ func (city city) newInfoScreen(c fyne.Canvas) fyne.CanvasObject {
 
 		overlay.Objects[1] = croppedImage
 		//defaults to 0.15 translucency
-		overlay.Objects[1].(*canvas.Image).Translucency = 0
+		overlay.Objects[1].(*canvas.Raster).Translucency = 0
 
 	}()
 
