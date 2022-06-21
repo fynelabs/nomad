@@ -234,7 +234,7 @@ func (city city) newInfoScreen(c fyne.Canvas) fyne.CanvasObject {
 
 	linkImage := widget.NewHyperlink("View on unsplash", city.unsplash.photoWebsite)
 
-	overlay := container.NewMax()
+	overlay := container.NewMax(canvas.NewRectangle(&color.NRGBA{0x18, 0x0C, 0x27, 0xFF}))
 
 	bg := canvas.NewImageFromResource(theme.FileImageIcon())
 	bg.SetMinSize(c.Size())
@@ -253,9 +253,9 @@ func (city city) newInfoScreen(c fyne.Canvas) fyne.CanvasObject {
 
 		croppedImage := cropImage(httpResponse.Body, c)
 
-		overlay.Objects[0] = croppedImage
+		overlay.Objects[1] = croppedImage
 		//defaults to 0.15 translucency
-		overlay.Objects[0].(*canvas.Image).Translucency = 0
+		overlay.Objects[1].(*canvas.Image).Translucency = 0
 
 	}()
 
