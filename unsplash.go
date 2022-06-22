@@ -15,6 +15,7 @@ import (
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/canvas"
 	"fyne.io/fyne/v2/container"
+	"fyne.io/fyne/v2/layout"
 	"fyne.io/fyne/v2/storage"
 	"fyne.io/fyne/v2/theme"
 	"fyne.io/fyne/v2/widget"
@@ -270,7 +271,8 @@ func (city city) newInfoScreen(c fyne.Canvas) fyne.CanvasObject {
 			container.NewBorder(nil, nil, nil,
 				container.NewBorder(exitButton, nil, nil, nil)),
 			container.NewPadded(
-				container.NewVBox(photographer, photographerName, location, cityCountry, linkImage))), nil, nil, nil)
+				container.NewVBox(photographer, photographerName, location, cityCountry,
+					container.NewHBox(linkImage, layout.NewSpacer())))), nil, nil, nil)
 
 	overlay.Add(pulldown)
 
