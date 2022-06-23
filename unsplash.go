@@ -18,6 +18,8 @@ import (
 	"fyne.io/fyne/v2/storage"
 	"fyne.io/fyne/v2/theme"
 	"fyne.io/fyne/v2/widget"
+	x "fyne.io/x/fyne/layout"
+
 	"github.com/hbagdi/go-unsplash/unsplash"
 	"github.com/oliamb/cutter"
 )
@@ -269,8 +271,11 @@ func (city city) newInfoScreen(c fyne.Canvas) fyne.CanvasObject {
 		container.NewMax(canvas.NewRectangle(&color.NRGBA{0x00, 0x00, 0x00, 0x80}),
 			container.NewBorder(nil, nil, nil,
 				container.NewBorder(exitButton, nil, nil, nil)),
-			container.NewPadded(
-				container.NewVBox(photographer, photographerName, location, cityCountry, linkImage))), nil, nil, nil)
+			x.NewResponsiveLayout(
+				x.Responsive(container.NewPadded(container.NewVBox(photographer, photographerName)), 1, .5, .33),
+				x.Responsive(container.NewPadded(container.NewVBox(location, cityCountry)), 1, .5, .33),
+				x.Responsive(container.NewPadded(container.NewHBox(linkImage)), 1, 1, .33),
+			)), nil, nil, nil)
 
 	overlay.Add(pulldown)
 

@@ -4,7 +4,7 @@ go 1.17
 
 require (
 	fyne.io/fyne/v2 v2.2.0
-	fyne.io/x/fyne v0.0.0-20220524111314-5922941e6ea8
+	fyne.io/x/fyne v0.0.0-20220621181940-c39ecc984c3b
 	github.com/hbagdi/go-unsplash v0.0.0-20210330151707-a7612e80fdd5
 	github.com/tidwall/cities v0.1.0
 	github.com/zsefvlol/timezonemapper v1.0.0

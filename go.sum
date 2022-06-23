@@ -44,6 +44,8 @@ fyne.io/systray v1.9.1-0.20220523202515-bb6f1d955cff h1:l439vjQ+tyWm9c8NRFtJ6W3E
 fyne.io/systray v1.9.1-0.20220523202515-bb6f1d955cff/go.mod h1:N4ZU0i34X+n8soFRlBNkmJTunw9wD+9jIP19fSZpjSI=
 fyne.io/x/fyne v0.0.0-20220524111314-5922941e6ea8 h1:Faapm9D8RmoyASFszw6ds4WeGstQvKSSydhqgrWfHuA=
 fyne.io/x/fyne v0.0.0-20220524111314-5922941e6ea8/go.mod h1:yq4D2A1RuXW+bTE2DN4SWpFlo1wK5c55IBh91SubTJU=
+fyne.io/x/fyne v0.0.0-20220621181940-c39ecc984c3b h1:WFkhk1ebywacwV9vApWDLSVMnlYcvOOsnri46bKqWig=
+fyne.io/x/fyne v0.0.0-20220621181940-c39ecc984c3b/go.mod h1:yq4D2A1RuXW+bTE2DN4SWpFlo1wK5c55IBh91SubTJU=
 github.com/Andrew-M-C/go.jsonvalue v1.1.2-0.20211223013816-e873b56b4a84/go.mod h1:oTJGG91FhtsxvUFVwHSvr6zuaTcAuroj/ToxfT7Ox8U=
 github.com/Bluebugs/go-unsplash v0.0.0-20220525000733-ea882dd1d0c0 h1:/2on0f5Xnk4v092iFnx8BkyBKAUDcD1cdh8O8ZrBW+g=
 github.com/Bluebugs/go-unsplash v0.0.0-20220525000733-ea882dd1d0c0/go.mod h1:DEzhU5CxSdknL3hUXTco1n5AO2BZHs4KeJo5ADWU0Iw=
