@@ -118,7 +118,7 @@ func (us *unsplashSession) fetchMetadata(city string, country string) (photo, er
 	}, nil
 }
 
-func (us *unsplashSession) download(p photo) (*canvas.Image, error) {
+func (us *unsplashSession) download(p photo) (*canvas.Raster, error) {
 	if p.original == nil {
 		return nil, fmt.Errorf("no photo download target")
 	}
@@ -142,10 +142,10 @@ func (us *unsplashSession) download(p photo) (*canvas.Image, error) {
 	}
 
 	reader := io.TeeReader(httpResponse.Body, write)
-	return canvasImage(reader, p.original.String()), nil
+	return cropImage(reader), nil
 }
 
-func (us *unsplashSession) cached(cache string) (*canvas.Image, error) {
+func (us *unsplashSession) cached(cache string) (*canvas.Raster, error) {
 	childURI, err := storage.Child(us.storage.RootURI(), cache)
 	if err != nil {
 		return nil, err
@@ -156,10 +156,10 @@ func (us *unsplashSession) cached(cache string) (*canvas.Image, error) {
 		return nil, err
 	}
 
-	return canvasImage(reader, cache), nil
+	return cropImage(reader), nil
 }
 
-func (us *unsplashSession) get(location *city) (*canvas.Image, error) {
+func (us *unsplashSession) get(location *city) (*canvas.Raster, error) {
 	if location.unsplash.cache != "" {
 		r, err := us.cached(location.unsplash.cache)
 		if r != nil {
@@ -185,15 +185,7 @@ func (us *unsplashSession) get(location *city) (*canvas.Image, error) {
 	return r, nil
 }
 
-func canvasImage(r io.Reader, name string) *canvas.Image {
-	img := canvas.NewImageFromReader(r, name)
-	img.ScaleMode = canvas.ImageScaleFastest
-	img.Translucency = 0.15
-	return img
-}
-
-func cropImage(r io.Reader, c fyne.Canvas) *canvas.Raster {
-
+func cropImage(r io.Reader) *canvas.Raster {
 	img, _, err := image.Decode(r)
 	if err != nil {
 		fyne.LogError("Image error", err)
@@ -254,7 +246,7 @@ func (city city) newInfoScreen(c fyne.Canvas) fyne.CanvasObject {
 		}
 		defer httpResponse.Body.Close()
 
-		croppedImage := cropImage(httpResponse.Body, c)
+		croppedImage := cropImage(httpResponse.Body)
 
 		overlay.Objects[1] = croppedImage
 		//defaults to 0.15 translucency
