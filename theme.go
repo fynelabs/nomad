@@ -13,6 +13,9 @@ func (m myTheme) Color(name fyne.ThemeColorName, variant fyne.ThemeVariant) colo
 	if name == theme.ColorNameBackground {
 		return color.NRGBA{0x18, 0x0C, 0x27, 0xFF}
 	}
+	if name == theme.ColorNameForeground {
+		return color.White
+	}
 
 	if name == theme.ColorNamePrimary {
 		return color.NRGBA{0xFF, 0x85, 0x00, 0xFF}
