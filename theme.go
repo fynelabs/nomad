@@ -10,22 +10,22 @@ import (
 type myTheme struct{}
 
 func (m myTheme) Color(name fyne.ThemeColorName, variant fyne.ThemeVariant) color.Color {
-	if name == theme.ColorNameBackground {
+	switch name {
+	case theme.ColorNameBackground:
 		return color.NRGBA{0x18, 0x0C, 0x27, 0xFF}
-	}
-
-	if name == theme.ColorNamePrimary {
+	case theme.ColorNameForeground:
+		return color.White
+	case theme.ColorNamePrimary:
 		return color.NRGBA{0xFF, 0x85, 0x00, 0xFF}
-	}
-
-	if name == theme.ColorNameInputBackground {
+	case theme.ColorNameInputBackground:
 		return color.NRGBA{0x00, 0x00, 0x00, 0x00}
-	}
-
-	if name == theme.ColorNamePlaceHolder {
+	case theme.ColorNamePlaceHolder:
 		return color.NRGBA{0xFF, 0xFF, 0xFF, 0x40}
+	case theme.ColorNameFocus:
+		return theme.HoverColor()
+	default:
+		return theme.DefaultTheme().Color(name, variant)
 	}
-	return theme.DefaultTheme().Color(name, variant)
 }
 
 func (m myTheme) Font(style fyne.TextStyle) fyne.Resource {

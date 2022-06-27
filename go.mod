@@ -1,13 +1,15 @@
 module github.com/fynelabs/nomad
 
-go 1.18
+go 1.17
 
 require (
 	fyne.io/fyne/v2 v2.2.0
-	fyne.io/x/fyne v0.0.0-20220524111314-5922941e6ea8
+	fyne.io/x/fyne v0.0.0-20220621181940-c39ecc984c3b
 	github.com/fynelabs/fyneselfupdate v0.0.0-00010101000000-000000000000
 	github.com/fynelabs/selfupdate v0.0.0-20220603194016-1a68b05d3b4a
 	github.com/hbagdi/go-unsplash v0.0.0-20210330151707-a7612e80fdd5
+	github.com/oliamb/cutter v0.2.2
+	github.com/stretchr/testify v1.7.1
 	github.com/tidwall/cities v0.1.0
 	github.com/zsefvlol/timezonemapper v1.0.0
 )
@@ -31,7 +33,6 @@ require (
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/srwiley/oksvg v0.0.0-20220128195007-1f435e4c2b44 // indirect
 	github.com/srwiley/rasterx v0.0.0-20220128185129-2efea2b9ea41 // indirect
-	github.com/stretchr/testify v1.7.1 // indirect
 	github.com/yuin/goldmark v1.4.12 // indirect
 	golang.org/x/image v0.0.0-20220601225756-64ec528b34cd // indirect
 	golang.org/x/mobile v0.0.0-20211207041440-4e6c2922fdee // indirect

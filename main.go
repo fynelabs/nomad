@@ -25,11 +25,12 @@ func main() {
 	var _ fyne.Theme = (*myTheme)(nil)
 	a.Settings().SetTheme(&myTheme{})
 
-	splash := ui.makeSplash()
+	splash := makeSplash()
 	w.SetContent(container.NewMax(ui.makeHome(), splash))
 	w.SetPadded(false)
 	w.Resize(fyne.NewSize(300, 500))
+	w.SetIcon(resourceIconPng)
 
-	go ui.fadeSplash(splash)
+	go fadeSplash(splash)
 	w.ShowAndRun()
 }

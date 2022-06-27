@@ -11,8 +11,7 @@ import (
 	xWidget "fyne.io/x/fyne/widget"
 )
 
-func (n *nomad) makeSplash() fyne.CanvasObject {
-
+func makeSplash() fyne.CanvasObject {
 	text := canvas.NewText("NOMAD", color.White)
 	text.TextSize = 50
 	text.TextStyle = fyne.TextStyle{Italic: true, Bold: true}
@@ -36,8 +35,14 @@ func (n *nomad) makeSplash() fyne.CanvasObject {
 	)
 }
 
-func (n *nomad) fadeSplash(obj fyne.CanvasObject) {
+func fadeSplash(obj fyne.CanvasObject) {
 	time.Sleep(time.Second * 2)
 	obj.Hide()
-	n.main.Content().Refresh()
+	obj.Refresh()
+	gifInSplash(obj).Stop()
+}
+
+func gifInSplash(o fyne.CanvasObject) *xWidget.AnimatedGif {
+	content := o.(*fyne.Container).Objects[1].(*fyne.Container).Objects[0].(*fyne.Container)
+	return content.Objects[0].(*fyne.Container).Objects[0].(*xWidget.AnimatedGif)
 }

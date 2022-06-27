@@ -4,6 +4,7 @@
 //go:generate fyne bundle -append -o assets.go WorkSans-Black.ttf
 //go:generate fyne bundle -append -o assets.go WorkSans-Bold.ttf
 //go:generate fyne bundle -append -o assets.go WorkSans-Regular.ttf
+//go:generate fyne bundle -append -o assets.go Icon.png
 
 package main
 
@@ -18,6 +19,11 @@ import (
 	"fyne.io/fyne/v2/widget"
 	"github.com/tidwall/cities"
 	"github.com/zsefvlol/timezonemapper"
+)
+
+var (
+	globalAppTime            = time.Now()
+	currentTimeSelected bool = true
 )
 
 func (n *nomad) autoCompleteEntry(homeContainer *fyne.Container) *CompletionEntry {
@@ -71,8 +77,17 @@ func (n *nomad) autoCompleteEntry(homeContainer *fyne.Container) *CompletionEntr
 		//reset entry
 		entry.SetText("")
 		entry.PlaceHolder = "ADD A PLACE"
-
 		split := strings.Split(s, "--")
+		for i := 0; i < len(homeContainer.Objects); i++ {
+			l, ok := homeContainer.Objects[i].(*location)
+			if !ok {
+				continue
+			}
+			if l.location.name == split[0] && l.location.country == split[1] {
+				return
+			}
+		}
+
 		if len(split) != 3 {
 			err1 := errors.New(s)
 			fyne.LogError("Location entry string incorrect format", err1)
@@ -80,15 +95,26 @@ func (n *nomad) autoCompleteEntry(homeContainer *fyne.Container) *CompletionEntr
 			zone, _ := time.LoadLocation(split[2])
 			c := newCity(split[0], split[1], photo{}, zone)
 
-			n.store.list = append(n.store.list, c)
-			n.store.save()
-
-			l := newLocation(c, n.session, n.main.Canvas())
+			n.store.add(c)
+			l := newLocation(c, n, homeContainer)
 			homeContainer.Objects = append(homeContainer.Objects[:len(homeContainer.Objects)-1], l, homeContainer.Objects[len(homeContainer.Objects)-1])
 		}
 	}
 
 	return entry
+}
+
+func setDate(dateToSet time.Time, containerObjects []fyne.CanvasObject) {
+	globalAppTime = dateToSet
+
+	for i := 0; i < len(containerObjects); i++ {
+		loc, ok := containerObjects[i].(*location)
+		if !ok {
+			continue
+		}
+		locDate := dateToSet.In(loc.location.localTime.Location())
+		loc.updateLocation(locDate)
+	}
 }
 
 func (n *nomad) makeAddCell(homeContainer *fyne.Container) fyne.CanvasObject {
@@ -103,16 +129,32 @@ func (n *nomad) makeAddCell(homeContainer *fyne.Container) fyne.CanvasObject {
 }
 
 func (n *nomad) makeHome() fyne.CanvasObject {
-
-	cells := []fyne.CanvasObject{}
-	for _, c := range n.store.cities() {
-		cells = append(cells, newLocation(c, n.session, n.main.Canvas()))
-	}
-
 	layout := &nomadLayout{}
 	homeContainer := container.New(layout)
+
+	cells := []fyne.CanvasObject{}
+	for _, c := range n.store.list {
+		cells = append(cells, newLocation(c, n, homeContainer))
+	}
+
 	homeContainer.Objects = append(cells, n.makeAddCell(homeContainer))
 	scroll := container.NewVScroll(homeContainer)
 	scroll.SetMinSize(layout.minOuterSize())
+
+	startClockTick(homeContainer.Objects)
+
 	return scroll
+}
+
+func startClockTick(containerObjects []fyne.CanvasObject) {
+	ticker := time.NewTicker(time.Second)
+	go func() {
+		for t := range ticker.C {
+			if !currentTimeSelected {
+				continue
+			}
+			globalAppTime = t
+			setDate(t, containerObjects)
+		}
+	}()
 }
