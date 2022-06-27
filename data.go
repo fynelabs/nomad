@@ -4,6 +4,7 @@ import (
 	"net/url"
 	"strconv"
 	"time"
+	_ "time/tzdata" // get the bundled zones
 
 	"fyne.io/fyne/v2"
 )
