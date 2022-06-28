@@ -140,6 +140,7 @@ func (us *unsplashSession) download(p photo) (*canvas.Raster, error) {
 	if err != nil {
 		return nil, err
 	}
+	defer write.Close()
 
 	reader := io.TeeReader(httpResponse.Body, write)
 	return cropImage(reader), nil
@@ -155,6 +156,7 @@ func (us *unsplashSession) cached(cache string) (*canvas.Raster, error) {
 	if err != nil {
 		return nil, err
 	}
+	defer reader.Close()
 
 	return cropImage(reader), nil
 }
@@ -189,6 +191,7 @@ func cropImage(r io.Reader) *canvas.Raster {
 	img, _, err := image.Decode(r)
 	if err != nil {
 		fyne.LogError("Image error", err)
+		return nil
 	}
 
 	return canvas.NewRaster(func(rasterWidth, rasterHeight int) image.Image {
