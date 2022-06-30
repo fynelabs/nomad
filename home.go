@@ -29,9 +29,10 @@ var (
 func (n *nomad) autoCompleteEntry(homeContainer *fyne.Container) *CompletionEntry {
 
 	entry := NewCompletionEntry([]string{})
-	entry.SetPlaceHolder("Add a Place")
+	entry.SetPlaceHolder("ADD A PLACE")
 
 	entry.OnChanged = func(s string) {
+		entry.Entry.SetText(strings.ToUpper(entry.Entry.Text))
 
 		// completion start for text length >= 2 Some cities have two letter names
 		if len(s) < 2 {
@@ -68,8 +69,6 @@ func (n *nomad) autoCompleteEntry(homeContainer *fyne.Container) *CompletionEntr
 		// then show them
 		entry.SetOptions(cardTexts)
 		entry.ShowCompletion()
-
-		entry.Entry.SetText(strings.ToUpper(entry.Entry.Text))
 	}
 
 	entry.OnSubmitted = func(s string) {
