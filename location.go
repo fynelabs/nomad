@@ -95,7 +95,7 @@ func newLocation(loc *city, n *nomad, homeC *fyne.Container) *location {
 func (l *location) CreateRenderer() fyne.WidgetRenderer {
 	bg := canvas.NewImageFromResource(theme.FileImageIcon())
 	bg.Translucency = 0.5
-	city := widget.NewRichTextFromMarkdown("# " + l.location.name)
+	city := widget.NewRichTextFromMarkdown("# " + strings.ToUpper(l.location.name))
 	l.locationTZLabel = canvas.NewText(strings.ToUpper(l.location.country)+" · "+l.location.localTime.Format("MST"), locationTextColor)
 	l.locationTZLabel.TextStyle.Monospace = true
 	l.locationTZLabel.TextSize = 10
