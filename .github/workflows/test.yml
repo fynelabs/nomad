@@ -7,7 +7,7 @@ permissions:
 jobs:
   platform_tests:
     runs-on: ubuntu-latest
-    if: ! github.event.pull_request.draft
+    if: ${{ !github.event.pull_request.draft }}
 
     steps:
     - uses: actions/checkout@v2
