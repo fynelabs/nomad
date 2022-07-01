@@ -22,7 +22,7 @@ func (l *nomadLayout) Layout(objs []fyne.CanvasObject, s fyne.Size) {
 		outer = 0
 	}
 	l.cols = int((s.Width - outer*2 + cellSpace) / (minWidth + cellSpace))
-	colWidth := (s.Width-outer)/float32(l.cols) - outer
+	colWidth := (s.Width-outer*2+cellSpace)/float32(l.cols) - cellSpace
 	cellSize := fyne.NewSize(colWidth, minHeight)
 
 	offset := 0
