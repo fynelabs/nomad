@@ -56,22 +56,6 @@ func newLocation(loc *city, n *nomad, homeC *fyne.Container) *location {
 		setDate(selectedDate, l.homeContainer.Objects)
 	})
 	l.time.PlaceHolder = loc.localTime.Format("15:04")
-	l.time.OnChanged = func(s string) {
-		var hour, minute int
-		if s == "Now" {
-			globalAppTime = time.Now()
-			hour = time.Now().Hour()
-			minute = time.Now().Minute()
-			currentTimeSelected = true
-		} else {
-			fmt.Sscanf(s, "%d:%d", &hour, &minute)
-			currentTimeSelected = false
-		}
-		localOld := globalAppTime.In(l.location.localTime.Location())
-		selectedDate := time.Date(localOld.Year(), localOld.Month(), localOld.Day(), hour, minute, 0, 0, l.location.localTime.Location())
-
-		setDate(selectedDate, l.homeContainer.Objects)
-	}
 
 	menu := fyne.NewMenu("",
 		fyne.NewMenuItem("Delete Place", func() { l.remove(homeC, n) }),
