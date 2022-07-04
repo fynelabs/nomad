@@ -94,6 +94,7 @@ func newLocation(loc *city, n *nomad, homeC *fyne.Container) *location {
 
 func (l *location) CreateRenderer() fyne.WidgetRenderer {
 	bg := canvas.NewImageFromResource(theme.FileImageIcon())
+	op := canvas.NewRectangle(color.NRGBA{0x00, 0x00, 0x00, 0x59})
 	bg.Translucency = 0.5
 	city := widget.NewRichTextFromMarkdown("# " + strings.ToUpper(l.location.name))
 	city.Move(fyne.NewPos(3, 0))
@@ -103,7 +104,7 @@ func (l *location) CreateRenderer() fyne.WidgetRenderer {
 	l.locationTZLabel.Move(fyne.NewPos(12, 40))
 	input := container.NewBorder(nil, nil, l.dateButton, l.time)
 
-	c := container.NewMax(bg,
+	c := container.NewMax(bg, op,
 		container.NewBorder(nil,
 			container.NewVBox(container.NewHBox(container.NewWithoutLayout(city, l.locationTZLabel), layout.NewSpacer(), l.dots), input), nil, nil))
 
