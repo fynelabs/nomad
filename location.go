@@ -111,6 +111,7 @@ func (l *location) onTimeSelect(t string) {
 
 func (l *location) CreateRenderer() fyne.WidgetRenderer {
 	bg := canvas.NewImageFromResource(theme.FileImageIcon())
+	op := canvas.NewRectangle(color.NRGBA{0x00, 0x00, 0x00, 0x59})
 	bg.Translucency = 0.5
 	city := widget.NewRichTextFromMarkdown("# " + strings.ToUpper(l.location.name))
 	city.Move(fyne.NewPos(3, 0))
@@ -121,7 +122,7 @@ func (l *location) CreateRenderer() fyne.WidgetRenderer {
 
 	input := container.NewBorder(nil, nil, l.dateButton, l.timeButton)
 
-	c := container.NewMax(bg,
+	c := container.NewMax(bg, op,
 		container.NewBorder(nil,
 			container.NewVBox(container.NewHBox(container.NewWithoutLayout(city, l.locationTZLabel), layout.NewSpacer(), l.dots), input), nil, nil))
 
