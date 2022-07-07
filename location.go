@@ -68,22 +68,29 @@ func newLocation(loc *city, n *nomad, homeC *fyne.Container) *location {
 	l.dateButton.IconPlacement = widget.ButtonIconTrailingText
 	l.dateButton.Importance = widget.LowImportance
 
-	times := []fyne.CanvasObject{}
-	timesList := listTimes()
-	for i := 0; i < len(timesList); i++ {
-		t := timesList[i]
-		times = append(times, fyne.CanvasObject(widget.NewButton(timesList[i], func() {
-			l.onTimeSelect(t)
-			n.main.Canvas().Overlays().Top().Hide()
-		})))
-	}
-	scroller := container.NewVScroll(container.NewVBox(times...))
-	scroller.SetMinSize(fyne.NewSize(150, 250))
 	l.timeButton = widget.NewButtonWithIcon(loc.localTime.Format("15:04"), theme.MenuDropDownIcon(), func() {
 		position := fyne.CurrentApp().Driver().AbsolutePositionForObject(l.timeButton)
 		// match calendar popup y position
 		position.Y += 20
-		widget.ShowPopUpAtPosition(scroller, n.main.Canvas(), position)
+
+		times := listTimes()
+		menuItems := []*fyne.MenuItem{}
+		for _, t := range times {
+			v := t
+			menuItems = append(menuItems, fyne.NewMenuItem(t, func() {
+				l.onTimeSelect(v)
+				//n.main.Canvas().Overlays().Top().Hide()
+			}))
+		}
+		timeMenu := fyne.NewMenu("Times", menuItems...)
+		// pp := widget.NewPopUpMenu(timeMenu, n.main.Canvas())
+		pp := widget.NewMenu(timeMenu)
+		// pp.Resize(fyne.NewSize(100, 20))
+		c := container.New(&sizedMenu{}, pp)
+		// c.Resize(fyne.NewSize(100, 20))
+
+		widget.ShowPopUpAtPosition(c, n.main.Canvas(), position)
+
 	})
 	l.timeButton.Alignment = widget.ButtonAlignLeading
 	l.timeButton.IconPlacement = widget.ButtonIconTrailingText
