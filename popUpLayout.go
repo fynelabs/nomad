@@ -6,7 +6,7 @@ import (
 	"fyne.io/fyne/v2/widget"
 )
 
-const sizedMenuWidth = 150
+const sizedMenuWidth = 120
 
 type sizedMenu struct {
 	*widget.Menu

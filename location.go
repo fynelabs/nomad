@@ -80,7 +80,7 @@ func newLocation(loc *city, n *nomad, homeC *fyne.Container) *location {
 		menuItems := []*fyne.MenuItem{}
 		for _, t := range times {
 			v := t
-			menuItems = append(menuItems, fyne.NewMenuItem(t, func() {
+			menuItems = append(menuItems, fyne.NewMenuItem("         "+t, func() {
 				l.onTimeSelect(v)
 				n.main.Canvas().Overlays().Top().Hide()
 			}))
