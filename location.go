@@ -64,7 +64,9 @@ func newLocation(loc *city, n *nomad, homeC *fyne.Container) *location {
 		fyne.NewMenuItem("Delete Place", func() { l.remove(homeC, n) }),
 		fyne.NewMenuItem("Photo info", func() {
 			c := fyne.CurrentApp().Driver().CanvasForObject(l.button)
-			c.Overlays().Add(loc.newInfoScreen(c))
+			info := loc.newInfoScreen(c)
+			info.Resize(c.Size())
+			c.Overlays().Add(info)
 		}))
 
 	l.button = widget.NewButtonWithIcon("", theme.MoreHorizontalIcon(), func() {

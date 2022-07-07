@@ -232,11 +232,9 @@ func (city city) newInfoScreen(c fyne.Canvas) fyne.CanvasObject {
 
 	linkImage := widget.NewHyperlink("View on unsplash", city.unsplash.photoWebsite)
 
-	overlay := container.NewMax(canvas.NewRectangle(&color.NRGBA{0x18, 0x0C, 0x27, 0xFF}))
-
 	bg := canvas.NewImageFromResource(theme.FileImageIcon())
-	bg.SetMinSize(c.Size())
-	overlay.Add(bg)
+	bg.FillMode = canvas.ImageFillContain
+	overlay := container.NewMax(canvas.NewRectangle(&color.NRGBA{0x18, 0x0C, 0x27, 0xFF}), bg)
 
 	go func() {
 		if city.unsplash.full == nil {
@@ -249,12 +247,8 @@ func (city city) newInfoScreen(c fyne.Canvas) fyne.CanvasObject {
 		}
 		defer httpResponse.Body.Close()
 
-		croppedImage := cropImage(httpResponse.Body)
-
-		overlay.Objects[1] = croppedImage
-		//defaults to 0.15 translucency
-		overlay.Objects[1].(*canvas.Raster).Translucency = 0
-
+		overlay.Objects[1] = cropImage(httpResponse.Body)
+		overlay.Refresh()
 	}()
 
 	exitButton := widget.NewButtonWithIcon("", theme.CancelIcon(), func() {
