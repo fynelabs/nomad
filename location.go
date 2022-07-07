@@ -62,7 +62,9 @@ func newLocation(loc *city, n *nomad, homeC *fyne.Container) *location {
 	})
 
 	l.dateButton = widget.NewButtonWithIcon(l.calendar.fullDate(), theme.MenuDropDownIcon(), func() {
-		l.calendar.showAtPos(n.main.Canvas(), fyne.NewPos(0, l.Size().Height))
+		position := fyne.CurrentApp().Driver().AbsolutePositionForObject(l.dateButton)
+		position.Y += l.button.Size().Height
+		l.calendar.showAtPos(n.main.Canvas(), position)
 	})
 	l.dateButton.Alignment = widget.ButtonAlignLeading
 	l.dateButton.IconPlacement = widget.ButtonIconTrailingText
@@ -71,7 +73,7 @@ func newLocation(loc *city, n *nomad, homeC *fyne.Container) *location {
 	l.timeButton = widget.NewButtonWithIcon(loc.localTime.Format("15:04"), theme.MenuDropDownIcon(), func() {
 		position := fyne.CurrentApp().Driver().AbsolutePositionForObject(l.timeButton)
 		// match calendar popup y position
-		position.Y += 20
+		position.Y += l.timeButton.Size().Height
 
 		times := listTimes()
 		menuItems := []*fyne.MenuItem{}
