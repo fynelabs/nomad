@@ -79,16 +79,12 @@ func newLocation(loc *city, n *nomad, homeC *fyne.Container) *location {
 			v := t
 			menuItems = append(menuItems, fyne.NewMenuItem(t, func() {
 				l.onTimeSelect(v)
-				//n.main.Canvas().Overlays().Top().Hide()
+				n.main.Canvas().Overlays().Top().Hide()
 			}))
 		}
 		timeMenu := fyne.NewMenu("Times", menuItems...)
-		// pp := widget.NewPopUpMenu(timeMenu, n.main.Canvas())
 		pp := widget.NewMenu(timeMenu)
-		// pp.Resize(fyne.NewSize(100, 20))
 		c := container.New(&sizedMenu{}, pp)
-		// c.Resize(fyne.NewSize(100, 20))
-
 		widget.ShowPopUpAtPosition(c, n.main.Canvas(), position)
 
 	})
