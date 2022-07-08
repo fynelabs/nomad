@@ -72,7 +72,6 @@ func newLocation(loc *city, n *nomad, homeC *fyne.Container) *location {
 
 	l.timeButton = widget.NewButtonWithIcon(loc.localTime.Format("15:04"), theme.MenuDropDownIcon(), func() {
 		position := fyne.CurrentApp().Driver().AbsolutePositionForObject(l.timeButton)
-		// match calendar popup y position
 		position.Y += l.timeButton.Size().Height
 		position.X += l.timeButton.Size().Width - sizedMenuWidth - theme.Padding()*2
 
@@ -85,9 +84,9 @@ func newLocation(loc *city, n *nomad, homeC *fyne.Container) *location {
 				n.main.Canvas().Overlays().Top().Hide()
 			}))
 		}
-		timeMenu := fyne.NewMenu("Times", menuItems...)
-		pp := NewShortMenu(timeMenu)
-		widget.ShowPopUpAtPosition(pp, n.main.Canvas(), position)
+		t := fyne.NewMenu("Times", menuItems...)
+		m := NewShortMenu(t)
+		widget.ShowPopUpAtPosition(m, n.main.Canvas(), position)
 
 	})
 	l.timeButton.Alignment = widget.ButtonAlignLeading
