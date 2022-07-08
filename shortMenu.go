@@ -8,21 +8,25 @@ import (
 
 const sizedMenuWidth = 104
 
-type sizedMenu struct {
+// SizedMenu extends widget.Menu
+type SizedMenu struct {
 	*widget.Menu
 }
 
-func NewShortMenu(m *fyne.Menu) *sizedMenu {
-	wid := &sizedMenu{widget.NewMenu(m)}
+// NewShortMenu creates a sized menu
+func NewShortMenu(m *fyne.Menu) *SizedMenu {
+	wid := &SizedMenu{widget.NewMenu(m)}
 	wid.ExtendBaseWidget(wid)
 	return wid
 }
 
-func (s *sizedMenu) MinSize() fyne.Size {
+// MinSize defines the minimum size of this menu
+func (s *SizedMenu) MinSize() fyne.Size {
 	return fyne.NewSize(sizedMenuWidth, minHeight+cellSpace-theme.Padding()*2)
 }
 
-func (s *sizedMenu) CreateRenderer() fyne.WidgetRenderer {
+// CreateRenderer applies the custom layout
+func (s *SizedMenu) CreateRenderer() fyne.WidgetRenderer {
 	r := s.Menu.CreateRenderer()
 	return &sizedMenuRenderer{r}
 }
@@ -31,6 +35,7 @@ type sizedMenuRenderer struct {
 	fyne.WidgetRenderer
 }
 
+// Layout sets size and position
 func (r *sizedMenuRenderer) Layout(_ fyne.Size) {
 	pos := fyne.NewPos(-theme.Padding(), -theme.Padding())
 	size := fyne.NewSize(sizedMenuWidth+theme.Padding()*2, minHeight+cellSpace)
