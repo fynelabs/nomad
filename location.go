@@ -73,6 +73,7 @@ func newLocation(loc *city, n *nomad, homeC *fyne.Container) *location {
 	l.timeButton = widget.NewButtonWithIcon(loc.localTime.Format("15:04"), theme.MenuDropDownIcon(), func() {
 		position := fyne.CurrentApp().Driver().AbsolutePositionForObject(l.timeButton)
 		position.Y += l.timeButton.Size().Height
+		sizedMenuWidth := float32(104)
 		position.X += l.timeButton.Size().Width - sizedMenuWidth - theme.Padding()*2
 
 		times := listTimes()
@@ -85,7 +86,7 @@ func newLocation(loc *city, n *nomad, homeC *fyne.Container) *location {
 			}))
 		}
 		t := fyne.NewMenu("Times", menuItems...)
-		m := NewShortMenu(t)
+		m := NewSizedMenu(t, fyne.NewSize(sizedMenuWidth+theme.Padding()*2, minHeight))
 		widget.ShowPopUpAtPosition(m, n.main.Canvas(), position)
 
 	})
