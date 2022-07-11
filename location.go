@@ -23,11 +23,11 @@ type location struct {
 	location *city
 	session  *unsplashSession
 
-	time   *widget.SelectEntry
 	button *widget.Button
 	dots   *fyne.Container
 
 	dateButton      *widget.Button
+	timeButton      *widget.Button
 	locationTZLabel *canvas.Text
 
 	calendar      *calendar
@@ -38,27 +38,6 @@ func newLocation(loc *city, n *nomad, homeC *fyne.Container) *location {
 
 	l := &location{location: loc, session: n.session, homeContainer: homeC}
 	l.ExtendBaseWidget(l)
-
-	l.time = widget.NewSelectEntry(listTimes())
-	l.time.PlaceHolder = "22:00" // longest
-	l.time.Wrapping = fyne.TextWrapOff
-	l.time.SetText(loc.localTime.Format("15:04"))
-	l.time.OnChanged = func(s string) {
-		var hour, minute int
-		if s == "Now" {
-			globalAppTime = time.Now()
-			hour = time.Now().Hour()
-			minute = time.Now().Minute()
-			currentTimeSelected = true
-		} else {
-			fmt.Sscanf(s, "%d:%d", &hour, &minute)
-			currentTimeSelected = false
-		}
-		localOld := globalAppTime.In(l.location.localTime.Location())
-		selectedDate := time.Date(localOld.Year(), localOld.Month(), localOld.Day(), hour, minute, 0, 0, l.location.localTime.Location())
-
-		setDate(selectedDate, l.homeContainer.Objects)
-	}
 
 	menu := fyne.NewMenu("",
 		fyne.NewMenuItem("Delete Place", func() { l.remove(homeC, n) }),
@@ -85,13 +64,56 @@ func newLocation(loc *city, n *nomad, homeC *fyne.Container) *location {
 	})
 
 	l.dateButton = widget.NewButtonWithIcon(l.calendar.fullDate(), theme.MenuDropDownIcon(), func() {
-		l.calendar.showAtPos(n.main.Canvas(), fyne.NewPos(0, l.Size().Height))
+		position := fyne.CurrentApp().Driver().AbsolutePositionForObject(l.dateButton)
+		position.Y += l.button.Size().Height
+		l.calendar.showAtPos(n.main.Canvas(), position)
 	})
 	l.dateButton.Alignment = widget.ButtonAlignLeading
 	l.dateButton.IconPlacement = widget.ButtonIconTrailingText
 	l.dateButton.Importance = widget.LowImportance
 
+	l.timeButton = widget.NewButtonWithIcon(loc.localTime.Format("15:04"), theme.MenuDropDownIcon(), func() {
+		position := fyne.CurrentApp().Driver().AbsolutePositionForObject(l.timeButton)
+		position.Y += l.timeButton.Size().Height
+		sizedMenuWidth := float32(104)
+		position.X += l.timeButton.Size().Width - sizedMenuWidth - theme.Padding()*2
+
+		times := listTimes()
+		menuItems := []*fyne.MenuItem{}
+		for _, t := range times {
+			v := t
+			menuItems = append(menuItems, fyne.NewMenuItem("       "+t, func() {
+				l.onTimeSelect(v)
+				n.main.Canvas().Overlays().Top().Hide()
+			}))
+		}
+		t := fyne.NewMenu("Times", menuItems...)
+		m := NewSizedMenu(t, fyne.NewSize(sizedMenuWidth+theme.Padding()*2, minHeight))
+		widget.ShowPopUpAtPosition(m, n.main.Canvas(), position)
+
+	})
+	l.timeButton.Alignment = widget.ButtonAlignLeading
+	l.timeButton.IconPlacement = widget.ButtonIconTrailingText
+	l.timeButton.Importance = widget.LowImportance
+
 	return l
+}
+
+func (l *location) onTimeSelect(t string) {
+	var hour, minute int
+	if t == "Now" {
+		globalAppTime = time.Now()
+		hour = time.Now().Hour()
+		minute = time.Now().Minute()
+		currentTimeSelected = true
+	} else {
+		fmt.Sscanf(t, "%d:%d", &hour, &minute)
+		currentTimeSelected = false
+	}
+	localOld := globalAppTime.In(l.location.localTime.Location())
+	selectedDate := time.Date(localOld.Year(), localOld.Month(), localOld.Day(), hour, minute, 0, 0, l.location.localTime.Location())
+
+	setDate(selectedDate, l.homeContainer.Objects)
 }
 
 func (l *location) CreateRenderer() fyne.WidgetRenderer {
@@ -104,7 +126,8 @@ func (l *location) CreateRenderer() fyne.WidgetRenderer {
 	l.locationTZLabel.TextStyle.Monospace = true
 	l.locationTZLabel.TextSize = 10
 	l.locationTZLabel.Move(fyne.NewPos(12, 40))
-	input := container.NewBorder(nil, nil, l.dateButton, l.time)
+
+	input := container.NewBorder(nil, nil, l.dateButton, l.timeButton)
 
 	c := container.NewMax(bg, op,
 		container.NewBorder(nil,
@@ -139,8 +162,8 @@ func listTimes() (times []string) {
 }
 
 func (l *location) updateLocation(locDate time.Time) {
-	l.time.Text = locDate.Format("15:04")
-	l.time.Refresh()
+	l.timeButton.Text = locDate.Format("15:04")
+	l.timeButton.Refresh()
 	l.locationTZLabel.Text = strings.ToUpper(l.location.country + " · " + locDate.Format("MST"))
 	l.locationTZLabel.Refresh()
 	l.dateButton.SetText(locDate.Format("Mon 02 Jan 2006"))

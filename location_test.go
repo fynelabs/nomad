@@ -18,7 +18,7 @@ func TestNewLocation(t *testing.T) {
 	_ = test.WidgetRenderer(l)
 
 	utc := time.Now().In(time.UTC)
-	assert.Equal(t, utc.Format("15:04"), l.time.Text)
+	assert.Equal(t, utc.Format("15:04"), l.timeButton.Text)
 	assert.True(t, strings.Contains(l.locationTZLabel.Text, " UTC"))
 }
 
@@ -34,6 +34,6 @@ func TestLocation_PickTime(t *testing.T) {
 	_ = test.WidgetRenderer(l2)
 	l.homeContainer.Objects = append(l.homeContainer.Objects, l2)
 
-	l.time.SetText("12:00")
-	assert.Equal(t, "07:00", l2.time.Text)
+	l.onTimeSelect("12:00")
+	assert.Equal(t, "07:00", l2.timeButton.Text)
 }
