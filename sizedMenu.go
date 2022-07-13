@@ -9,14 +9,14 @@ import (
 var width float32
 var height float32
 
-// SizedMenu extends widget.Menu
-type SizedMenu struct {
+// sizedMenu extends widget.Menu
+type sizedMenu struct {
 	*widget.Menu
 }
 
 // NewSizedMenu creates a sized menu
-func NewSizedMenu(m *fyne.Menu, s fyne.Size) *SizedMenu {
-	wid := &SizedMenu{widget.NewMenu(m)}
+func newSizedMenu(m *fyne.Menu, s fyne.Size) *sizedMenu {
+	wid := &sizedMenu{widget.NewMenu(m)}
 	width = s.Width
 	height = s.Height
 	wid.ExtendBaseWidget(wid)
@@ -24,12 +24,12 @@ func NewSizedMenu(m *fyne.Menu, s fyne.Size) *SizedMenu {
 }
 
 // MinSize defines the minimum size of this menu
-func (s *SizedMenu) MinSize() fyne.Size {
+func (s *sizedMenu) MinSize() fyne.Size {
 	return fyne.NewSize(width, height)
 }
 
 // CreateRenderer applies the custom layout
-func (s *SizedMenu) CreateRenderer() fyne.WidgetRenderer {
+func (s *sizedMenu) CreateRenderer() fyne.WidgetRenderer {
 	r := s.Menu.CreateRenderer()
 	return &sizedMenuRenderer{r}
 }

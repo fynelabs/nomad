@@ -14,7 +14,7 @@ import (
 )
 
 // CompletionEntry is an Entry with options displayed in a PopUpMenu.
-type CompletionEntry struct {
+type completionEntry struct {
 	widget.Entry
 	popupMenu     *widget.PopUp
 	navigableList *navigableList
@@ -23,15 +23,15 @@ type CompletionEntry struct {
 	itemHeight    float32
 }
 
-// NewCompletionEntry creates a new CompletionEntry which creates a popup menu that responds to keystrokes to navigate through the items without losing the editing ability of the text input.
-func NewCompletionEntry(options []string) *CompletionEntry {
-	c := &CompletionEntry{Options: options}
+// newCompletionEntry creates a new CompletionEntry which creates a popup menu that responds to keystrokes to navigate through the items without losing the editing ability of the text input.
+func newCompletionEntry(options []string) *completionEntry {
+	c := &completionEntry{Options: options}
 	c.ExtendBaseWidget(c)
 	return c
 }
 
 // HideCompletion hides the completion menu.
-func (c *CompletionEntry) HideCompletion() {
+func (c *completionEntry) HideCompletion() {
 	if c.popupMenu != nil {
 		c.popupMenu.Hide()
 	}
@@ -40,7 +40,7 @@ func (c *CompletionEntry) HideCompletion() {
 // Move changes the relative position of the select entry.
 //
 // Implements: fyne.Widget
-func (c *CompletionEntry) Move(pos fyne.Position) {
+func (c *completionEntry) Move(pos fyne.Position) {
 	c.Entry.Move(pos)
 	if c.popupMenu != nil {
 		c.popupMenu.Resize(c.maxSize())
@@ -49,7 +49,7 @@ func (c *CompletionEntry) Move(pos fyne.Position) {
 }
 
 // Refresh the list to update the options to display.
-func (c *CompletionEntry) Refresh() {
+func (c *completionEntry) Refresh() {
 	c.Entry.Refresh()
 	if c.navigableList != nil {
 		c.navigableList.SetOptions(c.Options)
@@ -57,13 +57,13 @@ func (c *CompletionEntry) Refresh() {
 }
 
 // SetOptions set the completion list with itemList and update the view.
-func (c *CompletionEntry) SetOptions(itemList []string) {
+func (c *completionEntry) SetOptions(itemList []string) {
 	c.Options = itemList
 	c.Refresh()
 }
 
 // ShowCompletion displays the completion menu
-func (c *CompletionEntry) ShowCompletion() {
+func (c *completionEntry) ShowCompletion() {
 	if c.pause {
 		return
 	}
@@ -89,7 +89,7 @@ func (c *CompletionEntry) ShowCompletion() {
 }
 
 // calculate the max size to make the popup to cover everything below the entry
-func (c *CompletionEntry) maxSize() fyne.Size {
+func (c *completionEntry) maxSize() fyne.Size {
 	cnv := fyne.CurrentApp().Driver().CanvasForObject(c)
 
 	if c.itemHeight == 0 {
@@ -110,13 +110,13 @@ func (c *CompletionEntry) maxSize() fyne.Size {
 }
 
 // calculate where the popup should appear
-func (c *CompletionEntry) popUpPos() fyne.Position {
+func (c *completionEntry) popUpPos() fyne.Position {
 	entryPos := fyne.CurrentApp().Driver().AbsolutePositionForObject(c)
 	return entryPos.Add(fyne.NewPos(0, c.Size().Height))
 }
 
 // Prevent the menu to open when the user validate value from the menu.
-func (c *CompletionEntry) setTextFromMenu(s string) {
+func (c *completionEntry) setTextFromMenu(s string) {
 	c.pause = true
 	c.Entry.SetText(s)
 	c.Entry.CursorColumn = len([]rune(s))
