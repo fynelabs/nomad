@@ -26,9 +26,9 @@ var (
 	currentTimeSelected bool = true
 )
 
-func (n *nomad) autoCompleteEntry(homeContainer *fyne.Container) *CompletionEntry {
+func (n *nomad) autoCompleteEntry(homeContainer *fyne.Container) *completionEntry {
 
-	entry := NewCompletionEntry([]string{})
+	entry := newCompletionEntry([]string{})
 	entry.SetPlaceHolder("ADD A PLACE")
 
 	entry.OnChanged = func(s string) {

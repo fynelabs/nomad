@@ -88,7 +88,7 @@ func newLocation(loc *city, n *nomad, homeC *fyne.Container) *location {
 			}))
 		}
 		t := fyne.NewMenu("Times", menuItems...)
-		m := NewSizedMenu(t, fyne.NewSize(sizedMenuWidth+theme.Padding()*2, minHeight))
+		m := newSizedMenu(t, fyne.NewSize(sizedMenuWidth+theme.Padding()*2, minHeight))
 		widget.ShowPopUpAtPosition(m, n.main.Canvas(), position)
 
 	})
