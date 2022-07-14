@@ -69,6 +69,10 @@ func (n *nomad) autoCompleteEntry(homeContainer *fyne.Container) *xWidget.Comple
 	entry.SetPlaceHolder("ADD A PLACE")
 
 	entry.OnChanged = func(s string) {
+		if strings.Contains(s, "--") {
+			entry.OnSubmitted(s)
+			return
+		}
 		entry.Entry.SetText(strings.ToUpper(entry.Entry.Text))
 
 		// completion start for text length >= 2 Some cities have two letter names
