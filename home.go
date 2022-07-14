@@ -9,9 +9,9 @@
 package main
 
 import (
-	"errors"
 	"fmt"
 	"image/color"
+	"strconv"
 	"strings"
 	"time"
 
@@ -32,8 +32,10 @@ var (
 )
 
 func (n *nomad) autoCompleteEntry(homeContainer *fyne.Container) *xWidget.CompletionEntry {
-
+	results := []cities.City{}
 	entry := xWidget.NewCompletionEntry([]string{})
+	entry.SetPlaceHolder("ADD A PLACE")
+
 	entry.CustomCreate = func() fyne.CanvasObject {
 		city := widget.NewRichTextFromMarkdown("City Lowercase")
 		city.Move(fyne.NewPos(0, 0))
@@ -48,29 +50,31 @@ func (n *nomad) autoCompleteEntry(homeContainer *fyne.Container) *xWidget.Comple
 	}
 	entry.CustomUpdate = func(i widget.ListItemID, o fyne.CanvasObject) {
 		//bug catch
-		if i > len(entry.Options)-1 {
+		if i > len(results)-1 {
 			fmt.Println("Crashes if not caught here")
 			return
 		}
 
-		//would be nice to pass city struct in here instead of splitting a string
-		c := o.(*fyne.Container)
-		split := strings.Split(entry.Options[i], "--")
+		r := results[i]
+		timezone := timezonemapper.LatLngToTimezoneString(r.Latitude, r.Longitude)
 
+		c := o.(*fyne.Container)
 		city := c.Objects[0].(*widget.RichText)
-		city.ParseMarkdown(split[0])
+		city.ParseMarkdown(r.City)
 
 		countryAndTZ := c.Objects[1].(*fyne.Container).Objects[0].(*canvas.Text)
-		z, _ := time.LoadLocation(split[2])
+		z, _ := time.LoadLocation(timezone)
 		t := time.Now().In(z)
-		countryAndTZ.Text = (strings.ToUpper(split[1]) + " · " + t.Format("MST"))
-
+		countryAndTZ.Text = (strings.ToUpper(r.Country) + " · " + t.Format("MST"))
 	}
-	entry.SetPlaceHolder("ADD A PLACE")
 
 	entry.OnChanged = func(s string) {
-		if strings.Contains(s, "--") {
-			entry.OnSubmitted(s)
+		if index, err := strconv.Atoi(s); len(s) > 0 && err == nil {
+			if index < len(results) {
+				entry.SetText("")
+
+				chooseCity(results[index], n, homeContainer)
+			}
 			return
 		}
 		entry.Entry.SetText(strings.ToUpper(entry.Entry.Text))
@@ -81,30 +85,26 @@ func (n *nomad) autoCompleteEntry(homeContainer *fyne.Container) *xWidget.Comple
 			return
 		}
 
-		results := []cities.City{}
-
+		newResults := []cities.City{}
 		for _, value := range cities.Cities {
-
 			if len(value.City) < len(s) {
 				continue
 			}
 
 			if strings.EqualFold(s, value.City[:len(s)]) {
-				results = append(results, value)
+				newResults = append(newResults, value)
 			}
 		}
 
-		if len(results) == 0 {
+		results = newResults
+		if len(newResults) == 0 {
 			entry.HideCompletion()
 			return
 		}
 
 		cardTexts := []string{}
-		for _, r := range results {
-			timezone := timezonemapper.LatLngToTimezoneString(r.Latitude, r.Longitude)
-
-			s := r.City + "--" + r.Country + "--" + timezone
-			cardTexts = append(cardTexts, s)
+		for i := range results {
+			cardTexts = append(cardTexts, strconv.Itoa(i))
 		}
 
 		// then show them
@@ -113,35 +113,36 @@ func (n *nomad) autoCompleteEntry(homeContainer *fyne.Container) *xWidget.Comple
 	}
 
 	entry.OnSubmitted = func(s string) {
-
-		//reset entry
 		entry.SetText("")
-		entry.PlaceHolder = "ADD A PLACE"
-		split := strings.Split(s, "--")
-		for i := 0; i < len(homeContainer.Objects); i++ {
-			l, ok := homeContainer.Objects[i].(*location)
-			if !ok {
-				continue
-			}
-			if l.location.name == split[0] && l.location.country == split[1] {
-				return
-			}
+		if len(results) <= 0 {
+			return
 		}
 
-		if len(split) != 3 {
-			err1 := errors.New(s)
-			fyne.LogError("Location entry string incorrect format", err1)
-		} else {
-			zone, _ := time.LoadLocation(split[2])
-			c := newCity(split[0], split[1], photo{}, zone)
-
-			n.store.add(c)
-			l := newLocation(c, n, homeContainer)
-			homeContainer.Objects = append(homeContainer.Objects[:len(homeContainer.Objects)-1], l, homeContainer.Objects[len(homeContainer.Objects)-1])
-		}
+		r := results[0]
+		chooseCity(r, n, homeContainer)
 	}
 
 	return entry
+}
+
+func chooseCity(chosen cities.City, n *nomad, homeContainer *fyne.Container) {
+	for i := 0; i < len(homeContainer.Objects); i++ {
+		l, ok := homeContainer.Objects[i].(*location)
+		if !ok {
+			continue
+		}
+		if l.location.name == chosen.City && l.location.country == chosen.Country {
+			return
+		}
+	}
+
+	timezone := timezonemapper.LatLngToTimezoneString(chosen.Latitude, chosen.Longitude)
+	zone, _ := time.LoadLocation(timezone)
+	c := newCity(chosen.City, chosen.Country, photo{}, zone)
+
+	n.store.add(c)
+	l := newLocation(c, n, homeContainer)
+	homeContainer.Objects = append(homeContainer.Objects[:len(homeContainer.Objects)-1], l, homeContainer.Objects[len(homeContainer.Objects)-1])
 }
 
 func setDate(dateToSet time.Time, containerObjects []fyne.CanvasObject) {
