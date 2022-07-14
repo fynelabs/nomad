@@ -10,13 +10,18 @@ package main
 
 import (
 	"errors"
+	"fmt"
+	"image/color"
 	"strings"
 	"time"
 
 	"fyne.io/fyne/v2"
+	"fyne.io/fyne/v2/canvas"
 	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/theme"
 	"fyne.io/fyne/v2/widget"
+
+	xWidget "fyne.io/x/fyne/widget"
 	"github.com/tidwall/cities"
 	"github.com/zsefvlol/timezonemapper"
 )
@@ -26,9 +31,41 @@ var (
 	currentTimeSelected bool = true
 )
 
-func (n *nomad) autoCompleteEntry(homeContainer *fyne.Container) *completionEntry {
+func (n *nomad) autoCompleteEntry(homeContainer *fyne.Container) *xWidget.CompletionEntry {
 
-	entry := newCompletionEntry([]string{})
+	entry := xWidget.NewCompletionEntry([]string{})
+	entry.CustomCreate = func() fyne.CanvasObject {
+		city := widget.NewRichTextFromMarkdown("City Lowercase")
+		city.Move(fyne.NewPos(0, 0))
+
+		location := canvas.NewText("COUNTRY - BST", color.NRGBA{0xFF, 0xFF, 0xFF, 0xBF})
+		location.TextStyle.Monospace = true
+		location.TextSize = 10
+		location.Move(fyne.NewPos(theme.Padding()*2, -theme.Padding()*2))
+
+		return container.NewVBox(city, container.NewWithoutLayout(location))
+
+	}
+	entry.CustomUpdate = func(i widget.ListItemID, o fyne.CanvasObject) {
+		//bug catch
+		if i > len(entry.Options)-1 {
+			fmt.Println("Crashes if not caught here")
+			return
+		}
+
+		//would be nice to pass city struct in here instead of splitting a string
+		c := o.(*fyne.Container)
+		split := strings.Split(entry.Options[i], "--")
+
+		city := c.Objects[0].(*widget.RichText)
+		city.ParseMarkdown(split[0])
+
+		countryAndTZ := c.Objects[1].(*fyne.Container).Objects[0].(*canvas.Text)
+		z, _ := time.LoadLocation(split[2])
+		t := time.Now().In(z)
+		countryAndTZ.Text = (strings.ToUpper(split[1]) + " · " + t.Format("MST"))
+
+	}
 	entry.SetPlaceHolder("ADD A PLACE")
 
 	entry.OnChanged = func(s string) {
