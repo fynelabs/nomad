@@ -9,14 +9,19 @@
 package main
 
 import (
-	"errors"
+	"fmt"
+	"image/color"
+	"strconv"
 	"strings"
 	"time"
 
 	"fyne.io/fyne/v2"
+	"fyne.io/fyne/v2/canvas"
 	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/theme"
 	"fyne.io/fyne/v2/widget"
+
+	xWidget "fyne.io/x/fyne/widget"
 	"github.com/tidwall/cities"
 	"github.com/zsefvlol/timezonemapper"
 )
@@ -26,12 +31,52 @@ var (
 	currentTimeSelected bool = true
 )
 
-func (n *nomad) autoCompleteEntry(homeContainer *fyne.Container) *completionEntry {
-
-	entry := newCompletionEntry([]string{})
+func (n *nomad) autoCompleteEntry(homeContainer *fyne.Container) *xWidget.CompletionEntry {
+	results := []cities.City{}
+	entry := xWidget.NewCompletionEntry([]string{})
 	entry.SetPlaceHolder("ADD A PLACE")
 
+	entry.CustomCreate = func() fyne.CanvasObject {
+		city := widget.NewRichTextFromMarkdown("City Lowercase")
+		city.Move(fyne.NewPos(0, 0))
+
+		location := canvas.NewText("COUNTRY - BST", color.NRGBA{0xFF, 0xFF, 0xFF, 0xBF})
+		location.TextStyle.Monospace = true
+		location.TextSize = 10
+		location.Move(fyne.NewPos(theme.Padding()*2, -theme.Padding()*2))
+
+		return container.NewVBox(city, container.NewWithoutLayout(location))
+
+	}
+	entry.CustomUpdate = func(i widget.ListItemID, o fyne.CanvasObject) {
+		//bug catch
+		if i > len(results)-1 {
+			fmt.Println("Crashes if not caught here")
+			return
+		}
+
+		r := results[i]
+		timezone := timezonemapper.LatLngToTimezoneString(r.Latitude, r.Longitude)
+
+		c := o.(*fyne.Container)
+		city := c.Objects[0].(*widget.RichText)
+		city.ParseMarkdown(r.City)
+
+		countryAndTZ := c.Objects[1].(*fyne.Container).Objects[0].(*canvas.Text)
+		z, _ := time.LoadLocation(timezone)
+		t := time.Now().In(z)
+		countryAndTZ.Text = (strings.ToUpper(r.Country) + " · " + t.Format("MST"))
+	}
+
 	entry.OnChanged = func(s string) {
+		if index, err := strconv.Atoi(s); len(s) > 0 && err == nil {
+			if index < len(results) {
+				entry.SetText("")
+
+				chooseCity(results[index], n, homeContainer)
+			}
+			return
+		}
 		entry.Entry.SetText(strings.ToUpper(entry.Entry.Text))
 
 		// completion start for text length >= 2 Some cities have two letter names
@@ -40,30 +85,26 @@ func (n *nomad) autoCompleteEntry(homeContainer *fyne.Container) *completionEntr
 			return
 		}
 
-		results := []cities.City{}
-
+		newResults := []cities.City{}
 		for _, value := range cities.Cities {
-
 			if len(value.City) < len(s) {
 				continue
 			}
 
 			if strings.EqualFold(s, value.City[:len(s)]) {
-				results = append(results, value)
+				newResults = append(newResults, value)
 			}
 		}
 
-		if len(results) == 0 {
+		results = newResults
+		if len(newResults) == 0 {
 			entry.HideCompletion()
 			return
 		}
 
 		cardTexts := []string{}
-		for _, r := range results {
-			timezone := timezonemapper.LatLngToTimezoneString(r.Latitude, r.Longitude)
-
-			s := r.City + "--" + r.Country + "--" + timezone
-			cardTexts = append(cardTexts, s)
+		for i := range results {
+			cardTexts = append(cardTexts, strconv.Itoa(i))
 		}
 
 		// then show them
@@ -72,35 +113,36 @@ func (n *nomad) autoCompleteEntry(homeContainer *fyne.Container) *completionEntr
 	}
 
 	entry.OnSubmitted = func(s string) {
-
-		//reset entry
 		entry.SetText("")
-		entry.PlaceHolder = "ADD A PLACE"
-		split := strings.Split(s, "--")
-		for i := 0; i < len(homeContainer.Objects); i++ {
-			l, ok := homeContainer.Objects[i].(*location)
-			if !ok {
-				continue
-			}
-			if l.location.name == split[0] && l.location.country == split[1] {
-				return
-			}
+		if len(results) <= 0 {
+			return
 		}
 
-		if len(split) != 3 {
-			err1 := errors.New(s)
-			fyne.LogError("Location entry string incorrect format", err1)
-		} else {
-			zone, _ := time.LoadLocation(split[2])
-			c := newCity(split[0], split[1], photo{}, zone)
-
-			n.store.add(c)
-			l := newLocation(c, n, homeContainer)
-			homeContainer.Objects = append(homeContainer.Objects[:len(homeContainer.Objects)-1], l, homeContainer.Objects[len(homeContainer.Objects)-1])
-		}
+		r := results[0]
+		chooseCity(r, n, homeContainer)
 	}
 
 	return entry
+}
+
+func chooseCity(chosen cities.City, n *nomad, homeContainer *fyne.Container) {
+	for i := 0; i < len(homeContainer.Objects); i++ {
+		l, ok := homeContainer.Objects[i].(*location)
+		if !ok {
+			continue
+		}
+		if l.location.name == chosen.City && l.location.country == chosen.Country {
+			return
+		}
+	}
+
+	timezone := timezonemapper.LatLngToTimezoneString(chosen.Latitude, chosen.Longitude)
+	zone, _ := time.LoadLocation(timezone)
+	c := newCity(chosen.City, chosen.Country, photo{}, zone)
+
+	n.store.add(c)
+	l := newLocation(c, n, homeContainer)
+	homeContainer.Objects = append(homeContainer.Objects[:len(homeContainer.Objects)-1], l, homeContainer.Objects[len(homeContainer.Objects)-1])
 }
 
 func setDate(dateToSet time.Time, containerObjects []fyne.CanvasObject) {
