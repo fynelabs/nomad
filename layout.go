@@ -53,7 +53,7 @@ func (l *nomadLayout) MinSize(cells []fyne.CanvasObject) fyne.Size {
 		return fyne.NewSize(minWidth, height)
 	}
 
-	return fyne.NewSize(minWidth, height+cellSpace*2)
+	return fyne.NewSize(minWidth, height+cellSpace*16)
 }
 
 func (l *nomadLayout) minOuterSize() fyne.Size {
