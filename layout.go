@@ -48,7 +48,7 @@ func (l *nomadLayout) MinSize(cells []fyne.CanvasObject) fyne.Size {
 		cols = 1
 	}
 	rows := int(math.Ceil(float64(len(cells)) / float64(l.cols)))
-	height := float32((minHeight+cellSpace)*float32(rows) - cellSpace)
+	height := float32((minHeight+cellSpace*4)*float32(rows) - cellSpace)
 	if fyne.CurrentDevice().IsMobile() {
 		return fyne.NewSize(minWidth, height)
 	}
