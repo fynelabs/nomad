@@ -64,7 +64,7 @@ func setupSystrayMenu(a desktop.App, w fyne.Window, store *cityStore) {
 	for i, item := range store.list {
 		locDate := time.Now().In(item.localTime.Location())
 		local := locDate.Format("15:04")
-		label := item.name + ": " + local
+		label := local + "\t" + item.name
 
 		localTime := fyne.NewMenuItem(label, nil)
 		localTime.Disabled = true
