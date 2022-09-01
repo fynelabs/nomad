@@ -33,9 +33,7 @@ func main() {
 	w.SetIcon(resourceIconPng)
 
 	if deskApp, ok := a.(desktop.App); ok {
-		w.SetCloseIntercept(func() {
-			w.Hide() // don't close the window if system tray used
-		})
+		w.SetCloseIntercept(w.Hide) // don't close the window if system tray used
 
 		setupSystray(deskApp, w, store)
 	}
@@ -56,9 +54,7 @@ func setupSystray(a desktop.App, w fyne.Window, store *cityStore) {
 
 func setupSystrayMenu(a desktop.App, w fyne.Window, store *cityStore) {
 	times := make([]*fyne.MenuItem, len(store.list)+2)
-	times[0] = fyne.NewMenuItem("Show Nomad", func() {
-		w.Show()
-	})
+	times[0] = fyne.NewMenuItem("Show Nomad", w.Show)
 	times[1] = fyne.NewMenuItemSeparator()
 
 	for i, item := range store.list {
