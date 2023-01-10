@@ -11,7 +11,7 @@ type myTheme struct{}
 
 func (m myTheme) Color(name fyne.ThemeColorName, variant fyne.ThemeVariant) color.Color {
 	switch name {
-	case theme.ColorNameBackground:
+	case theme.ColorNameBackground, theme.ColorNameMenuBackground, theme.ColorNameOverlayBackground:
 		return color.NRGBA{0x18, 0x0C, 0x27, 0xFF}
 	case theme.ColorNameForeground:
 		return color.White
