@@ -143,6 +143,7 @@ func chooseCity(chosen cities.City, n *nomad, homeContainer *fyne.Container) {
 	n.store.add(c)
 	l := newLocation(c, n, homeContainer)
 	homeContainer.Objects = append(homeContainer.Objects[:len(homeContainer.Objects)-1], l, homeContainer.Objects[len(homeContainer.Objects)-1])
+	l.updateMenu()
 }
 
 func setDate(dateToSet time.Time, containerObjects []fyne.CanvasObject) {
