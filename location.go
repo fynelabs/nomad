@@ -9,6 +9,7 @@ import (
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/canvas"
 	"fyne.io/fyne/v2/container"
+	"fyne.io/fyne/v2/driver/desktop"
 	"fyne.io/fyne/v2/layout"
 	"fyne.io/fyne/v2/theme"
 	"fyne.io/fyne/v2/widget"
@@ -22,6 +23,7 @@ type location struct {
 	widget.BaseWidget
 	location *city
 	session  *unsplashSession
+	app      *nomad
 
 	button *widget.Button
 	dots   *fyne.Container
@@ -36,11 +38,11 @@ type location struct {
 
 func newLocation(loc *city, n *nomad, homeC *fyne.Container) *location {
 
-	l := &location{location: loc, session: n.session, homeContainer: homeC}
+	l := &location{location: loc, session: n.session, app: n, homeContainer: homeC}
 	l.ExtendBaseWidget(l)
 
 	menu := fyne.NewMenu("",
-		fyne.NewMenuItem("Delete Place", func() { l.remove(homeC, n) }),
+		fyne.NewMenuItem("Delete Place", func() { l.remove(homeC) }),
 		fyne.NewMenuItem("Photo info", func() {
 			c := fyne.CurrentApp().Driver().CanvasForObject(l.button)
 			info := loc.newInfoScreen(c)
@@ -169,14 +171,15 @@ func (l *location) updateLocation(locDate time.Time) {
 	l.dateButton.SetText(locDate.Format("Mon 02 Jan 2006"))
 }
 
-func (l *location) remove(homeContainer *fyne.Container, n *nomad) {
-	for i := 0; i < len(n.store.list); i++ {
-		if l.location == n.store.list[i] {
+func (l *location) remove(homeContainer *fyne.Container) {
+	for i := 0; i < len(l.app.store.list); i++ {
+		if l.location == l.app.store.list[i] {
 
-			n.store.remove(i)
+			l.app.store.remove(i)
 			l.removeLocationFromContainer(homeContainer)
 
 			l.session.removeImageFromCache(l)
+			l.updateMenu()
 
 			break
 		}
@@ -189,5 +192,11 @@ func (l *location) removeLocationFromContainer(homeContainer *fyne.Container) {
 			homeContainer.Remove(homeContainer.Objects[j])
 			break
 		}
+	}
+}
+
+func (l *location) updateMenu() {
+	if deskApp, ok := fyne.CurrentApp().(desktop.App); ok {
+		setupSystrayMenu(deskApp, l.app.main, l.app.store)
 	}
 }
