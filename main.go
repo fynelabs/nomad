@@ -27,7 +27,7 @@ func main() {
 	a.Settings().SetTheme(&myTheme{})
 
 	splash := makeSplash()
-	w.SetContent(container.NewMax(ui.makeHome(), splash))
+	w.SetContent(container.NewStack(ui.makeHome(), splash))
 	w.SetPadded(false)
 	w.Resize(fyne.NewSize(300, 500))
 	w.SetIcon(resourceIconPng)
