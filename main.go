@@ -53,7 +53,7 @@ func setupSystray(a desktop.App, w fyne.Window, store *cityStore) {
 }
 
 func setupSystrayMenu(a desktop.App, w fyne.Window, store *cityStore) {
-	times := make([]*fyne.MenuItem, len(store.list)+2)
+	times := make([]*fyne.MenuItem, len(store.list)+4)
 	times[0] = fyne.NewMenuItem("Show Nomad", w.Show)
 	times[1] = fyne.NewMenuItemSeparator()
 
@@ -66,6 +66,10 @@ func setupSystrayMenu(a desktop.App, w fyne.Window, store *cityStore) {
 		localTime.Disabled = true
 		times[i+2] = localTime
 	}
+
+	end := len(store.list) + 2
+	times[end] = fyne.NewMenuItemSeparator()
+	times[end+1] = fyne.NewMenuItem("Quit", fyne.CurrentApp().Quit)
 
 	a.SetSystemTrayMenu(fyne.NewMenu("Times", times...))
 }
