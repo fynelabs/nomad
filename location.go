@@ -32,7 +32,7 @@ type location struct {
 	timeButton      *widget.Button
 	locationTZLabel *canvas.Text
 
-	calendar      *calendar
+	calendar      *widget.Calendar
 	homeContainer *fyne.Container
 }
 
@@ -60,15 +60,16 @@ func newLocation(loc *city, n *nomad, homeC *fyne.Container) *location {
 
 	l.dots = container.NewVBox(layout.NewSpacer(), l.button)
 
-	l.calendar = newCalendar(loc.localTime, func(t time.Time) {
+	l.calendar = widget.NewCalendar(loc.localTime, func(t time.Time) {
 		currentTimeSelected = false
 		setDate(t, l.homeContainer.Objects)
 	})
 
-	l.dateButton = widget.NewButtonWithIcon(l.calendar.fullDate(), theme.MenuDropDownIcon(), func() {
+	l.dateButton = widget.NewButtonWithIcon(loc.localTime.Format("Mon 02 Jan 2006"), theme.MenuDropDownIcon(), func() {
 		position := fyne.CurrentApp().Driver().AbsolutePositionForObject(l.dateButton)
 		position.Y += l.button.Size().Height
-		l.calendar.showAtPos(n.main.Canvas(), position)
+
+		widget.ShowPopUpAtPosition(l.calendar, n.main.Canvas(), position)
 	})
 	l.dateButton.Alignment = widget.ButtonAlignLeading
 	l.dateButton.IconPlacement = widget.ButtonIconTrailingText
