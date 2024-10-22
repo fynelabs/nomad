@@ -1,4 +1,5 @@
 [Details]
   Name = "Nomad"
   ID = "com.fynelabs.nomad"
-  Build = 1
+  Version = "0.2.1"
+  Build = 35
