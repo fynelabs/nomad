@@ -42,18 +42,18 @@ func (l *nomadLayout) Layout(objs []fyne.CanvasObject, s fyne.Size) {
 }
 
 func (l *nomadLayout) MinSize(cells []fyne.CanvasObject) fyne.Size {
-	// we calculate how much is required to scroll to fit in all of the cells
+	// we calculate how much is required to scroll to fit in all the cells
 	cols := l.cols
-	if cols < 1 { // possibly not layed out yet
+	if cols < 1 { // possibly not laid out yet
 		cols = 1
 	}
-	rows := int(math.Ceil(float64(len(cells)) / float64(l.cols)))
-	height := float32((minHeight+cellSpace*4)*float32(rows) - cellSpace)
-	if fyne.CurrentDevice().IsMobile() {
-		return fyne.NewSize(minWidth, height)
-	}
 
-	return fyne.NewSize(minWidth, height+cellSpace*2)
+	rows := int(math.Floor(float64(len(cells)) / float64(l.cols)))
+	if fyne.CurrentDevice().IsMobile() {
+		rows++
+	}
+	height := (minHeight + cellSpace) * float32(rows)
+	return fyne.NewSize(minWidth, height+cellSpace)
 }
 
 func (l *nomadLayout) minOuterSize() fyne.Size {

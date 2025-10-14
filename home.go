@@ -160,21 +160,18 @@ func setDate(dateToSet time.Time, containerObjects []fyne.CanvasObject) {
 }
 
 func (n *nomad) makeAddCell(homeContainer *fyne.Container) fyne.CanvasObject {
-
 	add := widget.NewIcon(theme.NewPrimaryThemedResource(resourcePlusCircleSvg))
 	search := n.autoCompleteEntry(homeContainer)
 
-	content := container.NewBorder(container.NewBorder(nil, nil, add, nil, search),
-		nil, nil, nil)
-
-	return container.NewPadded(content)
+	content := container.NewBorder(nil, nil, add, nil, search)
+	return container.NewPadded(container.NewVBox(content), newTapper(search, n.main))
 }
 
 func (n *nomad) makeHome() fyne.CanvasObject {
 	layout := &nomadLayout{}
 	homeContainer := container.New(layout)
 
-	cells := []fyne.CanvasObject{}
+	var cells []fyne.CanvasObject
 	for _, c := range n.store.list {
 		cells = append(cells, newLocation(c, n, homeContainer))
 	}
@@ -201,4 +198,37 @@ func startClockTick(containerObjects []fyne.CanvasObject) {
 			})
 		}
 	}()
+}
+
+type tapper struct {
+	widget.BaseWidget
+
+	input *xWidget.CompletionEntry
+	win   fyne.Window
+}
+
+func (t *tapper) Tapped(ev *fyne.PointEvent) {
+	scroll := t.win.Content().(*fyne.Container).Objects[0].(*container.Scroll)
+
+	//	t.win.Canvas().Focus(t.input)
+	t.input.Tapped(&fyne.PointEvent{Position: ev.Position.Subtract(t.input.Position())})
+
+	// force scrolling to the bottom in a trivial sort of way
+	go func() {
+		for i := 0; i < 5; i++ {
+			time.Sleep(25 * time.Millisecond)
+			fyne.Do(scroll.ScrollToBottom)
+		}
+	}()
+}
+
+func (t *tapper) CreateRenderer() fyne.WidgetRenderer {
+	return widget.NewSimpleRenderer(canvas.NewRectangle(color.Transparent))
+}
+
+func newTapper(entry *xWidget.CompletionEntry, win fyne.Window) fyne.Widget {
+	t := &tapper{input: entry, win: win}
+
+	t.ExtendBaseWidget(t)
+	return t
 }
