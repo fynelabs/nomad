@@ -245,8 +245,10 @@ func (city city) newInfoScreen(c fyne.Canvas) fyne.CanvasObject {
 		}
 		defer httpResponse.Body.Close()
 
-		overlay.Objects[1] = cropImage(httpResponse.Body)
-		overlay.Refresh()
+		fyne.Do(func() {
+			overlay.Objects[1] = cropImage(httpResponse.Body)
+			overlay.Refresh()
+		})
 	}()
 
 	exitButton := widget.NewButtonWithIcon("", theme.CancelIcon(), func() {

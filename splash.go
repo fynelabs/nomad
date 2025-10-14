@@ -37,9 +37,12 @@ func makeSplash() fyne.CanvasObject {
 
 func fadeSplash(obj fyne.CanvasObject) {
 	time.Sleep(time.Second * 2)
-	obj.Hide()
-	obj.Refresh()
-	gifInSplash(obj).Stop()
+
+	fyne.Do(func() {
+		obj.Hide()
+		obj.Refresh()
+		gifInSplash(obj).Stop()
+	})
 }
 
 func gifInSplash(o fyne.CanvasObject) *xWidget.AnimatedGif {

@@ -146,8 +146,10 @@ func (l *location) CreateRenderer() fyne.WidgetRenderer {
 			return
 		}
 
-		c.Objects[0] = unsplashBg
-		c.Refresh()
+		fyne.Do(func() {
+			c.Objects[0] = unsplashBg
+			c.Refresh()
+		})
 	}()
 
 	return widget.NewSimpleRenderer(c)

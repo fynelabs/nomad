@@ -44,10 +44,13 @@ func main() {
 func setupSystray(a desktop.App, w fyne.Window, store *cityStore) {
 	a.SetSystemTrayIcon(resourceIconPng)
 	setupSystrayMenu(a, w, store)
+	a.SetSystemTrayWindow(w)
 
 	go func() {
 		for range time.NewTicker(time.Minute).C {
-			setupSystrayMenu(a, w, store)
+			fyne.Do(func() {
+				setupSystrayMenu(a, w, store)
+			})
 		}
 	}()
 }
