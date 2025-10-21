@@ -18,6 +18,8 @@ import (
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/canvas"
 	"fyne.io/fyne/v2/container"
+	"fyne.io/fyne/v2/driver/desktop"
+	"fyne.io/fyne/v2/driver/mobile"
 	"fyne.io/fyne/v2/theme"
 	"fyne.io/fyne/v2/widget"
 
@@ -210,8 +212,12 @@ type tapper struct {
 func (t *tapper) Tapped(ev *fyne.PointEvent) {
 	scroll := t.win.Content().(*fyne.Container).Objects[0].(*container.Scroll)
 
-	//	t.win.Canvas().Focus(t.input)
-	t.input.Tapped(&fyne.PointEvent{Position: ev.Position.Subtract(t.input.Position())})
+	tapPos := ev.Position.Subtract(t.input.Position())
+	if fyne.CurrentDevice().IsMobile() {
+		t.input.TouchDown(&mobile.TouchEvent{PointEvent: fyne.PointEvent{Position: tapPos}})
+	} else {
+		t.input.MouseDown(&desktop.MouseEvent{PointEvent: fyne.PointEvent{Position: tapPos}})
+	}
 
 	// force scrolling to the bottom in a trivial sort of way
 	go func() {
