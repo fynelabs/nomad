@@ -5,6 +5,7 @@ go 1.19
 require (
 	fyne.io/fyne/v2 v2.7.0-rc2
 	fyne.io/x/fyne v0.0.0-20250910205345-ecc79984d005
+	github.com/fynelabs/telemetry v0.0.0-20251210104324-01ae4f8458ad
 	github.com/hbagdi/go-unsplash v0.0.0-20210330151707-a7612e80fdd5
 	github.com/oliamb/cutter v0.2.2
 	github.com/stretchr/testify v1.11.1
@@ -29,6 +30,7 @@ require (
 	github.com/godbus/dbus/v5 v5.1.0 // indirect
 	github.com/google/go-cmp v0.5.6 // indirect
 	github.com/google/go-querystring v1.1.0 // indirect
+	github.com/google/uuid v1.6.0 // indirect
 	github.com/hack-pad/go-indexeddb v0.3.2 // indirect
 	github.com/hack-pad/safejs v0.1.0 // indirect
 	github.com/jeandeaual/go-locale v0.0.0-20250612000132-0ef82f21eade // indirect

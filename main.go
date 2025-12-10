@@ -7,6 +7,8 @@ import (
 	"fyne.io/fyne/v2/app"
 	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/driver/desktop"
+
+	"github.com/fynelabs/telemetry"
 )
 
 type nomad struct {
@@ -17,6 +19,7 @@ type nomad struct {
 
 func main() {
 	a := app.NewWithID("com.fynelabs.nomad")
+	t := telemetry.Init(a, "NomadDevID")
 	w := a.NewWindow("Nomad")
 
 	store := newCityStore(a.Preferences())
@@ -38,7 +41,7 @@ func main() {
 		setupSystray(deskApp, w, store)
 	}
 	go fadeSplash(splash)
-	w.ShowAndRun()
+	t.ShowAndRun(w, a)
 }
 
 func setupSystray(a desktop.App, w fyne.Window, store *cityStore) {
